@@ -3494,7 +3494,7 @@ let practiceElsewhere=false;   // v1.4.c:ほかのタブで練習中(控えを�
   for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(k && k.startsWith("pennant") && !k.startsWith("pennantSave") && k!=="pennantPracticeSnap") del.push(k); }
   del.forEach(k=>localStorage.removeItem(k)); Object.entries(o).forEach(([k,v])=>localStorage.setItem(k,v)); localStorage.removeItem("pennantPracticeSnap"); try{ sessionStorage.removeItem("pennantPracticeOwner"); }catch(e){} }catch(e){} })();
 /* バージョン:公開のたびに末尾の英字を1つ進める(v1.0.a → … → v1.0.z → v1.1.a) */
-const APP_VERSION="v1.7.w";
+const APP_VERSION="v1.7.x";
 /* 体験版の切り替え:体験版のファイルは、この行を true にして作る(本編と同じプログラム) */
 const LITE=false, LITE_SEASONS=3;
 const DEV=false;   // v1.2.p:開発版(テスト機能がいつも出ている)。開発版を作るときは true に置き換える
@@ -3713,7 +3713,7 @@ function assignColors(teams){
 }
 function teamDot(name){
   const c=teamColorMap[name]||"#888";
-  return `<span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${c};margin-right:5px;vertical-align:middle"></span>`;
+  return `<span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${esc(c)};margin-right:5px;vertical-align:middle"></span>`;
 }
 function mainPosOf(b){ return b.mainPos || normalizePos(b.fielding); }
 function eligiblePositions(b){ return [...new Set([b.fielding, ...(b.subPos||[]), "指"])]; }
@@ -3969,7 +3969,7 @@ function addToFarm(pl,type,onDone){
   openFarmReleaseChooser();
 }
 function farmSummary(pl,type){
-  return type==="bat"? `[${pl.fielding}] ミ${gSpanP(pl,"meet")}/パ${gSpanP(pl,"power")}/走${gSpanP(pl,"speed")}` : `${pl.pos} 球速${gSpanP(pl,"velo")}/制球${gSpanP(pl,"control")}`;
+  return type==="bat"? `[${esc(pl.fielding)}] ミ${gSpanP(pl,"meet")}/パ${gSpanP(pl,"power")}/走${gSpanP(pl,"speed")}` : `${esc(pl.pos)} 球速${gSpanP(pl,"velo")}/制球${gSpanP(pl,"control")}`;
 }
 // 性格と成長の型(v1.0.u。要望書 261012 の 8):2軍・育成の一覧と、1軍と入れ替える画面に「熱血(早熟型)」のように出す
 const PERS_GROW_TYPE={"熱血":"早熟型","負けず嫌い":"努力型","勝負師":"ピーク型","プレッシャーに弱い":"遅咲き型","マイペース":"長寿型","クール":"安定型","気分屋":"波あり型","ムードメーカー":"標準型"};
@@ -4004,7 +4004,7 @@ function renderFarmView(){
   if(!farmSel){
     ensureFarm2(t);
     const section=(type,label,arr)=>`<details open><summary style="cursor:pointer;min-height:40px;display:flex;align-items:center"><b>${label}(${arr.length}人)</b></summary>`+
-      (arr.length? arr.map((pl,i)=>({pl,i})).sort((a,b)=>potentialBase(b.pl)-potentialBase(a.pl)).map(({pl,i})=>`<div class="playerRow"><span>${fcMini(pl,t.name,24)}${sigMark(pl)}${esc(pl.name)} ${pl.age}歳(${pl.background}) ${farmStatus(t,pl,type)}${isHurt(pl)? "" : ` <span class="condInline"><span class="small">調子:</span>${condSpan(pl.cond)}</span>`}${pl.farmGrowth?` <span class="small" style="color:var(--gold)">今季+${pl.farmGrowth}</span>`:""}${g2SoonHtml(pl)}<br><span class="small">${farmSummary(pl,type)}</span> ${persGrowHtml(pl)}${fmRowHtml(pl,type)}</span>
+      (arr.length? arr.map((pl,i)=>({pl,i})).sort((a,b)=>potentialBase(b.pl)-potentialBase(a.pl)).map(({pl,i})=>`<div class="playerRow"><span>${fcMini(pl,t.name,24)}${sigMark(pl)}${esc(pl.name)} ${pl.age}歳(${esc(pl.background)}) ${farmStatus(t,pl,type)}${isHurt(pl)? "" : ` <span class="condInline"><span class="small">調子:</span>${condSpan(pl.cond)}</span>`}${pl.farmGrowth?` <span class="small" style="color:var(--gold)">今季+${pl.farmGrowth}</span>`:""}${g2SoonHtml(pl)}<br><span class="small">${farmSummary(pl,type)}</span> ${persGrowHtml(pl)}${fmRowHtml(pl,type)}</span>
         <span style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">${practiceSelect(pl,type,`setFarmPractice('${type}',${i},`)}${infoBtnHtml(pl)}<button class="sec" onclick="farmSelect('${type}',${i})"${farmReady(pl)?"":` aria-disabled="true" style="opacity:.55"`}>1軍へ</button><button class="sec" onclick="farmReleaseAsk('${type}',${i})">退団</button></span></div>`).join("")
        : `<p class="small">いません。</p>`)+`</details>`;
     const ilRows=t.il.map(pl=>`<div class="playerRow"><span>${esc(pl.name)} ${pl.age}歳 <span class="badge hot">${esc(pl.inj? pl.inj.part : "故障")}</span><br><span class="small">復帰まで約${pl.inj? Math.max(1,Math.round(pl.inj.days/30)) : "-"}か月${pl.inj&&pl.inj.drop?"・能力が少し低下":""}</span></span><span>${infoBtnHtml(pl)}</span></div>`).join("");
@@ -5065,32 +5065,32 @@ function bxSubLabel(x){ return x==="H"? "代打" : x==="R"? "代走" : x==="D"? 
 function bxDecMark(c){ return c==="W"? "勝" : c==="L"? "敗" : c==="S"? "S" : c==="H"? "H" : ""; }
 function bxSimpleTeam(name,S){
   let ord=0;
-  const bat=S.b.map(r=>{ if(!r[11]) ord++; return `<tr class="${r[11]? "bxSub":""}"><td class="bxOrd">${r[11]? "" : ord}</td><td>${r[11]? bxSubLabel(r[11]) : r[1]}</td><td class="l">${r[0]}${r[11]? ` <span class="small">(${r[1]})</span>` : ""}</td><td>${r[2]}</td><td class="hideSm">${r[3]}</td><td>${r[4]}</td><td>${r[5]}</td><td class="hideSm">${r[6]}</td><td class="hideSm">${r[7]}</td><td class="hideSm">${r[8]}</td><td>${r[9]}</td><td>${fmtRate(r[12]/1000)}</td></tr>`; }).join("");
+  const bat=S.b.map(r=>{ if(!r[11]) ord++; return `<tr class="${r[11]? "bxSub":""}"><td class="bxOrd">${r[11]? "" : ord}</td><td>${r[11]? bxSubLabel(r[11]) : esc(r[1])}</td><td class="l">${esc(r[0])}${r[11]? ` <span class="small">(${esc(r[1])})</span>` : ""}</td><td>${r[2]}</td><td class="hideSm">${r[3]}</td><td>${r[4]}</td><td>${r[5]}</td><td class="hideSm">${r[6]}</td><td class="hideSm">${r[7]}</td><td class="hideSm">${r[8]}</td><td>${r[9]}</td><td>${fmtRate(r[12]/1000)}</td></tr>`; }).join("");
   const tot=S.b.reduce((a,r)=>{ [2,3,4,5,6,7,8,9].forEach((k,i)=>a[i]+=r[k]); return a; },[0,0,0,0,0,0,0,0]);
-  const pit=S.p.map(r=>`<tr><td class="l">${r[0]}${r[9]? ` <span class="badge${r[9]==="L"? "" : " hot"}">${bxDecMark(r[9])}</span>` : ""}</td><td>${r[1]}</td><td class="hideSm">${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td class="hideSm">${r[5]}</td><td>${r[6]}</td><td>${r[7]}</td></tr>`).join("");
-  return `<h4 class="bxTeam">${teamDot(name)}${name}</h4><div class="overflow"><table class="bxT"><tr><th>#</th><th>位置</th><th class="l">打者</th><th>打数</th><th class="hideSm">得点</th><th>安打</th><th>打点</th><th class="hideSm">三振</th><th class="hideSm">四球</th><th class="hideSm">盗塁</th><th>本塁打</th><th>打率</th></tr>${bat}<tr class="bxTot"><td></td><td></td><td class="l">合計</td><td>${tot[0]}</td><td class="hideSm">${tot[1]}</td><td>${tot[2]}</td><td>${tot[3]}</td><td class="hideSm">${tot[4]}</td><td class="hideSm">${tot[5]}</td><td class="hideSm">${tot[6]}</td><td>${tot[7]}</td><td></td></tr></table></div>`+
+  const pit=S.p.map(r=>`<tr><td class="l">${esc(r[0])}${r[9]? ` <span class="badge${r[9]==="L"? "" : " hot"}">${bxDecMark(r[9])}</span>` : ""}</td><td>${r[1]}</td><td class="hideSm">${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td class="hideSm">${r[5]}</td><td>${r[6]}</td><td>${r[7]}</td></tr>`).join("");
+  return `<h4 class="bxTeam">${teamDot(name)}${esc(name)}</h4><div class="overflow"><table class="bxT"><tr><th>#</th><th>位置</th><th class="l">打者</th><th>打数</th><th class="hideSm">得点</th><th>安打</th><th>打点</th><th class="hideSm">三振</th><th class="hideSm">四球</th><th class="hideSm">盗塁</th><th>本塁打</th><th>打率</th></tr>${bat}<tr class="bxTot"><td></td><td></td><td class="l">合計</td><td>${tot[0]}</td><td class="hideSm">${tot[1]}</td><td>${tot[2]}</td><td>${tot[3]}</td><td class="hideSm">${tot[4]}</td><td class="hideSm">${tot[5]}</td><td class="hideSm">${tot[6]}</td><td>${tot[7]}</td><td></td></tr></table></div>`+
     `<div class="overflow"><table class="bxT"><tr><th class="l">投手</th><th>投球回</th><th class="hideSm">打者</th><th>被安打</th><th>奪三振</th><th class="hideSm">与四球</th><th>失点</th><th>自責</th></tr>${pit}</table></div>`;
 }
 // 新聞のテーブルスコアの組み方:守備位置(かっこ)・選手・打数・安打・打点、そのあとに打席ごとの結果
 function bxNewsTeam(name,S){
   const bat=S.b.map(r=>{ const pas=bxPaList(r[10]);
     const pos= r[11]==="H"? "打" : r[11]==="R"? "走" : r[1];
-    return `<div class="bxLine${r[11]? " bxSub":""}"><span class="bxPos">(${pos})</span><span class="bxNm">${r[0]}</span><span>${r[2]}</span><span>${r[4]}</span><span>${r[5]}</span><span class="bxRes">${pas.map(a=>`<span class="bxPa${a.r? " rbi":""}" title="${a.i}">${a.c}</span>`).join("")}</span></div>`; }).join("");
-  const pit=S.p.map(r=>`<div class="bxLine bxLineP"><span class="bxNm">${r[0]}${r[9]? `<span class="bxDec">${bxDecMark(r[9])}</span>` : ""}</span><span>${r[1]}</span><span>${r[3]}</span><span>${r[4]}</span><span>${r[5]}</span><span>${r[6]}</span><span>${r[7]}</span></div>`).join("");
-  return `<div class="bxPaper"><div class="bxNT">${name}</div><div class="bxLine bxHdr"><span></span><span class="bxNm">選手</span><span>打数</span><span>安打</span><span>打点</span><span class="bxRes">打席の結果</span></div>${bat}`+
+    return `<div class="bxLine${r[11]? " bxSub":""}"><span class="bxPos">(${esc(pos)})</span><span class="bxNm">${esc(r[0])}</span><span>${r[2]}</span><span>${r[4]}</span><span>${r[5]}</span><span class="bxRes">${pas.map(a=>`<span class="bxPa${a.r? " rbi":""}" title="${a.i}">${esc(a.c)}</span>`).join("")}</span></div>`; }).join("");
+  const pit=S.p.map(r=>`<div class="bxLine bxLineP"><span class="bxNm">${esc(r[0])}${r[9]? `<span class="bxDec">${bxDecMark(r[9])}</span>` : ""}</span><span>${r[1]}</span><span>${r[3]}</span><span>${r[4]}</span><span>${r[5]}</span><span>${r[6]}</span><span>${r[7]}</span></div>`).join("");
+  return `<div class="bxPaper"><div class="bxNT">${esc(name)}</div><div class="bxLine bxHdr"><span></span><span class="bxNm">選手</span><span>打数</span><span>安打</span><span>打点</span><span class="bxRes">打席の結果</span></div>${bat}`+
     `<div class="bxLine bxLineP bxHdr bxHdrP"><span class="bxNm">投手</span><span>投球回</span><span>被安打</span><span>奪三振</span><span>与四球</span><span>失点</span><span>自責</span></div>${pit}</div>`;
 }
 function bxNotesHtml(bx){
   const n=bx.n||{}, L=[];
-  const nm=(a,unit)=>a.map(x=>x[0]+(x[1]>1? x[1] : "")).join("、");
-  if(n.w) L.push(`<div><b>勝</b> ${n.w[0]}(${n.w[1]}勝${n.w[2]}敗)${umPsTag(n,"w")}</div>`);
-  if(n.l) L.push(`<div><b>敗</b> ${n.l[0]}(${n.l[1]}勝${n.l[2]}敗)${umPsTag(n,"l")}</div>`);
-  if(n.s) L.push(`<div><b>S</b> ${n.s[0]}(${n.s[3]}S)${umPsTag(n,"s")}</div>`);
-  if(n.hr && n.hr.length) L.push(`<div><b>本塁打</b> ${n.hr.map(x=>`<span class="bxHr">${x[0]} ${umPsHrNo(n,x[1])}号(${x[2]}回${x[3]===1? "ソロ" : x[3]+"ラン"})</span>`).join(" ")}</div>`);
+  const nm=(a,unit)=>a.map(x=>esc(x[0])+(x[1]>1? x[1] : "")).join("、");
+  if(n.w) L.push(`<div><b>勝</b> ${esc(n.w[0])}(${n.w[1]}勝${n.w[2]}敗)${umPsTag(n,"w")}</div>`);
+  if(n.l) L.push(`<div><b>敗</b> ${esc(n.l[0])}(${n.l[1]}勝${n.l[2]}敗)${umPsTag(n,"l")}</div>`);
+  if(n.s) L.push(`<div><b>S</b> ${esc(n.s[0])}(${n.s[3]}S)${umPsTag(n,"s")}</div>`);
+  if(n.hr && n.hr.length) L.push(`<div><b>本塁打</b> ${n.hr.map(x=>`<span class="bxHr">${esc(x[0])} ${umPsHrNo(n,x[1])}号(${x[2]}回${x[3]===1? "ソロ" : x[3]+"ラン"})</span>`).join(" ")}</div>`);
   if(n.d3 && n.d3.length) L.push(`<div><b>三塁打</b> ${nm(n.d3)}</div>`);
   if(n.d2 && n.d2.length) L.push(`<div><b>二塁打</b> ${nm(n.d2)}</div>`);
   if(n.sb && n.sb.length) L.push(`<div><b>盗塁</b> ${nm(n.sb)}</div>`);
-  if(n.f && n.f.length) L.push(`<div><b>できごと</b> ${n.f.map(x=>`${FEAT_LABEL[x[0]]||x[0]} ${x[1]}`).join("、")}</div>`);
+  if(n.f && n.f.length) L.push(`<div><b>できごと</b> ${n.f.map(x=>`${esc(FEAT_LABEL[x[0]]||x[0])} ${esc(x[1])}`).join("、")}</div>`);
   return L.length? `<div class="bxNotes small">${L.join("")}</div>` : "";
 }
 // e:ハイライトの形(away/home/a/h/ai/hi/ah/hh/bx)
@@ -5098,7 +5098,7 @@ function bxHtml(e){
   const bx=e.bx; if(!bx) return "";
   const tabs=`<div class="subTabs bxTabs" role="tablist"><button type="button" class="subTab${bxMode==="simple"? " active":""}" role="tab" aria-selected="${bxMode==="simple"}" onclick="bxSetMode('simple')">ふつうの表</button><button type="button" class="subTab${bxMode==="news"? " active":""}" role="tab" aria-selected="${bxMode==="news"}" onclick="bxSetMode('news')">詳細(新聞の形)</button></div>`;
   const body= bxMode==="news"? bxNewsTeam(e.away,bx.a)+bxNewsTeam(e.home,bx.h) : bxSimpleTeam(e.away,bx.a)+bxSimpleTeam(e.home,bx.h);
-  return `<h3>テーブルスコア</h3><div class="small bxHead">${teamDot(e.away)}${e.away} <b>${e.a}</b> - <b>${e.h}</b> ${teamDot(e.home)}${e.home}${e.isTie? " (引分)" : ""}</div>${lineScoreHtml({away:e.away,home:e.home,a:e.a,h:e.h,ai:e.ai||[],hi:e.hi||[],ah:e.ah,hh:e.hh})}${tabs}${body}${bxNotesHtml(bx)}`;
+  return `<h3>テーブルスコア</h3><div class="small bxHead">${teamDot(e.away)}${esc(e.away)} <b>${e.a}</b> - <b>${e.h}</b> ${teamDot(e.home)}${esc(e.home)}${e.isTie? " (引分)" : ""}</div>${lineScoreHtml({away:e.away,home:e.home,a:e.a,h:e.h,ai:e.ai||[],hi:e.hi||[],ah:e.ah,hh:e.hh})}${tabs}${body}${bxNotesHtml(bx)}`;
 }
 function showBox(e){
   if(!e || !e.bx){ showToast("この試合のテーブルスコアは残っていません"); return; }
@@ -5477,7 +5477,7 @@ function impCandHtml(p,i,t){
   const why=impBlockReason(t,impKind(p)), win=impWindowOpen();
   const rows=keys.map(([l,k])=>impGradeRow(l,p,k)).join("");
   const dis=(!win||why||clubPoints<(IMP_SIGN_COST*clubK()))? "disabled" : "";
-  return `<div class="card" style="margin:6px 0"><b>${p.name}</b> ${p.age}歳 ${bat? `[${p.fielding}] ${p.bats}打` : `${p.pos==="先発"?"先発":"中継ぎ"} ${p.throws}投`} <span class="small">${p.personality}</span>${cs? ` <span class="badge">調査${cs}回</span>`:""}
+  return `<div class="card" style="margin:6px 0"><b>${esc(p.name)}</b> ${p.age}歳 ${bat? `[${esc(p.fielding)}] ${esc(p.bats)}打` : `${p.pos==="先発"?"先発":"中継ぎ"} ${esc(p.throws)}投`} <span class="small">${esc(p.personality)}</span>${cs? ` <span class="badge">調査${cs}回</span>`:""}
     <div style="margin:4px 0">${rows}</div>
     ${why? `<p class="small">${why}</p>`:""}
     <div style="display:flex;gap:6px;flex-wrap:wrap"><button class="sec" ${(!win||cs>=2||clubPoints<(IMP_SURVEY_COST*clubK()))?"disabled":""} onclick="impSurvey(${i})">追加調査(${(IMP_SURVEY_COST*clubK())}点)</button>
@@ -5485,7 +5485,7 @@ function impCandHtml(p,i,t){
 }
 function openImpScout(){
   if(!league) return; const t=league[myTeam], win=impWindowOpen(), list=impCandList();
-  const mine=impAll(t).map(p=>`<div class="playerRow"><span>${p.name} ${p.age}歳 ${impKind(p)==="bat"? "["+p.fielding+"]" : p.pos}${oneGun(t).includes(p)? "" : "(2軍)"}<br><span class="small">${p.imp.until? `<span>${p.imp.until}年目まで</span> ` : ""}<span>${p.imp.rev? "評価:"+p.imp.tier : "評価:未判明"}</span></span><br>${impWishHtml(p)}</span></div>`).join("") || '<p class="small">いまの助っ人はいません。</p>';
+  const mine=impAll(t).map(p=>`<div class="playerRow"><span>${esc(p.name)} ${p.age}歳 ${esc(impKind(p)==="bat"? "["+p.fielding+"]" : p.pos)}${oneGun(t).includes(p)? "" : "(2軍)"}<br><span class="small">${p.imp.until? `<span>${p.imp.until}年目まで</span> ` : ""}<span>${p.imp.rev? "評価:"+esc(p.imp.tier) : "評価:未判明"}</span></span><br>${impWishHtml(p)}</span></div>`).join("") || '<p class="small">いまの助っ人はいません。</p>';
   openModal(`<h3>🌏 海外スカウト</h3><p>球団ポイント:<b>${clubPoints}</b> ・ 1軍の助っ人 ${impList(t).length}/${IMP_MAX}人</p>
     <p class="small">候補の力は幅でしか分かりません。追加調査をするほど幅がせまくなります(最大2回)。契約した助っ人は、開幕から約3割の試合で本当の力が分かります。外れは帰国し、大当たりは号外になります。1軍の枠は最大${IMP_MAX}人で、野手だけ・投手だけにはできません。契約すると、1軍のいちばん力の弱い同じ種類の選手と入れ替わり、その選手は2軍に下がります。</p>
     <h4 class="pdH">いまの助っ人</h4>${mine}
@@ -6095,7 +6095,7 @@ function cupPlay(verbose,reel){
     if(verbose){ document.getElementById("resultCard").style.display="block";
       document.getElementById("resultHead").textContent=`${cupName()} ${rd}: ${r.awayTeam.name} @ ${r.homeTeam.name}`;
       document.getElementById("resultScore").textContent=`${r.aScore} - ${r.hScore}`; resultDecorate(r);
-      document.getElementById("playLog").innerHTML=(r.log.length? r.log.map(x=>`<div>${x}</div>`).join("") : "<div>目立った得点シーンはありませんでした。</div>")+boxBtnHtml(r); bxAutoAfter(r); } }
+      document.getElementById("playLog").innerHTML=(r.log.length? r.log.map(x=>`<div>${esc(x)}</div>`).join("") : "<div>目立った得点シーンはありませんでした。</div>")+boxBtnHtml(r); bxAutoAfter(r); } }
   cupAdvanceRound();
   if(verbose && mine && reel){ hlTicker=null; startHighlightReel(r); }
   updateMatchup(); renderAll(); scheduleAutoSave();
@@ -6349,7 +6349,7 @@ function worldPlay(verbose,reel){
     if(verbose){ document.getElementById("resultCard").style.display="block";
       document.getElementById("resultHead").textContent=`グローバルスターズ杯 ${g.st}: ${r.awayTeam.name} @ ${r.homeTeam.name}`;
       document.getElementById("resultScore").textContent=`${r.aScore} - ${r.hScore}`; resultDecorate(r);
-      document.getElementById("playLog").innerHTML=(r.log.length? r.log.map(x=>`<div>${x}</div>`).join("") : "<div>目立った得点シーンはありませんでした。</div>")+boxBtnHtml(r); bxAutoAfter(r); } }
+      document.getElementById("playLog").innerHTML=(r.log.length? r.log.map(x=>`<div>${esc(x)}</div>`).join("") : "<div>目立った得点シーンはありませんでした。</div>")+boxBtnHtml(r); bxAutoAfter(r); } }
   worldAdvance();
   if(verbose && mine && reel){ hlTicker=null; startHighlightReel(r); }
   updateMatchup(); renderAll(); scheduleAutoSave();
@@ -6396,8 +6396,8 @@ function worldFinish(){
 // 試合画面
 function worldPickHtml(){
   const me=league[myTeam], H=worldHomeTeam(world.out), list=[...H.batters.map(c=>[c,c.fielding||""]),...H.bench.map(c=>[c,"控え"]),...H.rotation.map(c=>[c,"先発"]),...H.bullpen.map(c=>[c,"中継ぎ"])], mine=list.filter(x=>x[0].fromTeam===me.name).length;
-  const row=([c,role])=>`<div class="playerRow${c.fromTeam===me.name? " worldMine" : ""}"><span><span class="posBadge">${role}</span> <b>${c.name}</b> <span class="small">${c.fromTeam}</span></span><button class="sec" onclick="worldOut('${(c.name+"|"+c.fromTeam).replace(/'/g,"")}')">外す</button></div>`;
-  const outRow=k=>{ const [n,t]=k.split("|"); return `<div class="playerRow"><span>${n} <span class="small">${t}</span></span><button class="sec" onclick="worldBack('${k.replace(/'/g,"")}')">戻す</button></div>`; };
+  const row=([c,role])=>`<div class="playerRow${c.fromTeam===me.name? " worldMine" : ""}"><span><span class="posBadge">${esc(role)}</span> <b>${esc(c.name)}</b> <span class="small">${esc(c.fromTeam)}</span></span><button class="sec" onclick="worldOut(${escJs((c.name+"|"+c.fromTeam).replace(/'/g,""))})">外す</button></div>`;
+  const outRow=k=>{ const [n,t]=k.split("|"); return `<div class="playerRow"><span>${esc(n)} <span class="small">${esc(t)}</span></span><button class="sec" onclick="worldBack(${escJs(k.replace(/'/g,""))})">戻す</button></div>`; };
   return `<div class="cupBoard worldBoard"><div class="mDate">${year}年目 開幕前 <span class="badge worldTag">🌏 グローバルスターズ杯</span></div>
     <h3 class="cupHead"><span>代表選び</span>:<span>${world.home}代表</span></h3>
     <p class="small">全リーグの選手から25人を選んであります(助っ人は除く)。「外す」と次の選手が入ります。自チームの選手を辞退させると、ケガや疲れの心配はなくなりますが、代表の見返り(若手の伸び・人気・球団ポイント)も入りません。</p>
@@ -7216,7 +7216,7 @@ function updateMatchupInner(){
     return;
   }
   if(relegation.active){
-    m.innerHTML=seriesBoardHtml("ディビジョン入れ替え戦",{label:`${dvFlagMini("A")}${divFull("A")}最下位`,team:relegation.teamA,wins:relegation.winsA},{label:`${dvFlagMini("B")}${divFull("B")}1位`,team:relegation.teamB,wins:relegation.winsB},"3試合先取2勝");
+    m.innerHTML=seriesBoardHtml("ディビジョン入れ替え戦",{label:`${dvFlagMini("A")}${esc(divFull("A"))}最下位`,team:relegation.teamA,wins:relegation.winsA},{label:`${dvFlagMini("B")}${esc(divFull("B"))}1位`,team:relegation.teamB,wins:relegation.winsB},"3試合先取2勝");
     simBtn.style.display="inline-block"; simBtn.textContent="次の1戦をシミュレート"; simBtn.onclick=()=>simRelegationGame(true);
     skipBtn.style.display="inline-block"; skipBtn.textContent="残りをまとめてシミュレート"; skipBtn.onclick=simRelegationAll;
     postBtn.style.display="none"; offBtn.style.display="none"; draftBtn.style.display="none"; hlBtn.style.display="none";
@@ -7225,7 +7225,7 @@ function updateMatchupInner(){
   }
   if(tierRelegation.active){
     const label = divFull(tierRelegation.divLetter);
-    m.innerHTML=seriesBoardHtml(`${chaosName()}入れ替え戦(${tierRelegation.stage===0?"1/2":"2/2"})`,{label:`${lgFlagMini(tierRelegation.teamMain)}${label}最下位`,team:tierRelegation.teamMain,wins:tierRelegation.winsMain},{label:`${lgFlagMini(tierRelegation.teamC)}${chaosName()}上位`,team:tierRelegation.teamC,wins:tierRelegation.winsC},"3試合先取2勝");
+    m.innerHTML=seriesBoardHtml(`${esc(chaosName())}入れ替え戦(${tierRelegation.stage===0?"1/2":"2/2"})`,{label:`${lgFlagMini(tierRelegation.teamMain)}${esc(label)}最下位`,team:tierRelegation.teamMain,wins:tierRelegation.winsMain},{label:`${lgFlagMini(tierRelegation.teamC)}${esc(chaosName())}上位`,team:tierRelegation.teamC,wins:tierRelegation.winsC},"3試合先取2勝");
     simBtn.style.display="inline-block"; simBtn.textContent="次の1戦をシミュレート"; simBtn.onclick=()=>simTierRelegationGame(true);
     skipBtn.style.display="inline-block"; skipBtn.textContent="残りをまとめてシミュレート"; skipBtn.onclick=simTierRelegationAll;
     postBtn.style.display="none"; offBtn.style.display="none"; draftBtn.style.display="none"; hlBtn.style.display="none";
@@ -7243,14 +7243,14 @@ function updateMatchupInner(){
     simBtn.style.display="none"; skipBtn.style.display="none"; offBtn.style.display="none"; draftBtn.style.display="none"; hlBtn.style.display="none";
     document.getElementById("five5Btn").style.display="none";
     if(hasRelegation && !relegation.done){
-      m.innerHTML="<p>"+year+"年目の全日程が終了しました!"+divFull("A")+"最下位と"+divFull("B")+"1位による入れ替え戦を行いましょう。</p>";
+      m.innerHTML="<p>"+year+"年目の全日程が終了しました!"+esc(divFull("A"))+"最下位と"+esc(divFull("B"))+"1位による入れ替え戦を行いましょう。</p>";
       postBtn.style.display="none"; document.getElementById("tierRelegationBtn").style.display="none";
       document.getElementById("relegationBtn").style.display="inline-block";
       return;
     }
     document.getElementById("relegationBtn").style.display="none";
     if(hasTier && !tierRelegation.done){
-      m.innerHTML="<p>"+year+"年目の全日程が終了しました!(3年に一度の"+chaosName()+"との入れ替え戦のタイミングです)<br>"+upperName()+"の"+divFull("B")+"・"+leagueNames.B+"の"+divFull("D")+"それぞれの最下位が、"+chaosName()+"の上位チームと入れ替え戦を行いましょう。"+(playTier==="chaos"?"<br><b>自チームが"+chaosName()+"の上位2位に入っていれば昇格のチャンスです!</b>":"")+"</p>";
+      m.innerHTML="<p>"+year+"年目の全日程が終了しました!(3年に一度の"+esc(chaosName())+"との入れ替え戦のタイミングです)<br>"+esc(upperName())+"の"+esc(divFull("B"))+"・"+esc(leagueNames.B)+"の"+esc(divFull("D"))+"それぞれの最下位が、"+esc(chaosName())+"の上位チームと入れ替え戦を行いましょう。"+(playTier==="chaos"?"<br><b>自チームが"+esc(chaosName())+"の上位2位に入っていれば昇格のチャンスです!</b>":"")+"</p>";
       postBtn.style.display="none";
       document.getElementById("tierRelegationBtn").style.display="inline-block";
       return;
@@ -7259,10 +7259,10 @@ function updateMatchupInner(){
     let msg="";
     if(hasRelegation && relegation.done){
       const rw = relegation.winsA>relegation.winsB? relegation.teamA: relegation.teamB;
-      msg+=`入れ替え戦は${rw.name}が勝利しました。<br>`;
+      msg+=`入れ替え戦は${esc(rw.name)}が勝利しました。<br>`;
     }
     if(tierRelegation.done){
-      msg+=`${chaosName()}との入れ替え戦が終了しました。<br>`;
+      msg+=`${esc(chaosName())}との入れ替え戦が終了しました。<br>`;
     }
     m.innerHTML=`<p>${msg}`+year+"年目の全日程が終了しました!「順位」タブで結果を確認してから、ポストシーズンへ進みましょう。</p>";
     postBtn.textContent=csBtnText(); postBtn.style.display="inline-block";   // v1.5.h
@@ -7309,7 +7309,7 @@ function simRelegationGame(verbose){
     document.getElementById("resultCard").style.display="block";
     document.getElementById("resultHead").textContent=`入れ替え戦第${relegation.gameNum}戦: ${r.awayTeam.name} @ ${r.homeTeam.name}`;
     document.getElementById("resultScore").textContent=`${r.aScore} - ${r.hScore}`; resultDecorate(r);
-    document.getElementById("playLog").innerHTML = (r.log.length? r.log.map(l=>`<div>${l}</div>`).join(""):"<div>目立った得点シーンはありませんでした。</div>")+boxBtnHtml(r); bxAutoAfter(r);
+    document.getElementById("playLog").innerHTML = (r.log.length? r.log.map(l=>`<div>${esc(l)}</div>`).join(""):"<div>目立った得点シーンはありませんでした。</div>")+boxBtnHtml(r); bxAutoAfter(r);
   }
   if(relegation.winsA>=2||relegation.winsB>=2||relegation.gameNum>=3){
     relegation.done=true; relegation.active=false;
@@ -7486,7 +7486,7 @@ function simTierRelegationGame(verbose){
     document.getElementById("resultCard").style.display="block";
     document.getElementById("resultHead").textContent=`${chaosName()}入れ替え戦第${tierRelegation.gameNum}戦: ${r.awayTeam.name} @ ${r.homeTeam.name}`;
     document.getElementById("resultScore").textContent=`${r.aScore} - ${r.hScore}`; resultDecorate(r);
-    document.getElementById("playLog").innerHTML = (r.log.length? r.log.map(l=>`<div>${l}</div>`).join(""):"<div>目立った得点シーンはありませんでした。</div>")+boxBtnHtml(r); bxAutoAfter(r);
+    document.getElementById("playLog").innerHTML = (r.log.length? r.log.map(l=>`<div>${esc(l)}</div>`).join(""):"<div>目立った得点シーンはありませんでした。</div>")+boxBtnHtml(r); bxAutoAfter(r);
   }
   if(tierRelegation.winsMain>=2||tierRelegation.winsC>=2||tierRelegation.gameNum>=3){
     if(tierRelegation.forceSwap || tierRelegation.winsC>tierRelegation.winsMain){
@@ -7565,7 +7565,7 @@ function simPostseasonGame(verbose){
     document.getElementById("resultCard").style.display="block";
     document.getElementById("resultHead").textContent=`${post.pro? post.stageName+" " : post.bracketMode?["準決勝1","準決勝2","決勝"][post.stage]+" ":""}第${post.gameNum}戦: ${r.awayTeam.name} @ ${r.homeTeam.name}`;
     document.getElementById("resultScore").textContent=`${r.aScore} - ${r.hScore}`; resultDecorate(r);
-    document.getElementById("playLog").innerHTML = (r.log.length? r.log.map(l=>`<div>${l}</div>`).join(""):"<div>目立った得点シーンはありませんでした。</div>")+boxBtnHtml(r); bxAutoAfter(r);
+    document.getElementById("playLog").innerHTML = (r.log.length? r.log.map(l=>`<div>${esc(l)}</div>`).join(""):"<div>目立った得点シーンはありませんでした。</div>")+boxBtnHtml(r); bxAutoAfter(r);
   }
   allResults.push({away:r.awayTeam.name,home:r.homeTeam.name,a:r.aScore,h:r.hScore,ai:(r.awayInnings||[]).slice(),hi:(r.homeInnings||[]).slice(),ah:r.awayHits,hh:r.homeHits,awayIsMine:r.awayTeam===league[myTeam],homeIsMine:r.homeTeam===league[myTeam],isTie:false,date:null,year:year+0.5,hl:packHL(r)});
   if(post.pro){ if(proSeriesOver()) proSeriesFinish(); updateMatchup(); renderAll(); return; }   // プロ野球式・メジャー式(v1.0.s)
@@ -8177,7 +8177,7 @@ function draftComment(p){
 function draftCmHtml(p){ const c=draftComment(p); return c? `<span class="dcCm"><b>寸評</b>${c}</span>` : ""; }
 // ドラフトの候補の行(名前の下に、能力→スキル→寸評を1段ずつ。v1.3.z)
 function draftCandLines(it){
-  const q=it.p, ab= it.type==="batter"? `[${q.fielding}${(q.subPos&&q.subPos.length)?`・副${q.subPos.join("/")}`:""}] 野手 ミ${gSpanP(q,"meet")}/パ${gSpanP(q,"power")}/走${gSpanP(q,"speed")}/守${gSpanP(q,"fieldSkill")}` : `投手(${q.pos}) 球速${gSpanP(q,"velo")}/制球${gSpanP(q,"control")}${q.pos==="先発"? `/スタ${gSpanP(q,"stamina")}` : ""}`;
+  const q=it.p, ab= it.type==="batter"? `[${esc(q.fielding)}${(q.subPos&&q.subPos.length)?`・副${esc(q.subPos.join("/"))}`:""}] 野手 ミ${gSpanP(q,"meet")}/パ${gSpanP(q,"power")}/走${gSpanP(q,"speed")}/守${gSpanP(q,"fieldSkill")}` : `投手(${esc(q.pos)}) 球速${gSpanP(q,"velo")}/制球${gSpanP(q,"control")}${q.pos==="先発"? `/スタ${gSpanP(q,"stamina")}` : ""}`;
   return `<span class="dcLine">${localTagHtml(q,league[myTeam])}${retryDescHtml(q)}${ab}${scoutTag(q)}</span>${skillChipsHtml(q)}${it.unique? "" : draftCmHtml(q)}`;
 }
 // 試合タブのオフの流れ(ドラフト → 育成ドラフト → FA → オフ)で画面が切り替わったら、上まで戻す(v1.3.z。長い一覧の下で押すと、次の画面が下から始まっていた)
@@ -8207,7 +8207,7 @@ function dcKey(p){ return p? p.name+"|"+p.age : ""; }
 function dcPosLabel(it){ const q=it.p; return it.type==="batter"? (q.fielding||"") : (q.pos==="先発"? "先発" : "中継ぎ"); }
 function dcRowHtml(k,on,lead,q,pos,btns,extra){
   return `<div class="playerRow dcRow dcC${on?" on":""}${extra||""}" data-k="${k}" tabindex="0" onmouseenter="dcPadHover(${k})" onfocus="dcPadHover(${k})" onclick="dcPadPick(event,${k})">`
-    +`<span class="dcName">${lead}${fcCand(q,22)}<span class="dcHead">${q.name}</span><span class="posBadge dcPos">${pos}</span><span class="small dcAge">${q.age}歳(${q.background})</span></span>`
+    +`<span class="dcName">${lead}${fcCand(q,22)}<span class="dcHead">${esc(q.name)}</span><span class="posBadge dcPos">${esc(pos)}</span><span class="small dcAge">${q.age}歳(${esc(q.background)})</span></span>`
     +`<span class="dcBtns">${btns}</span></div>`;
 }
 function dcWrapHtml(rows,emptyHtml){
@@ -8333,7 +8333,7 @@ function renderZukan(){
       return `<div class="zCard ${e.got?"got":""}"><div class="zNo">No.${i+1} <span class="zStar">${stars}</span>${e.got?' <span class="badge" style="background:var(--gold);color:var(--onGold,var(--field2))">獲得</span>':''}</div>
         <div class="zSil">${zukanSilSvg(u,e.got?"got":"seen")}</div><div class="zName">${uniqName(u)}</div><div class="zTitle">「${u.title}」</div>
         <div class="small">固有スキル:${pbText(uniquePb(u))? pbText(uniquePb(u))+"(いつも効く)" : "能力への上乗せなし"}</div>
-        <div class="small">${u.t==="b"?`野手・${u.pos}`:`投手・${u.role}`} / ${uqBg(u)} / ${u.pers}${u.aff?` / 好みの球団:${u.aff}`:""}</div>
+        <div class="small">${u.t==="b"?`野手・${esc(u.pos)}`:`投手・${esc(u.role)}`} / ${uqBg(u)} / ${esc(u.pers)}${u.aff?` / 好みの球団:${esc(u.aff)}`:""}</div>
         <div class="small zBlurb">${uqBlurb(u)}</div>
         ${e.got?`<div class="small">初獲得:${e.firstYear}年目(${esc(e.team)})${e.times>1?` / 獲得${e.times}回`:""}</div>`:""}
         ${e.best?`<div class="small">自チーム最高:${esc(e.best.text)}(${e.best.year}年目)</div>`:""}
@@ -8353,13 +8353,13 @@ function recordZukanBests(){
 }
 function draftCandDesc(it){
   const q=it.p;
-  return localTagHtml(q,league[myTeam])+retryDescHtml(q)+(it.type==="batter"? `[${q.fielding}${(q.subPos&&q.subPos.length)?`・副${q.subPos.join("/")}`:""}] 野手 ミ${gSpanP(q,"meet")}/パ${gSpanP(q,"power")}/走${gSpanP(q,"speed")}/守${gSpanP(q,"fieldSkill")}` : `投手(${q.pos}) 球速${gSpanP(q,"velo")}/制球${gSpanP(q,"control")}`)+scoutTag(q)+skillChipsHtml(q);
+  return localTagHtml(q,league[myTeam])+retryDescHtml(q)+(it.type==="batter"? `[${esc(q.fielding)}${(q.subPos&&q.subPos.length)?`・副${esc(q.subPos.join("/"))}`:""}] 野手 ミ${gSpanP(q,"meet")}/パ${gSpanP(q,"power")}/走${gSpanP(q,"speed")}/守${gSpanP(q,"fieldSkill")}` : `投手(${esc(q.pos)}) 球速${gSpanP(q,"velo")}/制球${gSpanP(q,"control")}`)+scoutTag(q)+skillChipsHtml(q);
 }
 function draftSummaryHtml(){
   const meName=league[myTeam].name;
   const mine=draft.log.filter(x=>x.team===meName);
   if(!draft.log.length) return "";
-  const row=x=>`<div class="playerRow"><span>${x.round?`${x.round}巡`:""} ${x.unique?'<span class="badge uniq">★目玉</span> ':''}${x.rt?'<span class="badge retryTag">再挑戦</span> ':''}${esc(x.name)} ${x.age}歳 [${x.pos}]${x.note?` <span class="badge">${esc(x.note)}</span>`:""}</span><span class="small">${esc(x.team)}</span></div>`;
+  const row=x=>`<div class="playerRow"><span>${x.round?`${x.round}巡`:""} ${x.unique?'<span class="badge uniq">★目玉</span> ':''}${x.rt?'<span class="badge retryTag">再挑戦</span> ':''}${esc(x.name)} ${x.age}歳 [${esc(x.pos)}]${x.note?` <span class="badge">${esc(x.note)}</span>`:""}</span><span class="small">${esc(x.team)}</span></div>`;
   return `<h4 style="margin-top:10px">自チームの指名(${mine.length}人)</h4>${mine.length? mine.map(row).join("") : '<p class="small">なし</p>'}
     <details style="margin-top:8px"><summary class="small" style="cursor:pointer">全球団の指名結果(${draft.log.length}人)</summary>${draft.log.map(row).join("")}</details>`;
 }
@@ -8373,20 +8373,20 @@ function attnHtml(a){ return `<span class="attn a${a}" title="注目度">${attnS
 function drawConfetti(){ let h=""; for(let i=0;i<18;i++){ h+=`<i style="left:${(i*37)%100}%;animation-delay:${(i%6)*0.12}s;background:hsl(${(i*47)%360},80%,60%)"></i>`; } return `<div class="confetti" aria-hidden="true">${h}</div>`; }
 function drawOthersHtml(d,reveal){
   if(!d.others || !d.others.length) return "";
-  return `<div class="notice" style="margin:8px 0;text-align:left"><b>このほかの抽選</b>`+d.others.map(x=>`<div class="small" style="margin-top:3px">${attnHtml(x.attn)} <b>${x.name}</b>:${x.bidders.length}球団競合(${x.bidders.join("・")})${reveal? ` → <b style="color:var(--gold)">${x.winner}</b>` : ""}</div>`).join("")+`</div>`;
+  return `<div class="notice" style="margin:8px 0;text-align:left"><b>このほかの抽選</b>`+d.others.map(x=>`<div class="small" style="margin-top:3px">${attnHtml(x.attn)} <b>${esc(x.name)}</b>:${x.bidders.length}球団競合(${x.bidders.map(esc).join("・")})${reveal? ` → <b style="color:var(--gold)">${esc(x.winner)}</b>` : ""}</div>`).join("")+`</div>`;
 }
 // 自分の入札が重なったとき:球団数ぶんの封筒から1つ選んで開ける
 function drawEnvelopeHtml(){
   const d=draft.draw, me=league[myTeam];
   const fx=!!d.fx;
-  let html=`<div style="width:100%;text-align:center"><h3 style="margin:0 0 4px">🎰 ${d.name}の抽選(${d.n}球団競合)</h3>`;
+  let html=`<div style="width:100%;text-align:center"><h3 style="margin:0 0 4px">🎰 ${esc(d.name)}の抽選(${d.n}球団競合)</h3>`;
   if(fx && d.attn) html+=`<div class="attnBig">注目度 ${attnHtml(d.attn)}</div>`;
   if(fx && d.stage==="intro"){
-    html+=`<p class="small" style="margin:6px 0">入札した球団</p><div class="bidChips">`+d.bidders.map((b,i)=>`<span class="bidChip${b===me.name?" mine":""}" style="animation-delay:${i*0.18}s">${b}</span>`).join("")+`</div>`;
+    html+=`<p class="small" style="margin:6px 0">入札した球団</p><div class="bidChips">`+d.bidders.map((b,i)=>`<span class="bidChip${b===me.name?" mine":""}" style="animation-delay:${i*0.18}s">${esc(b)}</span>`).join("")+`</div>`;
     html+=drawOthersHtml(d,false);
     return html+`<button class="act" onclick="draftDrawStart()">くじを引く</button></div>`;
   }
-  html+=`<p class="small" style="margin:0">入札した球団:${d.bidders.join("・")}</p>`;
+  html+=`<p class="small" style="margin:0">入札した球団:${d.bidders.map(esc).join("・")}</p>`;
   const rolling= fx && d.rollUntil && Date.now()<d.rollUntil;
   if(d.open===null){
     html+=`<p>封筒を1つ選んでください。交渉権が入っているのは1つです。</p><div class="envRow">`+[...Array(d.n)].map((_,i)=>`<button class="envBtn" type="button" onclick="draftOpenEnvelope(${i})" aria-label="${i+1}番の封筒を選ぶ">✉️<span>${i+1}</span></button>`).join("")+`</div>`;
@@ -8394,11 +8394,11 @@ function drawEnvelopeHtml(){
     html+=`<p class="drumroll">ドキドキ…</p><div class="envRow">`+[...Array(d.n)].map((_,i)=>`<div class="envBtn shake${i===d.open?" mine":""}" style="animation-delay:${i*0.07}s">✉️<span>${i+1}</span></div>`).join("")+`</div>`;
   } else {
     const winAt= d.won? d.open : d.winAt;
-    html+=`<div class="envRow">`+[...Array(d.n)].map((_,i)=>{ const mine=i===d.open, win=i===winAt; return `<div class="envBtn opened${win?" win":""}${mine?" mine":""}${fx?" flip":""}"${fx?` style="animation-delay:${i*0.22}s"`:""}>${win?"🎉":"✉️"}<span>${win? "交渉権" : "はずれ"}</span><span class="envWho">${mine? me.name : win? d.winner : "&nbsp;"}</span></div>`; }).join("")+`</div>`;
+    html+=`<div class="envRow">`+[...Array(d.n)].map((_,i)=>{ const mine=i===d.open, win=i===winAt; return `<div class="envBtn opened${win?" win":""}${mine?" mine":""}${fx?" flip":""}"${fx?` style="animation-delay:${i*0.22}s"`:""}>${win?"🎉":"✉️"}<span>${win? "交渉権" : "はずれ"}</span><span class="envWho">${mine? esc(me.name) : win? esc(d.winner) : "&nbsp;"}</span></div>`; }).join("")+`</div>`;
     const dl= fx? d.n*0.22 : 0;
     html+=`<div class="hlBanner ${fx?"big ":""}pop"${fx?` style="animation-delay:${dl}s;animation-fill-mode:backwards"`:""}>${d.won? "交渉権を獲得!" : "はずれ…"}</div>`;
     if(fx && d.won) html+=drawConfetti();
-    html+=`<p>${d.name}の交渉権は <b>${d.won? me.name : d.winner}</b> に決まりました。</p>`;
+    html+=`<p>${esc(d.name)}の交渉権は <b>${esc(d.won? me.name : d.winner)}</b> に決まりました。</p>`;
     if(fx) html+=drawOthersHtml(d,true);
     html+=`<button class="act" onclick="draftDrawDone()">続ける</button>`;
   }
@@ -8424,22 +8424,22 @@ function draftScreenHtml(){
   if(draft.selectedIdx!==null){
     const item=currentDraftItem(); const t=me;
     const pickName = item.type==="twoway"? item.bat.name : item.p.name;
-    const batDesc=rp=>`<b>[${rp.fielding}${(rp.subPos&&rp.subPos.length)?`・副${rp.subPos.join("/")}`:""}]</b> ミ${gSpanP(rp,"meet")}/パ${gSpanP(rp,"power")}/走${gSpanP(rp,"speed")}/守${gSpanP(rp,"fieldSkill")}`, pitDesc=rp=>`球速${gSpanP(rp,"velo")}/制球${gSpanP(rp,"control")}`;
-    const row=(rp,desc,call,tag)=>`<div class="playerRow"><span>${tag?`<span class="badge">${tag}</span> `:""}${rp.name} ${rp.age}歳(${rp.background}) - ${desc}</span><button class="sec" onclick="${call}">この選手と交代</button></div>`;
+    const batDesc=rp=>`<b>[${esc(rp.fielding)}${(rp.subPos&&rp.subPos.length)?`・副${esc(rp.subPos.join("/"))}`:""}]</b> ミ${gSpanP(rp,"meet")}/パ${gSpanP(rp,"power")}/走${gSpanP(rp,"speed")}/守${gSpanP(rp,"fieldSkill")}`, pitDesc=rp=>`球速${gSpanP(rp,"velo")}/制球${gSpanP(rp,"control")}`;
+    const row=(rp,desc,call,tag)=>`<div class="playerRow"><span>${tag?`<span class="badge">${esc(tag)}</span> `:""}${esc(rp.name)} ${rp.age}歳(${esc(rp.background)}) - ${desc}</span><button class="sec" onclick="${call}">この選手と交代</button></div>`;
     // 獲得した選手本人のカード(下の控えと見比べられるように)
     const uqd=p=> p&&p.uniqueId? uniqueDef(p) : null;
     const pitDescFull=rp=>`${rp.pos==="先発"?"先発":"中継ぎ"} 球速${gSpanP(rp,"velo")}/制球${gSpanP(rp,"control")}/スタ${gSpanP(rp,"stamina")}`;
-    const newCard=(rp,desc)=>{ const u=uqd(rp); return `<div class="playerRow draftNew"><span><span class="badge" style="background:#2e7d4f">獲得</span> ${u?`<span class="badge uniq">★目玉 ${"★".repeat(u.r)}</span> `:""}<b>${rp.name}</b> ${rp.age}歳(${rp.background})・${rp.personality}<br>${desc}</span>${infoBtnHtml(rp)}</div>`; };
+    const newCard=(rp,desc)=>{ const u=uqd(rp); return `<div class="playerRow draftNew"><span><span class="badge" style="background:#2e7d4f">獲得</span> ${u?`<span class="badge uniq">★目玉 ${"★".repeat(u.r)}</span> `:""}<b>${esc(rp.name)}</b> ${rp.age}歳(${esc(rp.background)})・${esc(rp.personality)}<br>${desc}</span>${infoBtnHtml(rp)}</div>`; };
     const newCards= item.type==="twoway"? newCard(item.bat,batDesc(item.bat))+newCard(item.pit,pitDescFull(item.pit)) : newCard(item.p, item.type==="batter"? batDesc(item.p) : pitDescFull(item.p));
     let html;
     if(item.type==="twoway"){
       html = !draft.twStep
-        ? `<div style="width:100%"><h3>${pickName}(${draft.posting?"ポスティング":"逆指名"}・二刀流)- ①打者として入れ替える控え野手を選んでください</h3>${newCards}<p class="small">入れ替えた選手は2軍へ移ります。</p>`+t.bench.map((rp,i)=>row(rp,batDesc(rp),`draftSwap(${i},'bench')`,"控え")).join("")
-        : `<div style="width:100%"><h3>${pickName}(${draft.posting?"ポスティング":"逆指名"}・二刀流)- ②投手として入れ替える先発を選んでください</h3>${newCards}<p class="small">入れ替えた選手は2軍へ移ります。</p>`+t.rotation.map((rp,i)=>row(rp,pitDesc(rp),`draftSwap(${i},'rotation')`,"先発")).join("");
+        ? `<div style="width:100%"><h3>${esc(pickName)}(${draft.posting?"ポスティング":"逆指名"}・二刀流)- ①打者として入れ替える控え野手を選んでください</h3>${newCards}<p class="small">入れ替えた選手は2軍へ移ります。</p>`+t.bench.map((rp,i)=>row(rp,batDesc(rp),`draftSwap(${i},'bench')`,"控え")).join("")
+        : `<div style="width:100%"><h3>${esc(pickName)}(${draft.posting?"ポスティング":"逆指名"}・二刀流)- ②投手として入れ替える先発を選んでください</h3>${newCards}<p class="small">入れ替えた選手は2軍へ移ります。</p>`+t.rotation.map((rp,i)=>row(rp,pitDesc(rp),`draftSwap(${i},'rotation')`,"先発")).join("");
     } else {
       const type = item.type==="batter"? "bat":"pit";
       const fa={length:farmTotal(t)}, fm=FARM_MAX;
-      html = `<div style="width:100%"><h3>${draft.selectedIdx==="offer"? `${pickName}(逆指名)` : draft.phase==="lottery"? `🎉 ${pickName}の交渉権を獲得!` : `${pickName}を指名`} - 入団先を選んでください</h3>
+      html = `<div style="width:100%"><h3>${draft.selectedIdx==="offer"? `${esc(pickName)}(逆指名)` : draft.phase==="lottery"? `🎉 ${esc(pickName)}の交渉権を獲得!` : `${esc(pickName)}を指名`} - 入団先を選んでください</h3>
         ${newCards}
         <div class="playerRow"><span><b>2軍に入れる</b> <span class="small">(2軍 ${fa.length}/${fm}${fa.length>=fm?"・満員(あふれた分の退団は、ドラフトのあとにまとめて決めます)":""})</span></span><button class="act" onclick="draftToFarm()">2軍へ</button></div>
         <p class="small" style="margin-top:8px">または、1軍の選手と入れ替え(入れ替えた選手は2軍へ移ります):</p>`;
@@ -8455,36 +8455,36 @@ function draftScreenHtml(){
   const round = draft.mode==="joint"? (lottery? 1 : Math.floor(draft.pickNo/teams)+2) : null;
   let html=`<div style="width:100%"><div class="draftTopBar"><h3 style="margin:0">${title}</h3><button class="sec" onclick="confirmFinishDraft()">指名を終える</button></div>`;
   if(lottery){
-    html+=`<p><b>第1巡目・入札 — ${me.name}の${draft.lotteryRound? "再入札(外れ1位)":"1位入札"}です</b><br><span class="small">全球団が一斉に入札し、重なったら抽選。外れた球団は残りの候補から再入札します。</span></p>`;
-    if(draft.myLost) html+=`<div class="notice" style="margin:6px 0">🎯 <b>${draft.myLost}</b>の抽選に外れました。残りの候補から再入札してください。</div>`;
+    html+=`<p><b>第1巡目・入札 — ${esc(me.name)}の${draft.lotteryRound? "再入札(外れ1位)":"1位入札"}です</b><br><span class="small">全球団が一斉に入札し、重なったら抽選。外れた球団は残りの候補から再入札します。</span></p>`;
+    if(draft.myLost) html+=`<div class="notice" style="margin:6px 0">🎯 <b>${esc(draft.myLost)}</b>の抽選に外れました。残りの候補から再入札してください。</div>`;
   } else {
     html+= draft.mode==="joint"
-      ? `<p><b>第${round}巡目・全体${draft.teams.length+draft.pickNo+1}番目 — ${me.name}の指名番です</b><br><span class="small">指名済み ${draft.myPicks}/${dfCap(me)}人。2巡目以降は両リーグを合わせた勝率の低い順(偶数巡は逆順)。</span></p>`
-      : `<p><b>${me.name}の独自スカウト</b><br><span class="small">獲得済み ${draft.myPicks}/${dfCap(me)}人。上位リーグの合同ドラフトは終了しています。</span></p>`;
+      ? `<p><b>第${round}巡目・全体${draft.teams.length+draft.pickNo+1}番目 — ${esc(me.name)}の指名番です</b><br><span class="small">指名済み ${draft.myPicks}/${dfCap(me)}人。2巡目以降は両リーグを合わせた勝率の低い順(偶数巡は逆順)。</span></p>`
+      : `<p><b>${esc(me.name)}の独自スカウト</b><br><span class="small">獲得済み ${draft.myPicks}/${dfCap(me)}人。上位リーグの合同ドラフトは終了しています。</span></p>`;
   }
   if(draft.lotteryLog.length){
     const last=draft.lotteryLog.slice(-2);
-    html+=`<div class="notice" style="margin:6px 0"><b>🎰 1位入札の抽選結果</b>`+last.map(r=>r.items.map(x=>`<div class="small" style="margin-top:3px">${x.attn?attnHtml(x.attn)+" ":""}${x.unique?'<span class="badge uniq">★目玉</span> ':''}<b>${x.name}</b>:${x.bidders.length}球団競合(${x.bidders.join("・")})→ <b style="color:var(--gold)">${x.winner}</b></div>`).join("")).join("")+`</div>`;
+    html+=`<div class="notice" style="margin:6px 0"><b>🎰 1位入札の抽選結果</b>`+last.map(r=>r.items.map(x=>`<div class="small" style="margin-top:3px">${x.attn?attnHtml(x.attn)+" ":""}${x.unique?'<span class="badge uniq">★目玉</span> ':''}<b>${esc(x.name)}</b>:${x.bidders.length}球団競合(${x.bidders.map(esc).join("・")})→ <b style="color:var(--gold)">${esc(x.winner)}</b></div>`).join("")).join("")+`</div>`;
   }
   html+=fcDraftNoteHtml();   // draft-fa:補償の指名権
   draft.offers.forEach((o,k)=>{
     const q=o.item.p, u=o.item.unique;
     html+=`<div class="card" style="border-color:var(--gold);margin:8px 0">
-      <h4 style="margin:0 0 4px">⭐ 逆指名:${u?`<span class="badge uniq">★目玉 ${"★".repeat(u.r)}</span> `:""}${q.name}(${q.age}歳・${q.background})</h4>
-      <p class="small">${o.reason}<br>${draftCandDesc(o.item)}${u?`<br>${uqBlurb(u)}`:""}<br>${draft.mode==="joint"?"受け入れると、1巡目の指名権を使います。":"受け入れると、獲得枠を1つ使います。"}</p>
+      <h4 style="margin:0 0 4px">⭐ 逆指名:${u?`<span class="badge uniq">★目玉 ${"★".repeat(u.r)}</span> `:""}${esc(q.name)}(${q.age}歳・${esc(q.background)})</h4>
+      <p class="small">${esc(o.reason)}<br>${draftCandDesc(o.item)}${u?`<br>${uqBlurb(u)}`:""}<br>${draft.mode==="joint"?"受け入れると、1巡目の指名権を使います。":"受け入れると、獲得枠を1つ使います。"}</p>
       <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="act" onclick="draftAcceptOffer(${k})">受け入れる</button><button class="sec" onclick="draftDeclineOffer(${k})">断る</button></div></div>`;
   });
   if(draft.twoWayState==="offer" && draft.twoWay && draft.posting){
     const b=draft.twoWay.bat, q=draft.twoWay.pit, cost=postingCost(), ok=clubPoints>=cost;
     html+=`<div class="card" style="border-color:var(--gold);margin:8px 0">
-      <h4 style="margin:0 0 4px">🌏 ポスティング:海の向こうの二刀流、${b.name}(${b.age}歳・${b.background})が移籍を希望しています</h4>
+      <h4 style="margin:0 0 4px">🌏 ポスティング:海の向こうの二刀流、${esc(b.name)}(${b.age}歳・${esc(b.background)})が移籍を希望しています</h4>
       <p class="small">二刀流 打:ミ${gSpanP(b,"meet")}/パ${gSpanP(b,"power")} 投:球速${gSpanP(q,"velo")}/制球${gSpanP(q,"control")}<br>球団ポイント${cost}点で入札できます(人気が高いほど少ない点で済みます。所持${clubPoints}点)。指名権は使いません。入札しない場合は、このまま見送ります。</p>
       <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="act" ${ok?"":"disabled"} onclick="draftAcceptTwoWay()">${ok?`${cost}点で入札する`:"球団ポイントが足りません"}</button><button class="sec" onclick="draftDeclineTwoWay()">見送る</button></div></div>`;
   }
   if(draft.twoWayState==="offer" && draft.twoWay && !draft.posting && (lottery || draft.mode!=="joint")){
     const b=draft.twoWay.bat, q=draft.twoWay.pit;
     html+=`<div class="card" style="border-color:var(--gold);margin:8px 0">
-      <h4 style="margin:0 0 4px">⭐ 逆指名:${b.name}(${b.age}歳・${b.background})が貴球団を逆指名しています</h4>
+      <h4 style="margin:0 0 4px">⭐ 逆指名:${esc(b.name)}(${b.age}歳・${esc(b.background)})が貴球団を逆指名しています</h4>
       <p class="small">二刀流 打:ミ${gSpanP(b,"meet")}/パ${gSpanP(b,"power")} 投:球速${gSpanP(q,"velo")}/制球${gSpanP(q,"control")}<br>${draft.mode==="joint"?"受け入れると、この巡目(1巡目)の指名権を使います。":"受け入れると、獲得枠を1つ使います。"}断ると、どの球団にも入団しません。</p>
       <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="act" onclick="draftAcceptTwoWay()">受け入れる</button><button class="sec" onclick="draftDeclineTwoWay()">断る</button></div></div>`;
   }
@@ -8493,7 +8493,7 @@ function draftScreenHtml(){
     const {wp,recs}=draftRecommendations(me);
     recSet=new Set(recs);
     if(wp) html+=`<div class="notice" style="margin:8px 0"><b>🔍 ウィークポイント:${AREA_LABEL[wp.area]}</b> <span class="small">${wp.gap<=-100? "守れる選手がいません" : `(リーグ平均と比べて ${fmtSigned(wp.gap)})`}</span><br>
-      ${recs.length? `<span class="small">おすすめ:</span> `+recs.map(it=>`<b>${it.p.name}</b>`).join("、") : `<span class="small">候補の中に、いまの選手より力が上の選手はいません。</span>`}
+      ${recs.length? `<span class="small">おすすめ:</span> `+recs.map(it=>`<b>${esc(it.p.name)}</b>`).join("、") : `<span class="small">候補の中に、いまの選手より力が上の選手はいません。</span>`}
       <div class="small" style="margin-top:4px;opacity:.8">設定の「表示」でオフにできます。</div></div>`;
   }
   const f=draft.filter;
@@ -8506,7 +8506,7 @@ function draftScreenHtml(){
   if(retryEnabled){ list.sort((x,y)=> (y.it.p.retry&&y.it.p.retry.track?1:0)-(x.it.p.retry&&x.it.p.retry.track?1:0)); if(draft.retryNote) html+=`<div class="notice" style="margin:6px 0">${draft.retryNote}</div>`; if(draft.active && !lottery && draft.mode==="joint") html+=`<p class="small" style="margin:4px 0">☆追跡:指名されなかった高校生・大学生のうち、気になる選手に印を付けられます(${RETRY_TRACK_MAX}人まで)。印の選手が何年かあとに戻ってきたら、お知らせします。</p>`; }
   if(draft.pool.some(ssItem)) list.sort((x,y)=> ssOrd(x.it)-ssOrd(y.it));   // v1.5.i:指名リストの順を上に
   { dcPadKeys=list.map(({it})=>dcKey(it.p)); const selK= dcPadKeys.includes(dcPadSel)? dcPadSel : dcPadKeys[0];
-    dcPadCache=list.map(({it})=>{ const q=it.p, u=it.unique; return `<div class="dcPadH"><span class="dcPadFace">${fcCand(q,56)}</span>${ssItem(it)? ssMarkHtml(q) : ""}${u?`<span class="badge uniq">★目玉 ${"★".repeat(u.r)}</span> `:""}${q.name}${u?`「${u.title}」`:""} ${q.age}歳(${q.background})</div>${draftCandLines(it)}${u?`<div class="small" style="margin-top:3px">${uqBlurb(u)}</div>`:""}`; });
+    dcPadCache=list.map(({it})=>{ const q=it.p, u=it.unique; return `<div class="dcPadH"><span class="dcPadFace">${fcCand(q,56)}</span>${ssItem(it)? ssMarkHtml(q) : ""}${u?`<span class="badge uniq">★目玉 ${"★".repeat(u.r)}</span> `:""}${esc(q.name)}${u?`「${esc(u.title)}」`:""} ${q.age}歳(${esc(q.background)})</div>${draftCandLines(it)}${u?`<div class="small" style="margin-top:3px">${uqBlurb(u)}</div>`:""}`; });
     const rows=list.map(({it,i},k)=>{ const q=it.p, u=it.unique;
       const lead=`${ssLeadHtml(it)}${u?`<span class="badge uniq">★目玉 ${"★".repeat(u.r)}</span>`:""}${recSet.has(it)?'<span class="badge" style="background:var(--gold);color:var(--onGold,var(--field2))">おすすめ</span>':''}${(q.retry)?`<span class="badge retryTag">再挑戦</span>`:""}`;
       return dcRowHtml(k, dcPadKeys[k]===selK, lead, q, dcPosLabel(it), `${retryTrackBtn(it)}${ssItem(it)? ssMarkBtn("d",i,q) : ""}${ssHid(it)? "" : infoBtnHtml(q)}<button class="sec" onclick="${lottery?`draftBid(${i})`:`draftSelectPick(${i})`}">${lottery?"入札":"指名"}</button>`, u?" uniqRow":""); }).join("");
@@ -8516,7 +8516,7 @@ function draftScreenHtml(){
     <button class="act" onclick="confirmFinishDraft()">指名を終える</button></div>`;
   if(draft.mode==="joint") html+=`<div style="width:100%;margin-top:10px">${dfBoardWrap()}</div>`;   // draft-fa:「直近の指名」を指名ボードに
   else { const recent=draft.log.slice(-8).reverse();
-  if(recent.length) html+=`<div style="width:100%;margin-top:10px"><h4>直近の指名</h4>${recent.map(x=>`<div class="playerRow"><span>${x.round?`${x.round}巡`:""} ${x.name} [${x.pos}]${x.note?` <span class="badge">${x.note}</span>`:""}${x.ssTaken? ` <span class="badge ssMk">あなたの${"◎○△"[x.ssTaken-1]}</span>` : ""}</span><span class="small">${x.team}</span></div>`).join("")}</div>`; }
+  if(recent.length) html+=`<div style="width:100%;margin-top:10px"><h4>直近の指名</h4>${recent.map(x=>`<div class="playerRow"><span>${x.round?`${x.round}巡`:""} ${esc(x.name)} [${esc(x.pos)}]${x.note?` <span class="badge">${esc(x.note)}</span>`:""}${x.ssTaken? ` <span class="badge ssMk">あなたの${"◎○△"[x.ssTaken-1]}</span>` : ""}</span><span class="small">${esc(x.team)}</span></div>`).join("")}</div>`; }
   return html;
 }
 /* ===== ドラフトの再挑戦(v1.2.b) =====
@@ -8581,8 +8581,8 @@ function retryInject(pool,mine){
     retryGrow(e); pool.push({type:e.type, p:e.p}); if(e.track) back.push(e.p); return false;
   });
   if(mine && draft){ const msg=[];
-    if(back.length) msg.push(`🔭 追跡していた ${back.map(p=>`<b>${p.name}</b>(${p.retry.from}→${p.retry.route})`).join("、")} が、もう一度ドラフト候補に出てきました。`);
-    if(gone.length) msg.push(`追跡していた ${gone.join("、")} は、プロを目指さない道を選んだようです。`);
+    if(back.length) msg.push(`🔭 追跡していた ${back.map(p=>`<b>${esc(p.name)}</b>(${esc(p.retry.from)}→${esc(p.retry.route)})`).join("、")} が、もう一度ドラフト候補に出てきました。`);
+    if(gone.length) msg.push(`追跡していた ${gone.map(esc).join("、")} は、プロを目指さない道を選んだようです。`);
     draft.retryNote= msg.join("<br>");
     if(back.length) setTimeout(()=>noteToast("retry",`追跡していた${back[0].name}が、ドラフト候補に戻ってきました`),300);
   }
@@ -8596,7 +8596,7 @@ function retryDescHtml(q){
 function retryTrackBtn(it){
   if(!retryEnabled || !draft.active || draft.mode!=="joint" || !retryEligible(it)) return "";
   const on=(draft.track||[]).includes(it.p.name);
-  return `<button class="sec retryBtn${on? " on" : ""}" type="button" aria-pressed="${on}" onclick="retryToggle(${JSON.stringify(it.p.name).replace(/"/g,"&quot;")})">${on? "★追跡中" : "☆追跡"}</button>`;
+  return `<button class="sec retryBtn${on? " on" : ""}" type="button" aria-pressed="${on}" onclick="retryToggle(${escJs(it.p.name)})">${on? "★追跡中" : "☆追跡"}</button>`;
 }
 function retryToggle(name){
   if(!draft.track) draft.track=[];
@@ -8909,7 +8909,7 @@ function hlPt(ang,dist){ const r=ang*Math.PI/180; return [HL_HX+dist*Math.cos(r)
 function hlRand(seed){ const x=Math.sin(seed*9301.7+49297)*233280; return x-Math.floor(x); }
 // 守備位置ごとの札の場所(本塁からの角度・距離)
 const HL_POS={投:[90,46],一:[50,74],二:[70,108],遊:[110,108],三:[130,74],左:[128,150],中:[90,145],右:[52,150]};
-function hlTag(x,y,t,cls){ const w=Math.max(18,[...t].length*8+6); return `<g class="${cls}"><rect x="${(x-w/2).toFixed(1)}" y="${(y-7).toFixed(1)}" width="${w}" height="13" rx="3"/><text x="${x.toFixed(1)}" y="${(y+2.5).toFixed(1)}" text-anchor="middle">${t}</text></g>`; }
+function hlTag(x,y,t,cls){ const w=Math.max(18,[...t].length*8+6); return `<g class="${cls}"><rect x="${(x-w/2).toFixed(1)}" y="${(y-7).toFixed(1)}" width="${w}" height="13" rx="3"/><text x="${x.toFixed(1)}" y="${(y+2.5).toFixed(1)}" text-anchor="middle">${esc(t)}</text></g>`; }
 // 状況の帯(フィールドの上):アウト・走者・点差。観戦と采配で共通
 /* ===== v1.4.r:観戦と采配の図の名前札を「守備」「走者」で切り替える(図の外、状況の帯の右端のボタン) =====
    html の data-hlnm="pos"(守備の札だけ)/"run"(走者の札だけ。走者がいない図では守備の札を出す)。打者の札はいつも出す。
@@ -8938,8 +8938,8 @@ function hlSitBar(ev,r){
   const me=league&&league[myTeam], inv= me && (r.homeTeam.name===me.name || r.awayTeam.name===me.name), dA=ev.after.a-ev.after.h;
   let main;
   if(inv){ const my= r.awayTeam.name===me.name? dA : -dA; main= my>0? `${my}点リード` : my<0? `${-my}点ビハインド` : "同点"; }
-  else main= dA===0? "同点" : `${dA>0? r.awayTeam.name : r.homeTeam.name} ${Math.abs(dA)}点リード`;
-  return sitBarHtml(ev.outs||0, ev.rn||(ev.bases||[]).map(b=>!!b), main, ev.team? (ev.kind==="pitch_change"? `守備:${ev.team}` : `攻撃:${ev.team}`) : "", hlIsGameEnd(r,ev));
+  else main= dA===0? "同点" : `${esc(dA>0? r.awayTeam.name : r.homeTeam.name)} ${Math.abs(dA)}点リード`;
+  return sitBarHtml(ev.outs||0, ev.rn||(ev.bases||[]).map(b=>!!b), main, ev.team? (ev.kind==="pitch_change"? `守備:${esc(ev.team)}` : `攻撃:${esc(ev.team)}`) : "", hlIsGameEnd(r,ev));
 }
 function hlNames(ev,r,opt){
   const defs=(r.log&&r.log.defs)||[], d=(ev.fd!==undefined && ev.fd!==null)? defs[ev.fd] : null, m=d&&(d.m||d);
@@ -8962,7 +8962,7 @@ function hlPartialLine(r,ev){
   let A=ai.slice(0,ev.inn-1), H=hi.slice(0,ev.inn-1);
   if(ev.half==="表") A=A.concat([ev.after.a-sum(A)]); else { A=ai.slice(0,ev.inn); H=H.concat([ev.after.h-sum(H)]); }
   const n=Math.max(9,A.length,H.length), cols=[...Array(n).keys()];
-  const row=(nm,arr,tot)=>`<tr><td class="l">${nm}</td>${cols.map(i=>`<td>${i<arr.length? arr[i] : ""}</td>`).join("")}<td><b>${tot}</b></td></tr>`;
+  const row=(nm,arr,tot)=>`<tr><td class="l">${esc(nm)}</td>${cols.map(i=>`<td>${i<arr.length? arr[i] : ""}</td>`).join("")}<td><b>${tot}</b></td></tr>`;
   return `<div class="overflow"><table class="lineScore"><tr><th class="l"></th>${cols.map(i=>`<th>${i+1}</th>`).join("")}<th>計</th></tr>${row(r.awayTeam.name,A,ev.after.a)}${row(r.homeTeam.name,H,ev.after.h)}</table></div>`;
 }
 let hlClipSeq=0;   // 図ごとに切り抜きの名前を変える(観戦と采配の図が同時にあっても、芝の輪がはみ出さないように)
@@ -9038,7 +9038,7 @@ function hlSceneInner(ev,seed){
   if(ev.kind==="BB") out+=`<text class="f-text f-late" x="${HL_HX}" y="${HL_HY-66}" font-size="24" text-anchor="middle">${ev.hp? "死球" : "四球"}</text>`;
   if(ev.kind==="pitch_change"){
     out+=`<circle class="f-pulse" cx="${HL_HX}" cy="${HL_HY-45}" r="10"/>`;
-    out+=`<text class="f-text" x="${HL_HX}" y="${HL_HY-72}" font-size="16" text-anchor="middle">${ev.to}</text>`;
+    out+=`<text class="f-text" x="${HL_HX}" y="${HL_HY-72}" font-size="16" text-anchor="middle">${esc(ev.to)}</text>`;
   }
   return out;
 }
@@ -9142,7 +9142,7 @@ function hlBatTeam(r,ev){ return ev.half==="表"? r.awayTeam.name : r.homeTeam.n
 function hlOutsHtml(n){ return [0,1,2].map(i=>`<b class="${i<n?"on":""}"></b>`).join(""); }
 function hlSetScore(r,sc,anim){
   const fa= anim && sc.a!==hlShown.a, fh= anim && sc.h!==hlShown.h;
-  hlId("hlScoreNow").innerHTML=`${r.awayTeam.name} <b class="${fa?"flip":""}">${sc.a}</b> - <b class="${fh?"flip":""}">${sc.h}</b> ${r.homeTeam.name}`;
+  hlId("hlScoreNow").innerHTML=`${esc(r.awayTeam.name)} <b class="${fa?"flip":""}">${sc.a}</b> - <b class="${fh?"flip":""}">${sc.h}</b> ${esc(r.homeTeam.name)}`;
   hlShown={a:sc.a,h:sc.h};
 }
 function hlSetBanner(t,cls){
@@ -9152,8 +9152,8 @@ function hlSitBarS(r,ev,outs,rn,sc){
   const me=league&&league[myTeam], inv= me && (r.homeTeam.name===me.name || r.awayTeam.name===me.name), dA=sc.a-sc.h;
   let main;
   if(inv){ const my= r.awayTeam.name===me.name? dA : -dA; main= my>0? `${my}点リード` : my<0? `${-my}点ビハインド` : "同点"; }
-  else main= dA===0? "同点" : `${dA>0? r.awayTeam.name : r.homeTeam.name} ${Math.abs(dA)}点リード`;
-  return sitBarHtml(outs, rn, main, ev.team? (ev.kind==="pitch_change"? `守備:${ev.team}` : `攻撃:${ev.team}`) : "", outs>=3 && hlIsGameEnd(r,{inn:ev.inn,half:ev.half,outs:3}));
+  else main= dA===0? "同点" : `${esc(dA>0? r.awayTeam.name : r.homeTeam.name)} ${Math.abs(dA)}点リード`;
+  return sitBarHtml(outs, rn, main, ev.team? (ev.kind==="pitch_change"? `守備:${esc(ev.team)}` : `攻撃:${esc(ev.team)}`) : "", outs>=3 && hlIsGameEnd(r,{inn:ev.inn,half:ev.half,outs:3}));
 }
 // その場面の回までのラインスコア。which=before(打つ前)/after(打ったあと)。mark=今の回に入った得点を色で示す
 function hlLineX(r,ev,which,mark){
@@ -9161,7 +9161,7 @@ function hlLineX(r,ev,which,mark){
   let A=ai.slice(0,ev.inn-1), H=hi.slice(0,ev.inn-1), na=-1, nh=-1;
   if(ev.half==="表"){ A=A.concat([sc.a-sum(A)]); na=A.length-1; } else { A=ai.slice(0,ev.inn); H=H.concat([sc.h-sum(H)]); nh=H.length-1; }
   const n=Math.max(9,A.length,H.length), cols=[...Array(n).keys()];
-  const row=(nm,arr,tot,nw)=>`<tr><td class="l">${nm}</td>${cols.map(i=>`<td class="${mark && i===nw && arr[i]>0? "new" : ""}">${i<arr.length? arr[i] : ""}</td>`).join("")}<td><b>${tot}</b></td></tr>`;
+  const row=(nm,arr,tot,nw)=>`<tr><td class="l">${esc(nm)}</td>${cols.map(i=>`<td class="${mark && i===nw && arr[i]>0? "new" : ""}">${i<arr.length? arr[i] : ""}</td>`).join("")}<td><b>${tot}</b></td></tr>`;
   return `<div class="overflow"><table class="lineScore"><tr><th class="l"></th>${cols.map(i=>`<th>${i+1}</th>`).join("")}<th>計</th></tr>${row(r.awayTeam.name,A,sc.a,na)}${row(r.homeTeam.name,H,sc.h,nh)}</table></div>`;
 }
 function hlSetLine(r,ev,which,mark){ const ln=hlId("hlLine"); if(ln){ ln.innerHTML=hlLineX(r,ev,which,mark)+tickerHtml(hlTicker,ev.inn,ev.half,false); ln.style.display=""; } }
@@ -9183,7 +9183,7 @@ function hlFlowListHtml(){
   q.forEach((e,i)=>{
     const shown= i<highlightIdx || (i===highlightIdx && hlStageName==="play" && hlPlayDone); if(!shown) return;
     const who= e.kind==="pitch_change"? (e.to||"") : (e.batter||""), sc= e.after? `${e.after.a}-${e.after.h}` : "";
-    rows.push(`<li class="${i===highlightIdx? "cur" : ""}"><span class="fI">${e.inn}回${e.half}</span><span class="fT">${hlBanner(e)}</span><span class="fB">${who? surnameOf(who) : ""}</span><span class="fS">${sc}</span></li>`);
+    rows.push(`<li class="${i===highlightIdx? "cur" : ""}"><span class="fI">${e.inn}回${e.half}</span><span class="fT">${hlBanner(e)}</span><span class="fB">${who? esc(surnameOf(who)) : ""}</span><span class="fS">${sc}</span></li>`);
   });
   return `<div class="fH">この試合の流れ</div>`+(rows.length? `<ul>${rows.reverse().join("")}</ul>` : `<p class="small fNone">まだありません</p>`);
 }
@@ -9202,15 +9202,15 @@ function hlBurst(x,y){
   let ls=""; for(let k=0;k<10;k++){ const a=k*36*Math.PI/180; ls+=`<line x1="${(Math.cos(a)*6).toFixed(1)}" y1="${(Math.sin(a)*6).toFixed(1)}" x2="${(Math.cos(a)*16).toFixed(1)}" y2="${(Math.sin(a)*16).toFixed(1)}"/>`; }
   return `<g transform="translate(${x.toFixed(1)},${Math.max(y,18).toFixed(1)})"><g class="f-burst" opacity="0">${ls}<animate attributeName="opacity" values="0;1;0" begin=".85s" dur=".9s" fill="freeze"/><animateTransform attributeName="transform" type="scale" from=".3" to="1.6" begin=".85s" dur=".9s" fill="freeze"/></g></g>`;
 }
-function hlCutin(side,no,name,sub){ return `<div class="hlCutin ${side}"><span class="cutNo">${(no===null||no===undefined)? "" : no}</span><span><span class="cutName">${name}</span><br><span class="cutSub">${sub}</span></span></div>`; }
+function hlCutin(side,no,name,sub){ return `<div class="hlCutin ${side}"><span class="cutNo">${(no===null||no===undefined)? "" : no}</span><span><span class="cutName">${esc(name)}</span><br><span class="cutSub">${sub}</span></span></div>`; }
 function hlTodayText(ev){ if(typeof ev.td!=="string") return ""; const [ab,h]=ev.td.split(","); return ` ・今日 ${ab}打数${h}安打`; }
 function hlStageHtml(inner,over){ return `<div class="hlStage" id="hlStage">${inner}${over||""}</div>`; }
 function hlPreBanner(ev){ if(ev.kind==="pitch_change") return "ベンチが動く"; if(ev.fw) return "ラストイヤーの打席へ"; if(ev.kind==="pinch") return bfMyAtBat(ev)? "チャンス到来" : "ピンチ到来"; return (ev.pn||[]).some(Boolean)? "チャンス到来" : "打席へ"; }
 function hlPreCaption(r,ev){
   const w=`${ev.inn}回${ev.half}`, bat=hlBatTeam(r,ev), fld= ev.half==="表"? r.homeTeam.name : r.awayTeam.name;
-  if(ev.kind==="pitch_change") return `<div>${w}、${ev.team}の守り。</div><div>${ev.team}のベンチが動く。</div>`;
-  if(ev.kind==="pinch") return `<div>${w}、${bat}の攻撃。</div><div>マウンドに${ev.pitcher}、打席に${ev.batter}。</div>${vsHlHtml(ev)}`;
-  return `<div>${w}、${bat}の攻撃。</div><div>打席に${ev.batter}。</div>${vsHlHtml(ev)}`;
+  if(ev.kind==="pitch_change") return `<div>${w}、${esc(ev.team)}の守り。</div><div>${esc(ev.team)}のベンチが動く。</div>`;
+  if(ev.kind==="pinch") return `<div>${w}、${esc(bat)}の攻撃。</div><div>マウンドに${esc(ev.pitcher)}、打席に${esc(ev.batter)}。</div>${vsHlHtml(ev)}`;
+  return `<div>${w}、${esc(bat)}の攻撃。</div><div>打席に${esc(ev.batter)}。</div>${vsHlHtml(ev)}`;
 }
 // 前の場面から今の場面までの間(得点の有無)
 function hlGapText(r,p,c){
@@ -9234,7 +9234,7 @@ function hlRenderInter(r,ev){
   hlStageName="inter"; hlPlayDone=false;
   const p= highlightIdx>0? highlightQueue[highlightIdx-1] : null, pb= !p && ev.inn===1 && ev.half==="表";   // v1.7.e:プレイボールは1回表から始まるときだけ
   hlId("hlInning").textContent=`${ev.inn}回${ev.half}`; hlId("hlOuts").innerHTML=hlOutsHtml(0); hlSetScore(r,ev.before,false);
-  hlId("hlSvg").innerHTML=hlSitBarS(r,ev,0,[null,null,null],ev.before)+hlStageHtml(`<div class="hlInter"><div class="iKick">${!pb? (!p && r.tn? tenouTag() : "&nbsp;") : "プレイボール"+(r.tn? tenouTag() : "")}</div><div class="iInn">${ev.inn}回${ev.half}</div><div class="iTeam">${hlBatTeam(r,ev)}の攻撃</div><div class="iScore">${r.awayTeam.name} ${ev.before.a} - ${ev.before.h} ${r.homeTeam.name}</div><div class="iGap">${hlGapText(r,p,ev)}</div></div>`);
+  hlId("hlSvg").innerHTML=hlSitBarS(r,ev,0,[null,null,null],ev.before)+hlStageHtml(`<div class="hlInter"><div class="iKick">${!pb? (!p && r.tn? tenouTag() : "&nbsp;") : "プレイボール"+(r.tn? tenouTag() : "")}</div><div class="iInn">${ev.inn}回${ev.half}</div><div class="iTeam">${esc(hlBatTeam(r,ev))}の攻撃</div><div class="iScore">${esc(r.awayTeam.name)} ${ev.before.a} - ${ev.before.h} ${esc(r.homeTeam.name)}</div><div class="iGap">${esc(hlGapText(r,p,ev))}</div></div>`);
   hlSetLine(r,ev,"before",false);
   hlSetBanner("",""); hlId("hlCaption").innerHTML="";
   hlSetProgress();
@@ -9247,7 +9247,7 @@ function hlRenderPre(r,ev){
   let inner=hlStaticRunners(pn,false)+hlNames(ev,r,{runners:pn});
   if(ev.batter && !isPc) inner+=`<circle class="batRing" cx="${HL_HX+HL_BOX.c*hlBatSide(r,ev)}" cy="${HL_HY-HL_BOX.o/2}" r="6"/>`;
   if(isPc) inner+=`<circle class="f-pulse" cx="${HL_HX}" cy="${HL_HY-45}" r="10"/>`;
-  const over= (HLO.fx==="on" && ev.batter && !isPc)? hlCutin("l",ev.bn,ev.batter,`<span class="cutTm">${hlBatTeam(r,ev)}</span>${hlTodayText(ev)}`) : "";
+  const over= (HLO.fx==="on" && ev.batter && !isPc)? hlCutin("l",ev.bn,ev.batter,`<span class="cutTm">${esc(hlBatTeam(r,ev))}</span>${hlTodayText(ev)}`) : "";
   hlId("hlSvg").innerHTML=hlSitBarS(r,ev,isPc? (ev.outs||0) : po, pn, ev.before)+hlStageHtml(hlFieldSvg(inner,hlPreBanner(ev)),over);
   hlSetLine(r,ev,"before",false);
   hlSetBanner(hlPreBanner(ev),"pre");
@@ -9280,11 +9280,11 @@ function hlRenderPlay(r,ev){
   inner+=hlMovingRunners(ev);
   if(ev.kind==="CS") inner+=`<text class="f-text stamp" x="${HL_HX}" y="${HL_HY-66}" font-size="40" text-anchor="middle">OUT</text>`;   // hl-steal
   if(ev.kind==="pinch") inner+=hlStaticRunners((ev.bases||[]),false)+`<text class="f-text stamp" x="${HL_HX}" y="${HL_HY-66}" font-size="40" text-anchor="middle">${ev.orig==="K"?"K":"OUT"}</text>`;
-  if(isPc){ inner+=`<circle class="f-pulse" cx="${HL_HX}" cy="${HL_HY-45}" r="10"/><text class="f-text popIn" x="${HL_HX}" y="${HL_HY-72}" font-size="16" text-anchor="middle">${ev.to}</text>`; over+=hlCutin("r",ev.tn,ev.to,`${ev.role}`); }
+  if(isPc){ inner+=`<circle class="f-pulse" cx="${HL_HX}" cy="${HL_HY-45}" r="10"/><text class="f-text popIn" x="${HL_HX}" y="${HL_HY-72}" font-size="16" text-anchor="middle">${esc(ev.to)}</text>`; over+=hlCutin("r",ev.tn,ev.to,`${esc(ev.role)}`); }
   if(ev.kind==="BB") inner+=`<text class="f-text f-late" x="${HL_HX}" y="${HL_HY-66}" font-size="24" text-anchor="middle">${ev.hp? "死球" : "四球"}</text>`;
   const re=hlRunEnd(ev);
   if(ev.runs>0) inner+=`<text class="f-text f-runs popIn" style="animation-delay:${re}s" x="${HL_HX+14}" y="${HL_HY-8}" font-size="20">+${ev.runs}</text>`;
-  if(HLO.pre!=="on" && ev.batter && ev.kind!=="pinch" && !isPc) over+=hlCutin("l",ev.bn,ev.batter,`<span class="cutTm">${hlBatTeam(r,ev)}</span>${hlTodayText(ev)}`);
+  if(HLO.pre!=="on" && ev.batter && ev.kind!=="pinch" && !isPc) over+=hlCutin("l",ev.bn,ev.batter,`<span class="cutTm">${esc(hlBatTeam(r,ev))}</span>${hlTodayText(ev)}`);
   inner+=hlNames(ev,r,{runners:null});
   hlId("hlSvg").innerHTML=hlSitBarS(r,ev,po,pn,ev.before)+hlStageHtml(hlFieldSvg(inner,hlBanner(ev)),over+bcHlOver(ev));
   { const bx=document.querySelector(".hlBox"); if(bx) bx.scrollTop=0; }
@@ -9805,7 +9805,7 @@ function msFinish(why){
   const rows=(()=>{ try{ return magicRows(magicGroup(me)); }catch(e){ return null; } })();
   const rank= rows? rows.findIndex(x=>x.t===me)+1 : teamRank(me), lead= rows && rows[0] && rows[0].t!==me? gamesBehind(rows[0].t,me) : 0;
   const rs=(MS_REASON[why]||["",""])[en?1:0];
-  const news=s.got.slice(-10).reverse().map(n=>`<div class="msNt"><span class="small">${n.d}</span> ${/^[\p{L}\p{N}]/u.test(n.t)? (NOTICE_ICON[n.k]||"📌")+" " : ""}${n.t}</div>`).join("");
+  const news=s.got.slice(-10).reverse().map(n=>`<div class="msNt"><span class="small">${esc(n.d)}</span> ${/^[\p{L}\p{N}]/u.test(n.t)? (NOTICE_ICON[n.k]||"📌")+" " : ""}${escNt(n.t)}</div>`).join("");
   const span= s.lastDate? `${formatDate(s.start)}〜${formatDate(s.lastDate)}` : formatDate(s.start);
   const html=`<h3>⏩ ${en? "Simmed ahead" : "まとめて進めました"}</h3>
     <p class="msWhy"><b>${rs}</b></p>
@@ -9832,7 +9832,7 @@ function tensionColorRaw(idx){ const L=lightBackground(); return idx===0? (L?"#9
 function personaTag(p){
   const t = tensionEnabled? `<b style="color:${tensionColor(p.tension)}">${TENSION_LEVELS[p.tension]}</b>` : `<span style="opacity:.7">なし</span>`;
   const info = PERSONALITY_INFO[p.personality]||"";
-  return `<div class="gradeRow"><span>性格 / テンション</span><span>${p.personality} / ${t}</span></div>`+
+  return `<div class="gradeRow"><span>性格 / テンション</span><span>${esc(p.personality)} / ${t}</span></div>`+
     (info? `<div class="small" style="padding:3px 0 5px;border-bottom:1px dashed var(--rule);line-height:1.5">${info}</div>` : "");
 }
 function sigMark(p){ return (p.signature? "★":"")+noTagHtml(p); }   // 背番号(v1.0.v)も、名前の前に出す
@@ -10193,7 +10193,7 @@ function buildLineupUI(){
     attachLineupDrag(card,poolIdx);
     const sub=(b.subPos&&b.subPos.length)? ` 副:${b.subPos.join("/")}` : "";
     { const tk= cardFrameOn()? cardTierOf(b).k : ""; if(tk) card.dataset.tier=tk; }
-    card.innerHTML=`<div class="pcTop">${isStarter?'<span class="posSlot"></span>':`<span class="posBadge">${b.fielding}</span>`}<span class="pcName"><span class="fcWide">${fcMini(b,t.name,24)}</span>${sigMark(b)}${esc(b.name)}</span>${tierChipHtml(b,"tcName")}<span class="pcMeta"><span class="fcNarrow">${fcMini(b,t.name,18)}</span>${tierChipHtml(b,"tcMeta")}${b.age}歳 ${b.background} ${b.bats}打${sub}</span>${lockBtnHtml(b)}${infoBtnHtml(b)}</div>
+    card.innerHTML=`<div class="pcTop">${isStarter?'<span class="posSlot"></span>':`<span class="posBadge">${esc(b.fielding)}</span>`}<span class="pcName"><span class="fcWide">${fcMini(b,t.name,24)}</span>${sigMark(b)}${esc(b.name)}</span>${tierChipHtml(b,"tcName")}<span class="pcMeta"><span class="fcNarrow">${fcMini(b,t.name,18)}</span>${tierChipHtml(b,"tcMeta")}${b.age}歳 ${esc(b.background)} ${esc(b.bats)}打${sub}</span>${lockBtnHtml(b)}${infoBtnHtml(b)}</div>
       <div class="statChips">${statChip("ミ",gSpanP(b,"meet"))}${statChip("パ",gSpanP(b,"power"))}${statChip("走",gSpanP(b,"speed"))}<span class="statChip">${condSpan(b.cond)}</span></div>${ymCardLine(b)}`;   /* v1.5.m:今季(昨季)の成績の1行 / v1.3.h:守備力は「詳細」と守備位置の選択で(札は3つ+調子) */
     if(isStarter){
       const posSel=document.createElement("select"); posSel.className="posSelect"; posSel.title="守備位置";
@@ -10235,7 +10235,7 @@ function buildLineupUI(){
   const bcl=document.getElementById("benchCountLine");
   if(bcl){ if(t.rotation.length>=6){ const c=benchCountOf(t); bcl.textContent=`登録${c.reg}人・今日のベンチ入り${c.bench}人(先発のうち、今日投げない${t.rotation.length-1}人は入りません)`; bcl.classList.remove("hidden"); } else bcl.classList.add("hidden"); }
   const rotEl=document.getElementById("rotationSlots");
-  rotEl.innerHTML = t.rotation.map((p,i)=>`<div class="rotCard"${tierAttr(p)}><div class="rotHead"><span class="rotNo">第${i+1}先発</span><span class="rotName">${fcMini(p,t.name,24)}${sigMark(p)}${esc(p.name)}</span>${tierChipHtml(p,"tcName")}<span class="small rotMeta">${tierChipHtml(p,"tcMeta")}${p.age}歳(${p.background}) ${p.throws}投</span>${lockBtnHtml(p)}${infoBtnHtml(p)}</div>
+  rotEl.innerHTML = t.rotation.map((p,i)=>`<div class="rotCard"${tierAttr(p)}><div class="rotHead"><span class="rotNo">第${i+1}先発</span><span class="rotName">${fcMini(p,t.name,24)}${sigMark(p)}${esc(p.name)}</span>${tierChipHtml(p,"tcName")}<span class="small rotMeta">${tierChipHtml(p,"tcMeta")}${p.age}歳(${esc(p.background)}) ${esc(p.throws)}投</span>${lockBtnHtml(p)}${infoBtnHtml(p)}</div>
       <div class="statChips">${statChip("球速",gSpanP(p,"velo"))}${statChip("制球",gSpanP(p,"control"))}${statChip("スタ",gSpanP(p,"stamina"))}<span class="statChip">${condSpan(p.cond)}</span></div>${ymCardLine(p)}</div>`).join("");
 }
 function refreshAllBattersPool(){ /* lineup uses indices into batters+bench merged; keep simple, no-op for now */ }
@@ -10324,27 +10324,27 @@ function renderTeamRoster(idx){
   rosterRefs=[];
   const pool=[...t.batters,...t.bench];
   const pol=DRAFT_POLICIES[teamPolicy(t)];
-  let html=`<p class="small" style="margin:0 0 6px">人気:<b>${popLabel(t)}</b> ドラフト方針:<b>${pol.label}</b>(${pol.desc})</p>${(gameMode==="ex" && t.exMode && t!==league[myTeam])? `<p class="small" style="margin:0 0 6px">今月の打順の組み方:<b>${AUTO_NAME[t.exMode]}</b></p>` : ""}${frontNoteHtml(t)}<h3>${t.name}${archTag(t)}${divTag(t)} - スタメン打順</h3>`;
+  let html=`<p class="small" style="margin:0 0 6px">人気:<b>${popLabel(t)}</b> ドラフト方針:<b>${pol.label}</b>(${pol.desc})</p>${(gameMode==="ex" && t.exMode && t!==league[myTeam])? `<p class="small" style="margin:0 0 6px">今月の打順の組み方:<b>${AUTO_NAME[t.exMode]}</b></p>` : ""}${frontNoteHtml(t)}<h3>${esc(t.name)}${archTag(t)}${divTag(t)} - スタメン打順</h3>`;
   html += t.lineup.map((li,slot)=>{
     const b=pool[li]; const ri=rosterRefs.push({type:"bat",p:b,team:t.name})-1;
-    return `<div class="playerRow"><span>${slot+1}番 [${b.fielding}]</span><span class="pname" onclick="showRosterDetail(${ri})">${sigMark(b)}${b.name}</span></div>`;
+    return `<div class="playerRow"><span>${slot+1}番 [${esc(b.fielding)}]</span><span class="pname" onclick="showRosterDetail(${ri})">${sigMark(b)}${esc(b.name)}</span></div>`;
   }).join("");
   html += `<h3 style="margin-top:12px">控え野手</h3>` + t.bench.map(b=>{
     const ri=rosterRefs.push({type:"bat",p:b,team:t.name})-1;
-    return `<div class="playerRow"><span>[${b.fielding}(副:${b.subPos.join("/")})]</span><span class="pname" onclick="showRosterDetail(${ri})">${sigMark(b)}${b.name}</span></div>`;
+    return `<div class="playerRow"><span>[${esc(b.fielding)}(副:${esc(b.subPos.join("/"))})]</span><span class="pname" onclick="showRosterDetail(${ri})">${sigMark(b)}${esc(b.name)}</span></div>`;
   }).join("");
   html += `<h3 style="margin-top:12px">先発ローテーション</h3>` + t.rotation.map((p,i)=>{
     const ri=rosterRefs.push({type:"pit",p,team:t.name})-1;
-    return `<div class="playerRow"><span>第${i+1}先発</span><span class="pname" onclick="showRosterDetail(${ri})">${sigMark(p)}${p.name}</span></div>`;
+    return `<div class="playerRow"><span>第${i+1}先発</span><span class="pname" onclick="showRosterDetail(${ri})">${sigMark(p)}${esc(p.name)}</span></div>`;
   }).join("");
   html += `<h3 style="margin-top:12px">中継ぎ陣</h3>` + t.bullpen.map(p=>{
     const ri=rosterRefs.push({type:"pit",p,team:t.name})-1;
-    return `<div class="playerRow"><span>${p.bpRole||""}</span><span class="pname" onclick="showRosterDetail(${ri})">${sigMark(p)}${p.name}</span></div>`;
+    return `<div class="playerRow"><span>${esc(p.bpRole||"")}</span><span class="pname" onclick="showRosterDetail(${ri})">${sigMark(p)}${esc(p.name)}</span></div>`;
   }).join("");
   if(t.farm){
     html += `<h3 style="margin-top:12px">2軍(野手${t.farm.bat.length}・投手${t.farm.pit.length})</h3>` +
-      t.farm.bat.map(b=>{ const ri=rosterRefs.push({type:"bat",p:b,team:t.name})-1; return `<div class="playerRow"><span>[${b.fielding}] ${b.age}歳</span><span class="pname" onclick="showRosterDetail(${ri})">${b.name}</span></div>`; }).join("") +
-      t.farm.pit.map(q=>{ const ri=rosterRefs.push({type:"pit",p:q,team:t.name})-1; return `<div class="playerRow"><span>${q.pos} ${q.age}歳</span><span class="pname" onclick="showRosterDetail(${ri})">${q.name}</span></div>`; }).join("");
+      t.farm.bat.map(b=>{ const ri=rosterRefs.push({type:"bat",p:b,team:t.name})-1; return `<div class="playerRow"><span>[${esc(b.fielding)}] ${b.age}歳</span><span class="pname" onclick="showRosterDetail(${ri})">${esc(b.name)}</span></div>`; }).join("") +
+      t.farm.pit.map(q=>{ const ri=rosterRefs.push({type:"pit",p:q,team:t.name})-1; return `<div class="playerRow"><span>${esc(q.pos)} ${q.age}歳</span><span class="pname" onclick="showRosterDetail(${ri})">${esc(q.name)}</span></div>`; }).join("");
   }
   document.getElementById("otherTeamView").innerHTML=html;
 }
@@ -10394,8 +10394,8 @@ function pdSeasonHtml(pl,isPit){
 function showPlayerDetail(pl,type,teamName,opt){
   opt=opt||{};
   const isPit= type!=="bat", uq= pl.uniqueId? uniqueDef(pl) : null;
-  const head= isPit? `${pl.pos}${pl.bpRole && pl.pos!=="先発" && teamName?"("+pl.bpRole+")":""} ${pl.age}歳(${pl.background}) ${pl.throws}投 調子:${condSpan(pl.cond)}`
-    : `[${pl.fielding}(副:${(pl.subPos||[]).join("/")})] ${pl.age}歳(${pl.background}) ${pl.bats}打${pl.benchRole? ` 役割:${pl.benchRole}` : ""} 調子:${condSpan(pl.cond)}`;
+  const head= isPit? `${esc(pl.pos)}${esc(pl.bpRole && pl.pos!=="先発" && teamName?"("+pl.bpRole+")":"")} ${pl.age}歳(${esc(pl.background)}) ${esc(pl.throws)}投 調子:${condSpan(pl.cond)}`
+    : `[${esc(pl.fielding)}(副:${esc((pl.subPos||[]).join("/"))})] ${pl.age}歳(${esc(pl.background)}) ${esc(pl.bats)}打${pl.benchRole? ` 役割:${esc(pl.benchRole)}` : ""} 調子:${condSpan(pl.cond)}`;
   // スキルのページ:固有スキル(称号)・目玉選手の紹介・通常スキル。どれもなければページごと出さない(スキルなしのリーグの、称号のない選手)
   const sig=sigTagHtml(pl), list=skillListHtml(pl)+kimeHtml(pl)+teachHtml(pl), blurb= uq? `<p class="small pdBlurb">★目玉 ${"★".repeat(uq.r)}:${uq.blurb}</p>` : "";
   const nSk=(sig? 1 : 0)+((skillsEnabled && Array.isArray(pl.sk))? pl.sk.filter(id=>SKILLS[id]).length : 0)+((skill2Enabled && pl.kb && KIME[pl.kb])? 1 : 0), hasSk=!!(sig || list || blurb);
@@ -10425,7 +10425,7 @@ function renderRosterView(){
   const t=league[myTeam];
   const el=document.getElementById("rosterView");
   const pool=[...t.batters,...t.bench];
-  el.innerHTML = `<h3 style='margin-top:14px'>中継ぎ陣(役割を設定できます)</h3><div style="margin:0 0 6px">継投の方針:<select onchange="setReliefPolicy(this.value)">${Object.entries(RELIEF_POLICIES).map(([k,l])=>`<option value="${k}"${reliefPolicy(t)===k?" selected":""}>${l}</option>`).join("")}</select></div>` + t.bullpen.map((p,i)=>({p,i})).sort((a,b)=>BP_ORDER.indexOf(a.p.bpRole)-BP_ORDER.indexOf(b.p.bpRole)).map(({p,i})=>`<div class="playerRow"><span>${fcMini(p,t.name,24)}${sigMark(p)}${esc(p.name)} ${p.age}歳(${p.background}) ${p.throws}投</span><span>球速${gSpanP(p,"velo")}/制球${gSpanP(p,"control")}/調子:${condSpan(p.cond)} 役割:<select onchange="setBpRole(${i},this.value)">
+  el.innerHTML = `<h3 style='margin-top:14px'>中継ぎ陣(役割を設定できます)</h3><div style="margin:0 0 6px">継投の方針:<select onchange="setReliefPolicy(this.value)">${Object.entries(RELIEF_POLICIES).map(([k,l])=>`<option value="${k}"${reliefPolicy(t)===k?" selected":""}>${l}</option>`).join("")}</select></div>` + t.bullpen.map((p,i)=>({p,i})).sort((a,b)=>BP_ORDER.indexOf(a.p.bpRole)-BP_ORDER.indexOf(b.p.bpRole)).map(({p,i})=>`<div class="playerRow"><span>${fcMini(p,t.name,24)}${sigMark(p)}${esc(p.name)} ${p.age}歳(${esc(p.background)}) ${esc(p.throws)}投</span><span>球速${gSpanP(p,"velo")}/制球${gSpanP(p,"control")}/調子:${condSpan(p.cond)} 役割:<select onchange="setBpRole(${i},this.value)">
       <option value="抑え" ${p.bpRole==="抑え"?"selected":""}>抑え(9回)</option>
       <option value="セットアッパー" ${p.bpRole==="セットアッパー"?"selected":""}>セットアッパー(8回)</option>
       <option value="7回" ${p.bpRole==="7回"?"selected":""}>7回</option>
@@ -10447,20 +10447,20 @@ function renderIkuseiView(){
       t.ikusei.map((item,i)=>{
         const p=item.p;
         const desc = item.type==="batter"
-          ? `[${p.fielding}] 野手 ミ${gSpanP(p,"meet")}/パ${gSpanP(p,"power")}/走${gSpanP(p,"speed")}`
-          : `投手(${p.pos}) 球速${gSpanP(p,"velo")}/制球${gSpanP(p,"control")}`;
-        return `<div class="playerRow"><span>${esc(p.name)} ${p.age}歳(${p.background}) <span class="badge">契約あと${Math.max(1,IKUSEI_YEARS-(p.ikuYears||0))}年</span>${p.farmGrowth?` <span class="small" style="color:var(--gold)">今季+${p.farmGrowth}</span>`:""}<br><span class="small">${desc}</span> ${persGrowHtml(p)}</span><span style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">${practiceSelect(p,item.type==="batter"?"bat":"pit",`setIkuseiPractice(${i},`)}${infoBtnHtml(p)}<button class="sec" onclick="promoteIkuseiSelect(${i})"${ikuseiDeadlinePassed()?` aria-disabled="true" style="opacity:.55"`:""}>支配下登録</button></span></div>`;
+          ? `[${esc(p.fielding)}] 野手 ミ${gSpanP(p,"meet")}/パ${gSpanP(p,"power")}/走${gSpanP(p,"speed")}`
+          : `投手(${esc(p.pos)}) 球速${gSpanP(p,"velo")}/制球${gSpanP(p,"control")}`;
+        return `<div class="playerRow"><span>${esc(p.name)} ${p.age}歳(${esc(p.background)}) <span class="badge">契約あと${Math.max(1,IKUSEI_YEARS-(p.ikuYears||0))}年</span>${p.farmGrowth?` <span class="small" style="color:var(--gold)">今季+${p.farmGrowth}</span>`:""}<br><span class="small">${desc}</span> ${persGrowHtml(p)}</span><span style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">${practiceSelect(p,item.type==="batter"?"bat":"pit",`setIkuseiPractice(${i},`)}${infoBtnHtml(p)}<button class="sec" onclick="promoteIkuseiSelect(${i})"${ikuseiDeadlinePassed()?` aria-disabled="true" style="opacity:.55"`:""}>支配下登録</button></span></div>`;
       }).join("");
   } else {
     const item=t.ikusei[ikuseiSelectedIdx]; ensureFarm(t);
     const rosterPool = item.type==="batter"? t.bench : t.bullpen;
     const fArr = item.type==="batter"? t.farm.bat : t.farm.pit, fMax = farmMaxFor(item.type==="batter"?"bat":"pit",t);
-    let html = `<h4>${esc(item.p.name)}を支配下に昇格</h4><p class="small" style="margin:0 0 6px">${item.p.age}歳(${item.p.background}) ${persGrowHtml(item.p)}</p>
+    let html = `<h4>${esc(item.p.name)}を支配下に昇格</h4><p class="small" style="margin:0 0 6px">${item.p.age}歳(${esc(item.p.background)}) ${persGrowHtml(item.p)}</p>
       <div class="playerRow"><span><b>2軍に登録</b> <span class="small">(2軍 ${fArr.length}/${fMax}${fArr.length>=fMax?"・満員のため退団者を選びます":""})</span></span><button class="act" onclick="promoteIkuseiToFarm()">2軍へ</button></div>
       <p class="small" style="margin-top:8px">または、1軍の選手と入れ替え(入れ替えた選手は2軍へ移ります):</p>`;
     html += rosterPool.map((rp,i)=>{
       const desc = item.type==="batter"? `ミ${gSpanP(rp,"meet")}/パ${gSpanP(rp,"power")}/走${gSpanP(rp,"speed")}` : `球速${gSpanP(rp,"velo")}/制球${gSpanP(rp,"control")}`;
-      return `<div class="playerRow"><span>${esc(rp.name)} ${rp.age}歳(${rp.background}) ${persGrowHtml(rp)} - ${desc}</span><button class="sec" onclick="promoteIkuseiSwap(${i})">この選手と交代</button></div>`;
+      return `<div class="playerRow"><span>${esc(rp.name)} ${rp.age}歳(${esc(rp.background)}) ${persGrowHtml(rp)} - ${desc}</span><button class="sec" onclick="promoteIkuseiSwap(${i})">この選手と交代</button></div>`;
     }).join("");
     html += `<div style="text-align:center;margin-top:8px"><button class="sec" onclick="promoteIkuseiCancel()">キャンセル</button></div>`;
     el.innerHTML = html;
@@ -11302,7 +11302,7 @@ function ttData(){
 }
 function ttRow(x,i,c){
   const gap= i===0? `<span class="ttGap lead">トップ</span>` : `<span class="ttGap">${c.rate? (c.low? "+" : "−")+ttFmt(x.gap,c.unit).replace(/^0(?=\.)/,"") : `−${x.gap}`}</span>`;
-  return `<li class="${x.mine? "you" : ""}"><span class="ttRk">${x.rank||i+1}</span><span class="ttNm">${teamDot(x.team)}${x.name}</span><span class="ttV">${ttFmt(x.v,c.unit)}</span>${gap}${x.pace!==null && x.pace!==undefined? `<span class="ttPace" title="このペースならシーズンの終わりに">見込み ${x.pace}</span>` : ""}</li>`;
+  return `<li class="${x.mine? "you" : ""}"><span class="ttRk">${x.rank||i+1}</span><span class="ttNm">${teamDot(x.team)}${esc(x.name)}</span><span class="ttV">${ttFmt(x.v,c.unit)}</span>${gap}${x.pace!==null && x.pace!==undefined? `<span class="ttPace" title="このペースならシーズンの終わりに">見込み ${x.pace}</span>` : ""}</li>`;
 }
 function renderTitles(){
   const el=document.getElementById("titlesView"); if(!el) return;
@@ -11312,7 +11312,7 @@ function renderTitles(){
   const any=d.cats.some(c=>c.top.length);
   const head=`<p class="small ttHead">${rem!==null && statsLeagueView==="main"? `残り${rem}試合。` : ""}表彰と同じ11部門です。率の部門(打率・出塁率・防御率)は規定に達した選手だけ。「見込み」は今のペースのままシーズンを終えたときの数(参考)。</p>`;
   if(!any){ el.innerHTML=head+`<p class="small sxNote">まだ試合がありません。</p>`; return; }
-  const card=c=>`<div class="ttCard"><div class="ttT"><b>${c.name}</b>${c.rate? `<span class="small">規定以上 ${c.n}人</span>` : ""}</div>${c.top.length? `<ol class="ttList">${c.top.map((x,i)=>ttRow(x,i,c)).join("")}${c.myBest? `<li class="ttMy you"><span class="ttRk">${c.myBest.rank}</span><span class="ttNm">${teamDot(c.myBest.team)}${c.myBest.name}</span><span class="ttV">${ttFmt(c.myBest.v,c.unit)}</span><span class="ttGap">${c.rate? (c.low? "+" : "−")+ttFmt(c.myBest.gap,c.unit).replace(/^0(?=\.)/,"") : `−${c.myBest.gap}`}</span></li>` : ""}</ol>` : `<p class="small">${c.rate? "規定到達者なし" : "−"}</p>`}</div>`;
+  const card=c=>`<div class="ttCard"><div class="ttT"><b>${c.name}</b>${c.rate? `<span class="small">規定以上 ${c.n}人</span>` : ""}</div>${c.top.length? `<ol class="ttList">${c.top.map((x,i)=>ttRow(x,i,c)).join("")}${c.myBest? `<li class="ttMy you"><span class="ttRk">${c.myBest.rank}</span><span class="ttNm">${teamDot(c.myBest.team)}${esc(c.myBest.name)}</span><span class="ttV">${ttFmt(c.myBest.v,c.unit)}</span><span class="ttGap">${c.rate? (c.low? "+" : "−")+ttFmt(c.myBest.gap,c.unit).replace(/^0(?=\.)/,"") : `−${c.myBest.gap}`}</span></li>` : ""}</ol>` : `<p class="small">${c.rate? "規定到達者なし" : "−"}</p>`}</div>`;
   el.innerHTML=head+`<h3 class="ttH">打撃</h3><div class="ttGrid">${d.cats.filter(c=>c.kind==="bat").map(card).join("")}</div><h3 class="ttH">投手</h3><div class="ttGrid">${d.cats.filter(c=>c.kind==="pit").map(card).join("")}</div>`;
 }
 /* ---- 2人を比べる:成績・能力・通算・推移のグラフ ---- */
@@ -11538,7 +11538,7 @@ function renderDivisionRename(){
     return inMainSide ? (homeLeagueSetting==="nebula"? "ネビュラ":"コスモ") : (homeLeagueSetting==="nebula"? "コスモ":"ネビュラ");
   };
   const tierLbl=l=> leagueFormat==="twodiv"? ((l==="A"||l==="C")?"1部":"2部") : "";
-  el.innerHTML=letters.map(l=>`<div class="slotRow"><span style="width:110px;flex:0 0 110px">${owner(l)} ${tierLbl(l)}</span><input type="text" id="divNameInput_${l}" value="${divisionNames[l]}" style="flex:1"><span class="small" style="margin-left:6px">${divIsRegion()?"地区":"ディビジョン"}</span></div>`).join("");
+  el.innerHTML=letters.map(l=>`<div class="slotRow"><span style="width:110px;flex:0 0 110px">${esc(owner(l))} ${tierLbl(l)}</span><input type="text" id="divNameInput_${l}" value="${esc(divisionNames[l])}" style="flex:1"><span class="small" style="margin-left:6px">${divIsRegion()?"地区":"ディビジョン"}</span></div>`).join("");
 }
 function saveDivisionNames(){
   { const err=Object.keys(divisionNames).map(l=>{ const el=document.getElementById("divNameInput_"+l); return el && el.value.trim()? editNameError(el.value.trim(),"地区名") : ""; }).find(Boolean);
@@ -12038,7 +12038,7 @@ function newsPaperHtml(n){
   const rp=resolvePaper(n), pd=rp.base;
   const fx= paperFxOn()? paperEventClass(n) : "";
   const tc= pd==="sports" && paperTeamOn() && n.team && teamColorMap[n.team]? teamColorMap[n.team] : null;
-  const tcStyle= tc? ` style="--mastBg:${tc};--mastInk:${isLight(tc)? "#111":"#fff"}"` : "";
+  const tcStyle= tc? ` style="--mastBg:${esc(tc)};--mastInk:${isLight(tc)? "#111":"#fff"}"` : "";
   const heads=`<div class="pTop"><div class="pHeads"><div class="pKicker">${esc(n.kicker||"")}</div><h2 class="pHead">${esc(n.headline)}</h2><p class="pSub">${esc(n.sub||"")}</p></div><div class="pVert">${esc(n.vertical||"")}</div></div>`;
   const photo=`<figure class="pPhoto">${newsSceneSvg(n.scene||{})}<figcaption>${esc((n.scene&&n.scene.caption)||"")}</figcaption></figure>`;
   return `<article class="paper pd-${pd} pl-${rp.layout}${fx? " "+fx : ""}${tc? " pc-team" : ""}${goldMastOn()?" goldMast":""}"${tcStyle}>
@@ -12052,7 +12052,7 @@ function newsPaperHtml(n){
 function openNews(id){
   const n=newsArchive.find(x=>x.id===id); if(!n) return;
   n.read=true; refreshNewsBanner();
-  openModal(newsPaperHtml(n)+`<div style="display:flex;gap:8px;justify-content:center;margin-top:10px"><button class="sec" onclick="toggleNewsPin('${n.id}',true)">${n.pinned?"保存を解除":"この号を保存"}</button></div>`);
+  openModal(newsPaperHtml(n)+`<div style="display:flex;gap:8px;justify-content:center;margin-top:10px"><button class="sec" onclick="toggleNewsPin(${escJs(n.id)},true)">${n.pinned?"保存を解除":"この号を保存"}</button></div>`);
   document.getElementById("playerModal").classList.add("paperModal");
   if(document.getElementById("p-news").classList.contains("active")) renderNewsArchive();
 }
@@ -13119,7 +13119,7 @@ function refreshNewsBanner(){
   if(!unread.length){ el.classList.add("hidden"); el.innerHTML=""; infoBandSync(); return; }
   const n=unread[unread.length-1];
   el.classList.remove("hidden");
-  el.innerHTML=`<button class="newsBtn" onclick="openNews('${n.id}')"><span class="newsTag">号外</span><span class="newsHead">${esc(n.headline)}</span>${unread.length>1?`<span class="small">ほか${unread.length-1}件</span>`:""}</button>`;
+  el.innerHTML=`<button class="newsBtn" onclick="openNews(${escJs(n.id)})"><span class="newsTag">号外</span><span class="newsHead">${esc(n.headline)}</span>${unread.length>1?`<span class="small">ほか${unread.length-1}件</span>`:""}</button>`;
   infoBandSync();   // v1.3.h
 }
 function renderNewsArchive(){
@@ -13129,7 +13129,7 @@ function renderNewsArchive(){
   el.innerHTML=`<p class="small">保管中 ${newsArchive.length}号(30年分まで。「保存」した号は期限を過ぎても残ります)</p>`+
     years.map(y=>`<h3 style="margin:14px 0 4px">${y}年目</h3>`+newsArchive.filter(n=>n.year===y).map(n=>`
       <div class="saveRow"><div class="saveInfo"><span class="badge">${esc(NEWS_KIND_LABEL[n.kind]||n.kind)}</span> ${n.pinned?'<span class="badge" style="background:var(--gold);color:var(--onGold,var(--field2))">保存</span> ':''}${n.read?"":'<span class="badge hot">未読</span> '}<b>${esc(n.headline)}</b><div class="small">${esc(n.sub||"")}</div></div>
-      <div class="saveBtns"><button class="sec" onclick="openNews('${n.id}')">読む</button><button class="sec" onclick="toggleNewsPin('${n.id}')">${n.pinned?"保存を解除":"保存"}</button></div></div>`).join("")).join("");
+      <div class="saveBtns"><button class="sec" onclick="openNews(${escJs(n.id)})">読む</button><button class="sec" onclick="toggleNewsPin(${escJs(n.id)})">${n.pinned?"保存を解除":"保存"}</button></div></div>`).join("")).join("");
 }
 
 /* ===== 人気(お金の代わり):勝てば上がり、人気があれば選手が来る。毎年少しずつ平均に戻る ===== */
@@ -13303,14 +13303,14 @@ function newsFA(incoming,p,other){
 function faScreenHtml(){
   setTimeout(()=>showTip("fa"),0);
   const me=league[myTeam], offers=fa.list.filter(e=>e.myOffer).length;
-  const desc=e=> e.type==="bat"? `[${POS_FULL[e.p.fielding]||e.p.fielding}] ミ${gSpanP(e.p,"meet")}/パ${gSpanP(e.p,"power")}/走${gSpanP(e.p,"speed")}/守${gSpanP(e.p,"fieldSkill")}` : `${e.p.pos==="先発"?"先発":"中継ぎ"} 球速${gSpanP(e.p,"velo")}/制球${gSpanP(e.p,"control")}/スタ${gSpanP(e.p,"stamina")}`;
+  const desc=e=> e.type==="bat"? `[${esc(POS_FULL[e.p.fielding]||e.p.fielding)}] ミ${gSpanP(e.p,"meet")}/パ${gSpanP(e.p,"power")}/走${gSpanP(e.p,"speed")}/守${gSpanP(e.p,"fieldSkill")}` : `${e.p.pos==="先発"?"先発":"中継ぎ"} 球速${gSpanP(e.p,"velo")}/制球${gSpanP(e.p,"control")}/スタ${gSpanP(e.p,"stamina")}`;
   let html=`<div style="width:100%"><h3>FA市場</h3>${fcNew()? fcFaDescHtml(offers) : `<p class="small">FA宣言した選手に名乗りを上げられます(${offers}/${faMaxOffers()}人)。移籍先は、名乗りを上げた球団と元の球団の中から、成績・所属リーグ・補強の必要性・愛着などの「球団の魅力」に応じた抽選で決まります。獲得した選手は2軍に入り、代わりに2軍から1人を元の球団へ渡します(人的補償。2軍の有望株3人はプロテクトされます)。</p>`}`;
   html+=`<p class="small">${faL("名乗りを上げた選手には「見込み」が出て、球団ポイントで条件を上乗せできます(決まったときだけ払います)。","Players you bid on show your chance to sign them, and you can sweeten the offer with club points (paid only if he signs).")}</p>`+faMineHtml();   // v1.5.l
   if(!fa.list.length) html+=`<p>今年はFA宣言した選手がいません。</p>`;
   html+=fa.list.map((e,i)=>{
     const u=e.p.uniqueId? uniqueDef(e.p) : null, mineP=e.from===me;
     const btn= mineP? `<span class="small">あなたの選手(引き止め交渉中)</span>` : `<button class="${e.myOffer?"act":"sec"}" onclick="faToggleOffer(${i})">${e.myOffer?"名乗りを取り消す":"獲得に名乗り"}</button>`;
-    return `<div class="playerRow${u?" uniqRow":""}"><span>${u?`<span class="badge uniq">★目玉 ${"★".repeat(u.r)}</span> `:""}${mineP?'<span class="badge">自チーム</span> ':""}${localTagHtml(e.p,me)}${e.p.name} ${e.p.age}歳(${e.from.name}・在籍${svcOf(e.p)}年)<br><span class="small">${desc(e)}${e.suitors.length?`・他${e.suitors.length}球団が関心`:""}</span>${skillChipsHtml(e.p)}${faDealHtml(e,i)}${fcRowHtml(e)}</span><span style="display:flex;gap:6px;align-items:center">${infoBtnHtml(e.p)}${btn}</span></div>`;
+    return `<div class="playerRow${u?" uniqRow":""}"><span>${u?`<span class="badge uniq">★目玉 ${"★".repeat(u.r)}</span> `:""}${mineP?'<span class="badge">自チーム</span> ':""}${localTagHtml(e.p,me)}${esc(e.p.name)} ${e.p.age}歳(${esc(e.from.name)}・在籍${svcOf(e.p)}年)<br><span class="small">${desc(e)}${e.suitors.length?`・他${e.suitors.length}球団が関心`:""}</span>${skillChipsHtml(e.p)}${faDealHtml(e,i)}${fcRowHtml(e)}</span><span style="display:flex;gap:6px;align-items:center">${infoBtnHtml(e.p)}${btn}</span></div>`;
   }).join("");
   html+=`</div><div style="width:100%;text-align:center;margin-top:10px"><button class="act" onclick="resolveFA()">交渉を締め切って結果を見る</button></div>`;
   return html;
@@ -13318,7 +13318,7 @@ function faScreenHtml(){
 function faSummaryHtml(){
   if(!fa.results.length) return `<p class="small">今年のFA移籍はありませんでした。</p>`;
   const me=league[myTeam].name;
-  const row=r=>`<div class="playerRow"><span>${r.unique?'<span class="badge uniq">★目玉</span> ':''}${esc(r.name)} ${r.age}歳 [${r.pos}]<br><span class="small">${r.stay? `${esc(r.from)}に残留` : `${esc(r.from)} → <b>${esc(r.to)}</b>${fcResTxt(r)}`}</span></span></div>`;
+  const row=r=>`<div class="playerRow"><span>${r.unique?'<span class="badge uniq">★目玉</span> ':''}${esc(r.name)} ${r.age}歳 [${esc(r.pos)}]<br><span class="small">${r.stay? `${esc(r.from)}に残留` : `${esc(r.from)} → <b>${esc(r.to)}</b>${fcResTxt(r)}`}</span></span></div>`;
   const mineRows=fa.results.filter(r=>r.from===me||r.to===me);
   return `<h4 style="margin-top:10px">自チームに関わるFA</h4>${mineRows.length? mineRows.map(row).join("") : '<p class="small">なし</p>'}
     <details style="margin-top:8px"><summary class="small" style="cursor:pointer">全球団のFAの結果(${fa.results.length}人・移籍${fa.results.filter(r=>!r.stay).length}人)</summary>${fa.results.map(row).join("")}</details>`;
@@ -13836,7 +13836,7 @@ function vsShortTxt(o){
 function vsHlHtml(ev){
   if(!ev || typeof ev.vs!=="string" || ev.kind==="pitch_change" || !ev.batter || !ev.pitcher) return "";
   const o=vsParse(ev.vs), en=vsEn();
-  return `<div class="vsLine">${en? "vs " : "対 "}<span>${ev.pitcher}</span>${en? ": " : ":"}${vsLineTxt(o)}${vsTagsHtml(o)}</div>`;
+  return `<div class="vsLine">${en? "vs " : "対 "}<span>${esc(ev.pitcher)}</span>${en? ": " : ":"}${vsLineTxt(o)}${vsTagsHtml(o)}</div>`;
 }
 // じっくり采配:いまの打者と投手(問いの下)
 function vsMgHtml(d){
@@ -14523,8 +14523,8 @@ function seasonWrapShow(){
   const rows=(()=>{ try{ return magicRows(magicGroup(me)); }catch(e){ return null; } })();
   const rank= rows? rows.findIndex(x=>x.t===me)+1 : teamRank(me), L= rows&&rows[0]? rows[0].t : null, gb= L&&L!==me? gamesBehind(L,me) : 0;
   const rec=`${me.w}勝${me.l}敗${me.t? `${me.t}分` : ""}`;
-  const head= rank===1? (swEn()? `🏆 ${me.name} ${swL('','won the pennant!')}` : `🏆 ${me.name} 優勝!`) : (swEn()? `${me.name} ${swL('',`finished #${rank}`)}` : `${me.name} は ${rank}位`);
-  const stand= rows? `<div class="swStand">${rows.map((x,i)=>`<span class="${x.t===me? "you" : ""}">${i+1}. ${x.t.name} ${x.w}-${x.l}${x.tt? `-${x.tt}` : ""}</span>`).join("")}</div>` : "";
+  const head= rank===1? (swEn()? `🏆 ${esc(me.name)} ${swL('','won the pennant!')}` : `🏆 ${esc(me.name)} 優勝!`) : (swEn()? `${esc(me.name)} ${swL('',`finished #${rank}`)}` : `${esc(me.name)} は ${rank}位`);
+  const stand= rows? `<div class="swStand">${rows.map((x,i)=>`<span class="${x.t===me? "you" : ""}">${i+1}. ${esc(x.t.name)} ${x.w}-${x.l}${x.tt? `-${x.tt}` : ""}</span>`).join("")}</div>` : "";
   // 自チームの MVP(WAR)
   let tm=null; try{ const ctx=leagueContext(league.includes(me)? league : magicGroup(me));
     oneGun(me).forEach(p=>{ const pit=p.velo!==undefined; if(pit? !(p.ip>0) : !(p.pa>0)) return; const s= pit? sbPit(p,ctx) : sbBat(p,ctx); if(!tm || s.war>tm.war) tm={p,pit,war:s.war}; }); }catch(e){}
@@ -14532,16 +14532,16 @@ function seasonWrapShow(){
   const myAw=aw.find(a=>a.league===leagueNameOf(me)) || aw[0];
   // 今季の名場面(アルバム。優勝決定・サヨナラなどを先に、3つまで)
   const al=(albumLog||[]).map((x,i)=>({x,i})).filter(o=>o.x.y===year && !o.x.ps).sort((a,b)=>{ const w=o=>o.x.k.includes("clinch")? 3 : o.x.k.some(k=>String(k).startsWith("f:"))? 2 : o.x.k.includes("walkoff")? 1 : 0; return (w(b)-w(a)) || (b.i-a.i); }).slice(0,3);
-  const alHtml= al.length? `<h4 style="margin:12px 0 4px">${swL("今季の名場面","This season's moments")}</h4>`+al.map(o=>`<div class="swAl"><span>${o.x.k.map(k=>`<span class="albTag">${albKTxt(k)}</span>`).join("")} <span class="small">${o.x.d||""}</span></span><button class="sec" onclick="closeModal();albumPlay(${o.i})">▶</button></div>`).join("") : "";
-  const awHtml= myAw? `<h4 style="margin:12px 0 4px">${swL("シーズン表彰","Season awards")}(${myAw.league})</h4>`+
-    `<div>MVP:${myAw.mvp? `<b class="${myAw.mvp.mine? "you" : ""}">${myAw.mvp.name}</b> <span class="small">(${myAw.mvp.team}・${myAw.mvp.line})</span>` : "—"}</div>`+
-    `<div>${swL("新人王","Rookie of the Year")}:${myAw.roy? `<b class="${myAw.roy.mine? "you" : ""}">${myAw.roy.name}</b> <span class="small">(${myAw.roy.team}・${myAw.roy.line})</span>` : (swL("該当なし","None"))}</div>`+
-    `<div class="small" style="margin-top:4px">${swL("ベストナイン","Best Nine")}:${myAw.b9.map(e=>`${swPos(e.pos)} <span class="${e.mine? "you" : ""}">${e.name}</span>`).join("、")}</div>` : "";
+  const alHtml= al.length? `<h4 style="margin:12px 0 4px">${swL("今季の名場面","This season's moments")}</h4>`+al.map(o=>`<div class="swAl"><span>${o.x.k.map(k=>`<span class="albTag">${esc(albKTxt(k))}</span>`).join("")} <span class="small">${esc(o.x.d||"")}</span></span><button class="sec" onclick="closeModal();albumPlay(${o.i})">▶</button></div>`).join("") : "";
+  const awHtml= myAw? `<h4 style="margin:12px 0 4px">${swL("シーズン表彰","Season awards")}(${esc(myAw.league)})</h4>`+
+    `<div>MVP:${myAw.mvp? `<b class="${myAw.mvp.mine? "you" : ""}">${esc(myAw.mvp.name)}</b> <span class="small">(${esc(myAw.mvp.team)}・${esc(myAw.mvp.line)})</span>` : "—"}</div>`+
+    `<div>${swL("新人王","Rookie of the Year")}:${myAw.roy? `<b class="${myAw.roy.mine? "you" : ""}">${esc(myAw.roy.name)}</b> <span class="small">(${esc(myAw.roy.team)}・${esc(myAw.roy.line)})</span>` : (swL("該当なし","None"))}</div>`+
+    `<div class="small" style="margin-top:4px">${swL("ベストナイン","Best Nine")}:${myAw.b9.map(e=>`${esc(swPos(e.pos))} <span class="${e.mine? "you" : ""}">${esc(e.name)}</span>`).join("、")}</div>` : "";
   const nB9=aw.reduce((a,x)=>a+x.b9.filter(e=>e.mine).length,0);
   openModal(`<div class="swWrap"><h3>⚾ ${swL(`${year}年目 シーズン終了`,`Season ${year} is over`)}</h3>
-    <p class="swHead"><b>${head}</b><br>${rec}${gb>0? (swL(`(首位と${gb}差)`,` · ${gb} GB`)) : ""}${L&&L!==me? (swEn()? `<br>${swL('','Pennant:')} ${L.name}` : `<br>優勝:${L.name}`) : ""}</p>
+    <p class="swHead"><b>${head}</b><br>${rec}${gb>0? (swL(`(首位と${gb}差)`,` · ${gb} GB`)) : ""}${L&&L!==me? (swEn()? `<br>${swL('','Pennant:')} ${esc(L.name)}` : `<br>優勝:${esc(L.name)}`) : ""}</p>
     ${stand}
-    ${tm? `<h4 style="margin:12px 0 4px">${swL("チームのMVP","Team MVP")}</h4><div><b>${tm.p.name}</b> <span class="small">(${tm.pit? swPitLine(tm.p) : swBatLine(tm.p)}・<span data-noi18n>WAR</span> ${tm.war.toFixed(1)})</span></div>` : ""}
+    ${tm? `<h4 style="margin:12px 0 4px">${swL("チームのMVP","Team MVP")}</h4><div><b>${esc(tm.p.name)}</b> <span class="small">(${tm.pit? swPitLine(tm.p) : swBatLine(tm.p)}・<span data-noi18n>WAR</span> ${tm.war.toFixed(1)})</span></div>` : ""}
     ${awHtml}${nB9? `<div class="small">${swL(`ベストナインに自チームから${nB9}人。`,`${nB9} of your players made the Best Nine.`)}</div>` : ""}
     ${alHtml}
     <p class="small" style="margin-top:10px">${swL("首位打者などのタイトルは、オフシーズンに進むときに発表されます。表彰は「成績」→「記録」→「表彰」でいつでも見られます。","Batting/pitching titles are announced when you move to the offseason.")}</p>
@@ -15467,10 +15467,10 @@ function finishIkuseiDraft(){
 function ikuseiDraftHtml(){
   setTimeout(()=>showTip("ikuDraft"),0);
   const t=league[myTeam], room=ikuseiRoom(t);
-  const desc=it=> it.type==="batter"? `[${POS_FULL[it.p.fielding]||it.p.fielding}] ミ${gSpanP(it.p,"meet")}/パ${gSpanP(it.p,"power")}/走${gSpanP(it.p,"speed")}` : `${it.p.pos==="先発"?"先発":"中継ぎ"} 球速${gSpanP(it.p,"velo")}/制球${gSpanP(it.p,"control")}`;
+  const desc=it=> it.type==="batter"? `[${esc(POS_FULL[it.p.fielding]||it.p.fielding)}] ミ${gSpanP(it.p,"meet")}/パ${gSpanP(it.p,"power")}/走${gSpanP(it.p,"speed")}` : `${it.p.pos==="先発"?"先発":"中継ぎ"} 球速${gSpanP(it.p,"velo")}/制球${gSpanP(it.p,"control")}`;
   return `<div style="width:100%"><h3>育成ドラフト</h3><p class="small">今は力が足りなくても、伸びしろのある選手を育成選手として獲得できます(最大4人・育成枠 ${t.ikusei.length}/${IKUSEI_MAX})。育成選手は3年契約で、その間に支配下登録(2軍へ昇格)されなければ自由契約になります。</p>
     ${(()=>{ dcPadKeys=ikuDraft.pool.map(it=>dcKey(it.p)); const selK= dcPadKeys.includes(dcPadSel)? dcPadSel : dcPadKeys[0];
-      dcPadCache=ikuDraft.pool.map(it=>`<div class="dcPadH"><span class="dcPadFace">${fcCand(it.p,56)}</span>${it.p.name} ${it.p.age}歳(${it.p.background})</div><span class="dcLine">${desc(it)}・${it.p.personality}${scoutTag(it.p)}</span>${skillChipsHtml(it.p)}${draftCmHtml(it.p)}`);
+      dcPadCache=ikuDraft.pool.map(it=>`<div class="dcPadH"><span class="dcPadFace">${fcCand(it.p,56)}</span>${esc(it.p.name)} ${it.p.age}歳(${esc(it.p.background)})</div><span class="dcLine">${desc(it)}・${esc(it.p.personality)}${scoutTag(it.p)}</span>${skillChipsHtml(it.p)}${draftCmHtml(it.p)}`);
       return dcWrapHtml(ikuDraft.pool.map((it,i)=>dcRowHtml(i, dcPadKeys[i]===selK, "", it.p, dcPosLabel(it), `${infoBtnHtml(it.p)}<button class="sec" ${room<=0||ikuDraft.myPicks>=4?"disabled":""} onclick="ikuseiDraftPick(${i})">指名</button>`)).join(""), ""); })()}
     </div><div style="width:100%;text-align:center;margin-top:10px"><button class="act" onclick="finishIkuseiDraft()">育成ドラフトを終える(${ikuDraft.myPicks}人指名)</button></div>`;
 }
@@ -15640,7 +15640,7 @@ function renderTradeView(){
   html+=`<div style="margin:6px 0">相手:<select onchange="tradeSetPartner(this.selectedIndex)">${partners.map((x,i)=>`<option${x===t?" selected":""}>${esc(x.name)}(${esc(leagueNameOf(x))}・人気★${popStars(x)}・${DRAFT_POLICIES[teamPolicy(x)].label})${TRADE_STANCE[tradeStance(x)].icon}</option>`).join("")}</select></div>`+tradeStanceHtml(t);
   const row=(side,list)=>{ const groups={"1軍":[],"2軍":[],"育成":[]};
     list.forEach((it,i)=>{ const p=it.p, on=tradeState[side].includes(p), lockSig= side==="get" && p.signature;
-      const desc= p.velo!==undefined? `${p.pos==="先発"?"先発":"中継ぎ"} 球速${gSpanP(p,"velo")}/制球${gSpanP(p,"control")}` : `[${p.fielding}] ミ${gSpanP(p,"meet")}/パ${gSpanP(p,"power")}/走${gSpanP(p,"speed")}`;
+      const desc= p.velo!==undefined? `${p.pos==="先発"?"先発":"中継ぎ"} 球速${gSpanP(p,"velo")}/制球${gSpanP(p,"control")}` : `[${esc(p.fielding)}] ミ${gSpanP(p,"meet")}/パ${gSpanP(p,"power")}/走${gSpanP(p,"speed")}`;
       groups[it.where].push(`<div class="playerRow${on?" tradeOn":""}"><span>${sigMark(p)}${esc(p.name)} ${p.age}歳${isHurt(p)?` <span class="badge hot">故障</span>`:""}${lockSig?` <span class="badge">看板(放出不可)</span>`:""}<br><span class="small">${desc}</span></span><span style="display:flex;gap:6px;align-items:center">${infoBtnHtml(p)}<button class="${on?"act":"sec"}"${lockSig?" disabled":""} onclick="tradeToggle('${side}',${i})">${on?"外す":"選ぶ"}</button></span></div>`); });
     return Object.entries(groups).filter(([,v])=>v.length).map(([g,v])=>{ const k=side+":"+g, op= (k in tradeOpenG)? tradeOpenG[k] : g==="1軍"; return `<details data-tk="${k}"${op?" open":""}><summary class="small" style="cursor:pointer;min-height:36px;display:flex;align-items:center">${g}(${v.length}人)</summary>${v.join("")}</details>`; }).join(""); };
   const ev=tradeEvaluate(t,tradeState.give,tradeState.get), re=tradeReaction(ev);
@@ -16054,7 +16054,7 @@ function renderSpecialUniques(){
   const card=el.closest(".card"); if(card) card.classList.toggle("hidden", gameMode!=="special" || !league);
   if(gameMode!=="special" || !league) return;
   const active=activeUniqueIds(); const avail=UNIQUES.filter(u=>!active.has(u.id) && !uniquesUsed.includes(u.id));
-  el.innerHTML= avail.length? avail.map(u=>`<label class="uqPick"><input type="checkbox" ${specialUniquePicks.includes(u.id)?"checked":""} onchange="toggleSpecialUnique('${u.id}',this.checked)"> ${"★".repeat(u.r)} ${uniqName(u)}「${u.title}」 <span class="small">${u.t==="b"? (POS_FULL[u.pos]||u.pos) : (u.role==="先発"?"先発":"中継ぎ")}・${u.age}歳</span></label>`).join("") : `<p class="small">まだ登場していない目玉選手はいません。</p>`;
+  el.innerHTML= avail.length? avail.map(u=>`<label class="uqPick"><input type="checkbox" ${specialUniquePicks.includes(u.id)?"checked":""} onchange="toggleSpecialUnique(${escJs(u.id)},this.checked)"> ${"★".repeat(u.r)} ${uniqName(u)}「${u.title}」 <span class="small">${u.t==="b"? (POS_FULL[u.pos]||u.pos) : (u.role==="先発"?"先発":"中継ぎ")}・${u.age}歳</span></label>`).join("") : `<p class="small">まだ登場していない目玉選手はいません。</p>`;
 }
 function toggleSpecialUnique(id,on){ specialUniquePicks=specialUniquePicks.filter(x=>x!==id); if(on){ if(specialUniquePicks.length>=3){ showToast("指定できるのは3人までです"); renderSpecialUniques(); return; } specialUniquePicks.push(id); } renderSpecialUniques(); }
 
@@ -16355,7 +16355,7 @@ function renderAchievements(){
     html+=`<h3 class="achCat">${c}</h3>`+list.map(a=>{ const g=got[a.id], hid=a.hidden && !g, pr=(!g && a.prog)? a.prog() : null;
       return `<div class="achRow${g?" got":""}"><span class="achIcon">${g?"🏆":"🔒"}</span><span class="achBody"><b>${hid?"？？？":a.name}</b><br><span class="small">${hid? `ヒント:${a.hidden}` : a.desc}</span>
         ${pr? `<span class="achBar"><i style="width:${Math.min(100,Math.round(pr[0]/pr[1]*100))}%"></i></span><span class="small">${Math.min(pr[0],pr[1])}/${pr[1]}</span>` : ""}
-        <span class="small achReward">報酬:${hid? "？？？" : rewardText(a.reward)}${g? `<span class="achGot">・${g.y}年目(${g.team})に達成</span>` : ""}</span></span></div>`; }).join(""); });
+        <span class="small achReward">報酬:${hid? "？？？" : rewardText(a.reward)}${g? `<span class="achGot">・${g.y}年目(${esc(g.team)})に達成</span>` : ""}</span></span></div>`; }).join(""); });
   html+=`<h3 class="achCat">スペシャルモードの記録</h3>`+specialRecordsHtml();
   el.innerHTML=html;
 }
@@ -16417,7 +16417,7 @@ function tradeOfferValid(o){
 }
 function openTradeOffer(){
   const o=tradeOffer; if(!tradeOfferValid(o)){ tradeOffer=null; showToast("このトレードの申し込みは取り下げられました"); renderTradeOfferBanner(); return; }
-  const card=p=>{ const d= p.velo!==undefined? `${p.pos==="先発"?"先発":"中継ぎ"} 球速${gSpanP(p,"velo")}/制球${gSpanP(p,"control")}` : `[${p.fielding}] ミ${gSpanP(p,"meet")}/パ${gSpanP(p,"power")}/走${gSpanP(p,"speed")}`;
+  const card=p=>{ const d= p.velo!==undefined? `${p.pos==="先発"?"先発":"中継ぎ"} 球速${gSpanP(p,"velo")}/制球${gSpanP(p,"control")}` : `[${esc(p.fielding)}] ミ${gSpanP(p,"meet")}/パ${gSpanP(p,"power")}/走${gSpanP(p,"speed")}`;
     return `<div class="playerRow"><span>${sigMark(p)}<b>${p.name}</b> ${p.age}歳${p.uniqueId?' <span class="badge uniq">★目玉</span>':""}<br><span class="small">${d}</span></span>${infoBtnHtml(p)}</div>`; };
   openModal(`<h3>📨 ${o.partner.name}からのトレードの申し込み</h3>
     <p class="small">${o.partner.name}(${leagueNameOf(o.partner)}・${DRAFT_POLICIES[teamPolicy(o.partner)].label})は、手薄な位置を埋めるために、次の交換を望んでいます。受けると、獲得した選手は2軍に入ります。</p>
@@ -16436,7 +16436,7 @@ function renderTradeOfferBanner(){
   if(!el){ const nb=document.getElementById("newsBanner"); if(!nb) return; el=document.createElement("button"); el.id="tradeOfferBanner"; el.className="sec tradeOfferBanner hidden"; el.onclick=openTradeOffer; (document.getElementById("infoBand")||nb).insertAdjacentElement("afterend",el); }
   if(tradeOffer && !tradeOfferValid(tradeOffer)) tradeOffer=null;
   el.classList.toggle("hidden",!tradeOffer);
-  if(tradeOffer) el.innerHTML=`📨 ${tradeOffer.partner.name}からトレードの申し込み(${tradeOffer.give[0].name}を希望)<span class="small"> ― 見る</span>`;
+  if(tradeOffer) el.innerHTML=`📨 ${esc(tradeOffer.partner.name)}からトレードの申し込み(${esc(tradeOffer.give[0].name)}を希望)<span class="small"> ― 見る</span>`;
 }
 // 他球団同士:お互いに得になる1対1の交換を探す
 function tryAiAiTrade(){
@@ -16499,8 +16499,8 @@ function tickerHtml(list,inn,half,final){
       g._tag= !chg? "" : now===0? "同点" : (pa===0 && ph===0)? "先制" : was===0? "勝ち越し" : was!==now? "逆転" : "";
       g._a=a; g._h=h; g._n=n; }
     const fl= fx? (g._fl||{}) : {}, lit= fx && (fl.a||fl.h), tag= g._tag? ` <span class="tkTag">${g._tag}</span>` : "";
-    if(done) return `<li${lit?' class="tkNew"':""}><b>${g.away} ${g.a} - ${g.h} ${g.home}</b> <span class="small">試合終了</span>${tag}${g.tn? tenouTag() : ""}</li>`;
-    return `<li${lit?' class="tkNew"':""}>${g.away} <b class="${fl.a?"flip":""}">${a}</b> - <b class="${fl.h?"flip":""}">${h}</b> ${g.home} <span class="small">${n<=0? "試合前" : n+"回終了"}</span>${tag}${g.tn? tenouTag() : ""}</li>`; }).join("");
+    if(done) return `<li${lit?' class="tkNew"':""}><b>${esc(g.away)} ${g.a} - ${g.h} ${esc(g.home)}</b> <span class="small">試合終了</span>${tag}${g.tn? tenouTag() : ""}</li>`;
+    return `<li${lit?' class="tkNew"':""}>${esc(g.away)} <b class="${fl.a?"flip":""}">${a}</b> - <b class="${fl.h?"flip":""}">${h}</b> ${esc(g.home)} <span class="small">${n<=0? "試合前" : n+"回終了"}</span>${tag}${g.tn? tenouTag() : ""}</li>`; }).join("");
   return `<div class="ticker"><span class="tickerHead">他球場</span><ul>${rows}</ul></div>`;
 }
 
@@ -18018,14 +18018,14 @@ function renderSkillNews(){
   const el=document.getElementById("skillNews"); if(!el) return;
   const list= (league && year>1 && gameIdx===0)? skillNewsList().filter(x=>!(LITE && x.where==="育成")) : [];
   if(!list.length){ el.innerHTML=""; return; }
-  const head=list.slice(0,3).map(x=>`${x.p.name}「${x.kb? (x.p.kbM? "決め球の達人" : KIME[x.p.kb].n) : SKILLS[x.p.skNew].n}」`).join("、");   // v1.3.c
+  const head=list.slice(0,3).map(x=>`${esc(x.p.name)}「${x.kb? (x.p.kbM? "決め球の達人" : KIME[x.p.kb].n) : SKILLS[x.p.skNew].n}」`).join("、");   // v1.3.c
   el.innerHTML=`<div class="notice" style="margin:6px 0"><b>🆕 この冬にスキルを覚えた選手(${list.length}人)</b><div class="small" style="margin-top:3px">${head}${list.length>3? ` ほか${list.length-3}人` : ""} <button class="sec" style="margin-left:6px" onclick="openSkillNews()">一覧</button></div></div>`;
 }
 function openSkillNews(){
   const list=skillNewsList().filter(x=>!(LITE && x.where==="育成"));
   openModal(`<h3>この冬にスキルを覚えた選手</h3>`+(list.length? list.map(x=>{ const s=SKILLS[x.p.skNew], isPit=x.p.velo!==undefined;
     const what= x.kb? `<span class="badge skBadge skK">${x.p.kbM? `決め球の達人:${KIME[x.p.kb].n}` : `決め球:${KIME[x.p.kb].n}`}</span> ${x.p.kbM? `<span class="small">効き目${KIME_M.mul}倍。</span> ` : ""}<span class="small">${KIME[x.p.kb].eff()}</span>${kbFromText(x.p)? `<br><span class="small">${kbFromText(x.p)}</span>` : ""}` : `<span class="badge skBadge${skBadgeCls(s)}">${s.n}</span> <span class="small">${s.q? "【クセ】" : s.up? "【達人】" : ""}${s.when}:${s.eff(isPit)}</span>`;
-    return `<div class="playerRow"><span><b>${x.p.name}</b> <span class="small">${x.where}・${isPit? (x.p.pos==="先発"? "先発":"中継ぎ") : (POS_FULL[x.p.fielding]||x.p.fielding)}・${x.p.age}歳</span><br>${what}</span><span>${infoBtnHtml(x.p)}</span></div>`; }).join("") : `<p class="small">いません。</p>`));   // 「閉じる」は窓の下に最初からあるので、ここには書かない(v1.0.t。要望書 261012 の 1)
+    return `<div class="playerRow"><span><b>${esc(x.p.name)}</b> <span class="small">${esc(x.where)}・${isPit? (x.p.pos==="先発"? "先発":"中継ぎ") : esc(POS_FULL[x.p.fielding]||x.p.fielding)}・${x.p.age}歳</span><br>${what}</span><span>${infoBtnHtml(x.p)}</span></div>`; }).join("") : `<p class="small">いません。</p>`));   // 「閉じる」は窓の下に最初からあるので、ここには書かない(v1.0.t。要望書 261012 の 1)
 }
 // 設定画面:このリーグのスキルの設定(リーグ作成時に決まり、あとからは変えられない)
 function renderSkillNote(){
@@ -18571,7 +18571,7 @@ function renderCamp(){
   const ref=p=>playerByUid.get(puid(p))? puid(p) : 0;
   const row=p=>{ const s=campSel.find(x=>x.p===p), m=CAMP_MENU[g2Pit(p)? "pit" : "bat"], u=ref(p);
     const opts=Object.entries(m).filter(([k])=>k!=="adj" || p.age>=30).map(([k,l])=>`<option value="${k}"${s&&s.menu===k?" selected":""}>${l}(${CAMP_DESC[k]})</option>`).join("");
-    return `<div class="playerRow${s? " tradeOn" : ""}"><span>${sigMark(p)}${p.name} ${p.age}歳 <span class="small">${one.has(p)? "1軍" : "2軍・育成"}・${p.personality}・伸びしろ:${potBandHtml(potRoomSum(p)/2)}</span></span>
+    return `<div class="playerRow${s? " tradeOn" : ""}"><span>${sigMark(p)}${esc(p.name)} ${p.age}歳 <span class="small">${one.has(p)? "1軍" : "2軍・育成"}・${esc(p.personality)}・伸びしろ:${potBandHtml(potRoomSum(p)/2)}</span></span>
       <span style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><select aria-label="メニュー" onchange="campSetMenu(${u},this.value)">${opts}</select><button class="${s?"act":"sec"}" onclick="campToggle(${u})">${s? "外す" : "選ぶ"}</button></span></div>`; };
   openModal(`<h3>秋季キャンプ</h3><p class="small">オフの特訓に参加する選手を${n}人まで選び、メニューを決めます。結果は「大成功」「成功」「失敗」のどれか(若い選手ほど成功しやすい)。打撃・球威・制球は伸びしろの分までしか伸びません。31歳からの選手は「調整」で、この冬の衰えを取り戻せます。選んだ結果は、開幕前の「この冬に伸びた選手」で分かります。</p>
     <p><b>選んだ選手 ${campSel.length}/${n}</b> <button class="sec" onclick="campFillAuto()">おまかせ</button></p>
@@ -18601,14 +18601,14 @@ function renderGrowthNews(){
   const el=document.getElementById("growthNews"); if(!el) return;
   const list=(growth2Enabled && league && year>1 && gameIdx===0)? growthNews : [];
   if(!list.length){ el.innerHTML=""; return; }
-  const head=list.slice(0,3).map(x=>`${x.name}(${x.notes.find(n=>/覚醒/.test(n))? "覚醒" : `+${x.plus}`})`).join("、");
+  const head=list.slice(0,3).map(x=>`${esc(x.name)}(${x.notes.find(n=>/覚醒/.test(n))? "覚醒" : `+${x.plus}`})`).join("、");
   el.innerHTML=`<div class="notice" style="margin:6px 0"><b>📈 この冬に伸びた選手(${list.length}人)</b><div class="small" style="margin-top:3px">${head}${list.length>3? ` ほか${list.length-3}人` : ""} <button class="sec" style="margin-left:6px" onclick="openGrowthNews()">一覧</button></div></div>`;
 }
 function g2DiffText(d){ return Object.entries(d).map(([k,v])=>`${ABIL_JP[k]==="肩"? "肩力" : ABIL_JP[k]}${v>0? "+" : ""}${v}`).join("・"); }
 function openGrowthNews(){
   const t=league[myTeam], all=[...oneGun(t),...t.farm.bat,...t.farm.pit,...(t.ikusei||[]).map(x=>x.p)];
   openModal(`<h3>この冬に伸びた選手</h3><p class="small">オフの成長・覚醒・秋季キャンプで能力が上がった選手です(開幕まで表示)。</p>`+growthNews.map(x=>{ const p=all.find(q=>q.name===x.name);
-    return `<div class="playerRow"><span><b>${x.name}</b> <span class="small">${x.where}・${x.age}歳</span><br><span class="small">${g2DiffText(x.d)}</span>${x.notes.length? `<br><span class="small" style="color:var(--gold)">${x.notes.join("/")}</span>` : ""}</span><span>${p? infoBtnHtml(p) : ""}</span></div>`; }).join(""));
+    return `<div class="playerRow"><span><b>${esc(x.name)}</b> <span class="small">${esc(x.where)}・${x.age}歳</span><br><span class="small">${g2DiffText(x.d)}</span>${x.notes.length? `<br><span class="small" style="color:var(--gold)">${x.notes.map(esc).join("/")}</span>` : ""}</span><span>${p? infoBtnHtml(p) : ""}</span></div>`; }).join(""));
 }
 function growthRename(old,nw){ (growthNews||[]).forEach(x=>{ if(x.name===old) x.name=nw; }); }
 /* ---- 詳細画面・一覧の表示 ---- */
@@ -23025,7 +23025,7 @@ function ssPotTag(p){ if(growth2Enabled) return g2ScoutTag(p); return ` <span cl
 // 見ていない候補:目立つ能力だけ
 function ssPartLines(it){
   const q=it.p, U='<span class="ssQ">?</span>';
-  const ab= it.type==="batter"? `[${q.fielding}] 野手 ミ${U}/パ${gSpanP(q,"power")}/走${gSpanP(q,"speed")}/守${U}/肩${U}` : `投手(${q.pos}) 球速${gSpanP(q,"velo")}/制球${U}${q.pos==="先発"? `/スタ${U}` : ""}`;
+  const ab= it.type==="batter"? `[${esc(q.fielding)}] 野手 ミ${U}/パ${gSpanP(q,"power")}/走${gSpanP(q,"speed")}/守${U}/肩${U}` : `投手(${esc(q.pos)}) 球速${gSpanP(q,"velo")}/制球${U}${q.pos==="先発"? `/スタ${U}` : ""}`;
   return `<span class="dcLine">${localTagHtml(q,league[myTeam])}${ab}</span><span class="small ssNote">${ssL("👀 まだ視察していません。視察すると、ほかの能力・スキル・寸評と札(評価と長所)が分かります。","👀 Not scouted yet. Scout him to see his other ratings, skills, the scout's note and his tag (grade and strength).")}</span>`;
 }
 if(typeof draftCandLines==="function"){ const orig=draftCandLines;
@@ -23035,7 +23035,7 @@ if(typeof draftCandLines==="function"){ const orig=draftCandLines;
     return `<div style="margin-bottom:3px">${ssTagHtml(it.p)}</div>`+orig(it)+(it.p.ss.lv>=2 && !ssEye()? `<div class="small" style="margin-top:3px">${ssL("2回目の視察:","2nd visit:")}${ssPotTag(it.p)}</div>` : "");
   };
 }
-function ssPadHtml(it){ const q=it.p; return `<div class="dcPadH"><span class="dcPadFace">${fcCand(q,56)}</span>${ssMarkHtml(q)}${q.name} ${q.age}歳(${q.background})</div>${draftCandLines(it)}`; }
+function ssPadHtml(it){ const q=it.p; return `<div class="dcPadH"><span class="dcPadFace">${fcCand(q,56)}</span>${ssMarkHtml(q)}${esc(q.name)} ${q.age}歳(${esc(q.background)})</div>${draftCandLines(it)}`; }
 function ssMarkBtn(where,i,p){ const m=(p.ss&&p.ss.mark)||0; return `<button class="sec ssMkBtn" type="button" title="${ssT("印(◎→○→△→なし)","Mark (◎→○→△→none)")}" onclick="event.stopPropagation();ssMarkAt('${where}',${i})">${m? SS_MK[m-1] : ssL("印","Mark")}</button>`; }
 function ssMarkAt(where,i){
   const it= where==="c"? (ssState&&ssState.cls[i]) : (draft&&draft.pool[i]); if(!ssItem(it)) return;
@@ -23319,7 +23319,7 @@ function faMineHtml(){
   if(!el.length) return "";
   const dec=fa.list.filter(e=>e.from===me).map(e=>e.p.name);
   const stay=el.filter(n=>!dec.includes(n));
-  return `<div class="notice faMine small"><b>${faL("あなたの球団のFA資格","Your FA-eligible players")}</b>:${faEn()? `<span data-noi18n>${el.length} eligible · ${dec.length} declared</span>` : `${el.length}人・宣言したのは${dec.length}人`}${dec.length? `(${dec.join("・")})` : ""}${stay.length? `<br>${faL("宣言せず残留:","Stayed without declaring:")}${stay.slice(0,6).join("・")}${stay.length>6? (faEn()? ` <span data-noi18n>and ${stay.length-6} more</span>` : `ほか${stay.length-6}人`) : ""}` : ""}</div>`;
+  return `<div class="notice faMine small"><b>${faL("あなたの球団のFA資格","Your FA-eligible players")}</b>:${faEn()? `<span data-noi18n>${el.length} eligible · ${dec.length} declared</span>` : `${el.length}人・宣言したのは${dec.length}人`}${dec.length? `(${dec.map(esc).join("・")})` : ""}${stay.length? `<br>${faL("宣言せず残留:","Stayed without declaring:")}${stay.slice(0,6).map(esc).join("・")}${stay.length>6? (faEn()? ` <span data-noi18n>and ${stay.length-6} more</span>` : `ほか${stay.length-6}人`) : ""}` : ""}</div>`;
 }
 if(typeof startFA==="function"){ const orig=startFA;
   startFA=function(auto){
@@ -23810,7 +23810,7 @@ function rmCheck(){
   else if(G && G.last && G.gb>=RM.gb && frac>=RM.frac) why={k:"last",n:G.gb};
   if(!why) return;
   rmState.pending={g,why,used:{}}; rmState.lastG=g; rmState.n++;
-  noteToast("rm", rmEn()? `<span data-noi18n>A turnaround meeting is ready (${rmWhyText(why)}). Open it from "Today's note" in the band at the top of the Game screen.</span>` : `立て直しの会議を開けます(${rmWhyText(why)})。試合の画面の上の帯の「今日のひとこと」から開けます。`);
+  noteToast("rm", rmEn()? `<span data-noi18n>A turnaround meeting is ready (${rmWhyText(why)}). Open it from “Today’s note” in the band at the top of the Game screen.</span>` : `立て直しの会議を開けます(${rmWhyText(why)})。試合の画面の上の帯の「今日のひとこと」から開けます。`);
 }
 function rmWhyText(w){ if(!w) return "";
   if(w.k==="streak") return rmT(`${w.n}連敗`,`${w.n} straight losses`);
@@ -24366,22 +24366,22 @@ function wtCheck(){
 }
 if(typeof updateMatchup==="function"){ const orig=updateMatchup; updateMatchup=function(){ const out=orig.apply(this,arguments); try{ if(wtDue()) setTimeout(wtCheck,300); }catch(e){} return out; }; }
 function wtRowHtml(x,extra){ const en=wtEn(), pos= en? wtN(x.pos) : x.pos;
-  return `<li><b>${en? `<span data-noi18n>${wtN(x.name)}</span>` : x.name}</b> <span class="small">${en? `<span data-noi18n>${pos}, ${x.age}</span>` : `${pos}・${x.age}歳`}</span>${extra? ` <span class="small wtX">${extra}</span>` : ""}</li>`; }
+  return `<li><b>${en? `<span data-noi18n>${esc(wtN(x.name))}</span>` : esc(x.name)}</b> <span class="small">${en? `<span data-noi18n>${esc(pos)}, ${x.age}</span>` : `${esc(pos)}・${x.age}歳`}</span>${extra? ` <span class="small wtX">${extra}</span>` : ""}</li>`; }
 function wtSec(ico,ja,en,list,f){ if(!list || !list.length) return ""; return `<div class="wtSec"><h4>${ico} ${wtL(ja,en)} <span class="small">(${list.length})</span></h4><ul class="wtList">${list.map(f).join("")}</ul></div>`; }
 function wtHtml(s){
   const en=wtEn(), W=w=> en? ({"1軍":"Active","2軍":"Minors","育成":"Development"}[w]||w) : w;
-  const fromTxt=f=> f.k==="team"? (en? `from ${wtN(f.t)}` : `${f.t}から`) : f.k==="imp"? (en? "import" : "助っ人") : (en? "new" : (f.t? `${f.t}・新人` : "新人"));
+  const fromTxt=f=> f.k==="team"? (en? `from ${esc(wtN(f.t))}` : `${esc(f.t)}から`) : f.k==="imp"? (en? "import" : "助っ人") : (en? "new" : (f.t? `${esc(f.t)}・新人` : "新人"));
   const body=[
     wtSec("📈","伸びた選手","Improved",s.ups,x=>wtRowHtml(x, `${en? `<span data-noi18n>+${x.d}${x.aw? ` (breakout +${x.aw})` : ""} · ${W(x.where)}</span>` : `主な能力 +${x.d}${x.aw? `(うち覚醒 +${x.aw})` : ""}・${x.where}`}`)),
     wtSec("📉","衰えた選手","Declined",s.downs,x=>wtRowHtml(x, `${en? `<span data-noi18n>${x.d} · ${W(x.where)}</span>` : `主な能力 ${x.d}・${x.where}`}`)),
     wtSec("🎌","引退","Retired",s.ret,x=>wtRowHtml(x,"")),
     wtSec("👋","退団","Released",s.rel,x=>wtRowHtml(x,"")),
-    wtSec("🔁","移籍","Left",s.move,x=>wtRowHtml(x, en? `<span data-noi18n>to ${wtN(x.to)}</span>` : `${x.to}へ`)),
+    wtSec("🔁","移籍","Left",s.move,x=>wtRowHtml(x, en? `<span data-noi18n>to ${esc(wtN(x.to))}</span>` : `${esc(x.to)}へ`)),
     wtSec("🆕","新加入","Joined",s.join,x=>wtRowHtml(x, en? `<span data-noi18n>${fromTxt(x.from)} · ${W(x.where)}</span>` : `${fromTxt(x.from)}・${x.where}`))
   ].join("");
   const none= body? "" : `<p class="small">${wtL("この冬は大きな出入りや変化はありませんでした。","No big changes this winter.")}</p>`;
   const more= s.nJoin>s.join.length? `<p class="small">${wtL(`新加入はほかに${s.nJoin-s.join.length}人`,`${s.nJoin-s.join.length} more joined`)}</p>` : "";
-  return `<div class="wtBox"><h3>❄ ${wtL("この冬の自チーム","Your club this winter")}</h3><p class="small">${en? `<span data-noi18n>${wtN(s.team)} · after year ${s.from} → year ${s.y}</span>` : `${s.team}・${s.from}年目のオフ → ${s.y}年目の開幕前`}</p>`+
+  return `<div class="wtBox"><h3>❄ ${wtL("この冬の自チーム","Your club this winter")}</h3><p class="small">${en? `<span data-noi18n>${esc(wtN(s.team))} · after year ${s.from} → year ${s.y}</span>` : `${esc(s.team)}・${s.from}年目のオフ → ${s.y}年目の開幕前`}</p>`+
     `<p class="small">${wtL("主な能力は、野手=ミート・パワー・走力・守備力・肩力・安定度、投手=球速・制球・スタミナの合計の差(3以上)。","Main ratings: the change in the total of contact, power, speed, fielding, arm and consistency (hitters) or velocity, control and stamina (pitchers), 3 or more.")}</p>`+
     body+none+more+`<div style="text-align:center;margin-top:10px"><button class="act" type="button" onclick="closeModal()">${wtL("開幕へ","On to Opening Day")}</button></div></div>`;
 }
@@ -24435,8 +24435,8 @@ function tpSigHtml(t){
   const s=oneGun(t).filter(p=>p.signature); if(!s.length) return "";
   const wantPit=(t.archetype==="投手型"), p=s.find(x=>(x.velo!==undefined)===wantPit) || s[0];   // 投手型は投手、ほかは野手を先に
   const pos= p.velo!==undefined? (p.pos==="先発"? "先発投手" : "中継ぎ投手") : (POS_FULL[p.fielding]||"野手");
-  if(typeof swEn==="function" && swEn()) return `<div class="small tpLine" data-noi18n>Franchise player: <b>${tr(p.name)}</b> (${tr(pos)}, ${p.age})${p.sigTitle? ` — “${tr(p.sigTitle)}”` : ""}</div>`;
-  return `<div class="small tpLine">看板選手:<b>${p.name}</b>(${pos}・${p.age}歳)${p.sigTitle? ` <span>固有スキル「${p.sigTitle}」</span>` : ""}</div>`;
+  if(typeof swEn==="function" && swEn()) return `<div class="small tpLine" data-noi18n>Franchise player: <b>${esc(tr(p.name))}</b> (${esc(tr(pos))}, ${p.age})${p.sigTitle? ` — “${esc(tr(p.sigTitle))}”` : ""}</div>`;
+  return `<div class="small tpLine">看板選手:<b>${esc(p.name)}</b>(${esc(pos)}・${p.age}歳)${p.sigTitle? ` <span>固有スキル「${esc(p.sigTitle)}」</span>` : ""}</div>`;
 }
 function tpCardHtml(t,i,P){
   const pw=P.st[i]||3, home= (typeof cityOf==="function" && cityOf(t))? cityLabel(t) : "", park= (typeof parkEnabled!=="undefined" && parkEnabled && parkOf(t))? parkLabel(t) : "";
@@ -24565,7 +24565,7 @@ function smTradeEval(o){
 }
 function smTradeHtml(o){
   const e=smTradeEval(o), me=league[myTeam], en=smEn(), V=k=>`<b class="smV smV-${k}">${smL(SM_VD[k][0],SM_VD[k][1])}</b>`;
-  const role=o.give.map(p=>{ const r=smRole(me,p); return en? `<span data-noi18n>${smN(p.name)} is ${r[1]}</span>` : `${p.name}は今、${r[0]}`; }).join(smL("・","; "));
+  const role=o.give.map(p=>{ const r=smRole(me,p); return en? `<span data-noi18n>${esc(smN(p.name))} is ${r[1]}</span>` : `${esc(p.name)}は今、${r[0]}`; }).join(smL("・","; "));
   const ag= en? `<span data-noi18n>Average age: giving ${e.ageG.toFixed(0)}, getting ${e.ageR.toFixed(0)}</span>` : `年齢:出す選手 ${e.ageG.toFixed(0)}歳・もらう選手 平均${e.ageR.toFixed(0)}歳`;
   let hint;
   if(e.now==="bad" && e.fut==="good") hint=smL("今季の戦力は落ちますが、先を見るなら悪くない申し込みです。","You get weaker this season, but it may pay off later.");
@@ -24588,7 +24588,7 @@ if(typeof openTradeOffer==="function"){ const orig=openTradeOffer;
 function smUnread(){ return (typeof newsArchive!=="undefined" && newsArchive)? newsArchive.filter(n=>!n.read) : []; }
 function smDigest(){
   const u=smUnread().slice().reverse(); if(!u.length) return;
-  const rows=u.map(n=>`<button class="sec smNews" type="button" onclick="openNews('${n.id}')"><span class="badge">${(typeof NEWS_KIND_LABEL!=="undefined" && NEWS_KIND_LABEL[n.kind])||n.kind}</span> <span class="small">${n.year}${smEn()? "" : "年目"}</span> ${n.headline}</button>`).join("");
+  const rows=u.map(n=>`<button class="sec smNews" type="button" onclick="openNews(${escJs(n.id)})"><span class="badge">${(typeof NEWS_KIND_LABEL!=="undefined" && NEWS_KIND_LABEL[n.kind])||n.kind}</span> <span class="small">${n.year}${smEn()? "" : "年目"}</span> ${n.headline}</button>`).join("");
   u.forEach(n=>{ n.read=true; });
   refreshNewsBanner();
   openModal(`<h3>📰 ${smL(`未読だった号外(${u.length}件)`,`Unread extras (${u.length})`)}</h3><p class="small">${smL("見出しを押すと紙面が開きます。この一覧を開いたので、すべて既読にしました(新聞の欄にはそのまま残ります)。","Tap a headline to open it. Opening this list marked them all as read (they stay in the newspaper archive).")}</p><div class="smNewsList">${rows}</div>`);
@@ -24781,7 +24781,7 @@ let scmLast=null;
 function scmNoteHtml(){
   if(!scmLast || !scmLast.list.length) return "";
   const en=scmEn(), ct=v=> (typeof condTag==="function"? condTag(v) : "")+" "+v;
-  const items=scmLast.list.map(x=> en? `${x.out} (${ct(x.oc)}) → ${x.in} (${ct(x.ic)})` : `${x.out}(${ct(x.oc)})→ ${x.in}(${ct(x.ic)})`).join(en? ", " : "、");
+  const items=scmLast.list.map(x=> en? `${esc(x.out)} (${ct(x.oc)}) → ${esc(x.in)} (${ct(x.ic)})` : `${esc(x.out)}(${ct(x.oc)})→ ${esc(x.in)}(${ct(x.ic)})`).join(en? ", " : "、");
   return `<div class="small scmNote" data-noi18n>🔄 ${en? "Form-based swaps this game" : "この試合の調子での入れ替え"}:${items}<span class="scmWhy">${en? ` (setting: ${SCM_OPTS.find(o=>o[0]===scmLast.mode)[2]} — change it in Roster)` : `(決め方:${SCM_OPTS.find(o=>o[0]===scmLast.mode)[1]}。「編成」で変えられます)`}</span></div>`;
 }
 { const orig=showGameResult; showGameResult=function(r,isMy){ const out=orig.apply(this,arguments);
@@ -25404,7 +25404,7 @@ function zkImgHtml(u,e,state){
   const st=zkStage(u,e,false), sil=zukanSilSvg(u,state);
   if(!zkImgOn() || st<1) return `<div class="zSil">${sil}</div>`;
   const src=zkSrc(u,false,st), alt=`${uniqName(u)}(${["","出会った","獲得","活躍"][st]})`;
-  return `<button type="button" class="zImg" data-sil="${encodeURIComponent(sil)}" onclick="zkOpen('${u.id}')" aria-label="${alt}の絵を大きく見る"><img class="zBg" src="${src}" alt="" loading="lazy" decoding="async" aria-hidden="true"><img class="zFg" src="${src}" alt="${alt}" loading="lazy" decoding="async" onerror="zkFail(this)"></button>`;
+  return `<button type="button" class="zImg" data-sil="${encodeURIComponent(sil)}" onclick="zkOpen(${escJs(u.id)})" aria-label="${alt}の絵を大きく見る"><img class="zBg" src="${src}" alt="" loading="lazy" decoding="async" aria-hidden="true"><img class="zFg" src="${src}" alt="${alt}" loading="lazy" decoding="async" onerror="zkFail(this)"></button>`;
 }
 // 大きく見る:シーンの札(見られる所まで)と、女性版があれば男性版/女性版
 let zkCur=null;
@@ -25414,8 +25414,8 @@ function zkOpen(id,f,sc){
   f=!!f && stF>0; const max= f? stF : stM; sc=Math.min(sc||max, max); if(sc<1) return;
   zkCur={id,f,sc};
   const lab=["","出会った","獲得","活躍"];
-  const tabs=[1,2,3].map(k=>`<button type="button" class="subTab${k===sc?" active":""}" ${k>max?"disabled":""} onclick="zkOpen('${id}',${f},${k})">${k<=max? lab[k] : "？？？"}</button>`).join("");
-  const sw= stF>0? `<div class="subTabs zkSex"><button type="button" class="subTab${!f?" active":""}" onclick="zkOpen('${id}',false)">男性版</button><button type="button" class="subTab${f?" active":""}" onclick="zkOpen('${id}',true)">女性版</button></div>` : "";
+  const tabs=[1,2,3].map(k=>`<button type="button" class="subTab${k===sc?" active":""}" ${k>max?"disabled":""} onclick="zkOpen(${escJs(id)},${f},${k})">${k<=max? lab[k] : "？？？"}</button>`).join("");
+  const sw= stF>0? `<div class="subTabs zkSex"><button type="button" class="subTab${!f?" active":""}" onclick="zkOpen(${escJs(id)},false)">男性版</button><button type="button" class="subTab${f?" active":""}" onclick="zkOpen(${escJs(id)},true)">女性版</button></div>` : "";
   openModal(`<h3>No.${zkNo(u)} ${uniqName(u)}</h3>${sw}<div class="subTabs">${tabs}</div><div class="zkBig"><img src="${zkSrc(u,f,sc)}" alt="${uniqName(u)}(${lab[sc]})" onerror="this.closest('.zkBig').innerHTML='<p class=small>絵を読み込めませんでした。</p>'"></div><p class="small zkNote">図鑑のイラストは画像生成AIで作ったものです。</p>`);
 }
 // 活躍(シーン3)の条件(仮):自チームでのシーズン成績。打者=規定打席で打率.300・30本塁打・30盗塁のどれか/先発=規定投球回で防御率2点台以下・15勝のどれか/
@@ -25458,7 +25458,7 @@ if(typeof renderZukan==="function"){ const orig=renderZukan;
         const state= !e.seen? "unseen" : e.got? "got" : "seen";
         if(e.seen || zkAll()) s.outerHTML=zkImgHtml(u, zkAll()? Object.assign({seen:1},e) : e, state);
         const st=zkStage(u,e,false); if(st===3 && !card.querySelector(".zStarTag")){ const no=card.querySelector(".zNo"); if(no) no.insertAdjacentHTML("beforeend",' <span class="badge zStarTag">活躍</span>'); }
-        if(zkStage(u,e,true)>0 && !card.querySelector(".zFemTag")){ const nm=card.querySelector(".zName"); if(nm) nm.insertAdjacentHTML("afterend",`<div class="small zFemTag"><button type="button" class="sec" onclick="zkOpen('${u.id}',true)">女性版の絵を見る</button></div>`); }
+        if(zkStage(u,e,true)>0 && !card.querySelector(".zFemTag")){ const nm=card.querySelector(".zName"); if(nm) nm.insertAdjacentHTML("afterend",`<div class="small zFemTag"><button type="button" class="sec" onclick="zkOpen(${escJs(u.id)},true)">女性版の絵を見る</button></div>`); }
       });
       const head=`<div class="zkHead small"><span>図鑑のイラストは画像生成AIで作ったものです。出会う→獲得→自チームで活躍、で絵が変わります(絵を押すと大きく見られます)。<br>打席の画面の絵も画像生成AIで作ったものです。</span>
         <label class="zkSw"><input type="checkbox" ${zkImgOn()? "checked" : ""} onchange="zkSetImg(this.checked)"> イラストを出す</label></div>`;
@@ -25569,7 +25569,7 @@ function wlMarkAll(){ try{ allTeamsEverywhere().forEach(t=>edPlayersOf(t).forEac
 // 図鑑のカード:女子リーグの間は、女性版の絵が見られる選手は女性版を出す
 { const o=zkImgHtml; zkImgHtml=function(u,e,state){ const st=(e && zkStage(u,e,true))||0; if(!wlOn || st<1 || !zkImgOn()) return o.apply(this,arguments);
     const sil=zukanSilSvg(u,state), src=zkSrc(u,true,st), alt=`${uniqName(u)}(女性版・${["","出会った","獲得","活躍"][st]})`;
-    return `<button type="button" class="zImg" data-sil="${encodeURIComponent(sil)}" onclick="zkOpen('${u.id}',true)" aria-label="${alt}の絵を大きく見る"><img class="zBg" src="${src}" alt="" loading="lazy" decoding="async" aria-hidden="true"><img class="zFg" src="${src}" alt="${alt}" loading="lazy" decoding="async" onerror="zkFail(this)"></button>`; }; }
+    return `<button type="button" class="zImg" data-sil="${encodeURIComponent(sil)}" onclick="zkOpen(${escJs(u.id)},true)" aria-label="${alt}の絵を大きく見る"><img class="zBg" src="${src}" alt="" loading="lazy" decoding="async" aria-hidden="true"><img class="zFg" src="${src}" alt="${alt}" loading="lazy" decoding="async" onerror="zkFail(this)"></button>`; }; }
 // リーグの印:上の札と設定の表
 { const o=renderModeBadge; renderModeBadge=function(){ const r=o.apply(this,arguments); const b=document.getElementById("modeBadge"); if(b && league && wlOn){ b.classList.remove("hidden"); b.textContent=(gameMode==="normal"? "" : (gameMode==="ex"? "EX " : gameMode==="special"? "SP " : gameMode==="easy"? "かんたん " : ""))+"🌸女子"; b.title="女子リーグ"; } return r; }; }
 function wlEn(){ return typeof mpEn==="function" && mpEn(); }
@@ -27682,6 +27682,35 @@ function esc(s){ return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;"
 // お知らせの文(notices の t)だけは、英語表示のときに <span data-noi18n>…</span> の形の HTML を入れて作っているので、
 // 全部を変換してから、その札(開き・閉じ)だけを元に戻す
 function escNt(s){ return esc(s).replace(/&lt;span data-noi18n&gt;/g,"<span data-noi18n>").replace(/&lt;\/span&gt;/g,"</span>"); }
+/* ===== esc-out2:画面に出す文字の安全の残り(esc-out の続き) =====
+   乱数は使わない。ふつうのデータでは、画面の見た目も試合の結果も変わらない */
+// JS の文字列として onclick="f(…)" の中に入れる値(号外の番号など)。引用符ごと入れる:f(${escJs(x)}) → f(&quot;x&quot;)
+// (属性の中では &quot; が " に戻ってから JS として読まれる。JSON.stringify が中の " や \ を \" \\ にする。
+//  esc だけだと ' が &#39; → ' に戻って JS の文字列を抜け出せるので、esc(JSON.stringify()) の形にする)
+function escJs(s){ return esc(JSON.stringify(String(s))); }
+/* 【不具合の直し】英語表示のお知らせ(notices の t)は <span data-noi18n>…</span> の札入りで作るが、
+   セーブを読み直すと入口の safeDeep が < > " を消して「span data-noi18nSnapped a …/span」の文字になっていた。
+   保存の前に札を、入口で消えない目に見えない印(私用の文字 U+E000・U+E001)に置き換え、読み込みのあとに札に戻す。
+   入口の safeDeep はそのまま(札だけ通す作りにはしない)。
+   すでに崩れて保存されたお知らせ(「span data-noi18n」を含む文)も、読み込むときに札に戻す(消えた ' " などは戻らない) */
+const NT_OPEN="<span data-noi18n>", NT_CLOSE="</span>", NT_MO="", NT_MC="";
+function ntPack(n){
+  if(!n || typeof n.t!=="string" || n.t.indexOf(NT_OPEN)<0) return n;
+  return Object.assign({}, n, {t: n.t.split(NT_OPEN).join(NT_MO).split(NT_CLOSE).join(NT_MC)});   // 元の notices は変えない(写しを保存する)
+}
+function ntUnpack(n){
+  if(!n || typeof n.t!=="string") return;
+  let t=n.t;
+  if(t.indexOf(NT_MO)>=0 || t.indexOf(NT_MC)>=0) t=t.split(NT_MO).join(NT_OPEN).split(NT_MC).join(NT_CLOSE);
+  else if(t.indexOf("span data-noi18n")>=0) t=t.split("span data-noi18n").join(NT_OPEN).split("/span").join(NT_CLOSE);   // 前の版で崩れたもの
+  n.t=t;
+}
+{ const orig=collectState; collectState=function(){ const st=orig.apply(this,arguments);
+    try{ if(Array.isArray(st.notices)) st.notices=st.notices.map(ntPack); }catch(e){}
+    return st; }; }
+{ const orig=applyState; applyState=function(st){ const r=orig.apply(this,arguments);
+    try{ if(Array.isArray(notices)) notices.forEach(ntUnpack); }catch(e){}
+    return r; }; }
 let csMode="champ";
 function csOn(){
   return csMode==="top3" && !proRules() && leagueFormat==="roundrobin" && (typeof playTier==="undefined" || playTier!=="chaos")
