@@ -2694,6 +2694,49 @@ body:not(.aoArt) .aoOnly{display:none !important}
 @media (prefers-reduced-motion:reduce){ #aoRow.aoFlash{animation:none;outline:2px solid var(--gold)} }
 .zkHead .aoGo{min-height:44px}
 </style>
+<style id="dfCss">
+/* draft-fa:指名ボード・発表・取られた候補・FAの補償 */
+.dfBoardD{margin:8px 0}
+.dfBoardD>summary{cursor:pointer;min-height:36px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.dfBoardBox{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:6px;margin-top:4px}
+table.dfBoard{border-collapse:separate;border-spacing:0;font-size:.78em;min-width:max-content;width:100%}
+table.dfBoard th,table.dfBoard td{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:3px 5px;vertical-align:top;text-align:left;min-width:76px;max-width:120px}
+table.dfBoard thead th{background:var(--card2);position:sticky;top:0;white-space:nowrap;font-weight:bold}
+table.dfBoard .dfRd{position:sticky;left:0;z-index:1;background:var(--card2);min-width:30px;width:30px;text-align:center;white-space:nowrap}
+table.dfBoard thead .dfRd{z-index:2}
+table.dfBoard td{background:var(--field)}
+table.dfBoard .me{background:var(--field2);box-shadow:inset 0 0 0 1px var(--gold)}
+.dfP{display:flex;flex-direction:column;gap:1px;line-height:1.25;padding:2px 0}
+.dfP+.dfP{border-top:1px dashed var(--line);margin-top:2px;padding-top:3px}
+.dfP b{font-weight:bold;word-break:keep-all}
+.dfP .dfSub{font-size:.88em;opacity:.8}
+.dfP .dfBy{font-size:.86em;color:var(--gold)}
+.dfP.mine b{color:var(--gold)}
+.dfP.hot{background:rgba(220,60,60,.14);border-radius:4px;padding:2px 3px}
+.dfP .dfMk{font-size:.82em;padding:1px 5px;align-self:flex-start;margin-top:1px}
+.dfNew{animation:dfIn .5s ease-out}
+@keyframes dfIn{from{background:var(--gold);color:var(--onGold,#000)}to{background:transparent}}
+.dfAnn{border:2px solid var(--gold);border-radius:8px;padding:10px 12px;margin:8px 0;background:var(--field)}
+.dfAnnMain{font-size:1.12em;min-height:2.6em;display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;margin:4px 0}
+.dfAnnMain .dfAnnName{font-size:1.15em;color:var(--gold)}
+.dfPop{animation:dfPop .35s ease-out}
+@keyframes dfPop{from{transform:translateY(6px);opacity:.2}to{transform:none;opacity:1}}
+.dfCtl{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.dfCtl button{min-height:36px;padding:4px 12px}
+.dfTkHead{margin:10px 0 2px;opacity:.85;border-top:1px solid var(--line);padding-top:6px}
+.dcRow.dfTk{opacity:.5;filter:grayscale(1);cursor:default}
+.dcRow.dfTk .dfTkTag{background:#666;white-space:normal}
+.fcRow{margin-top:3px}
+.fcCls{background:#555}
+.fcCls.fcA{background:#a0312d}
+.fcCls.fcB,.fcCls.fcB2{background:#2d5fa0}
+.fcDraft{margin:6px 0}
+.fcOpts{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.fcOpt{display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;min-height:56px;padding:8px 12px;width:100%}
+@media (prefers-reduced-motion:reduce){ .dfNew,.dfPop{animation:none} }
+@media (max-width:480px){ table.dfBoard{font-size:.72em} table.dfBoard th,table.dfBoard td{min-width:64px;padding:2px 4px} }
+#playerModal:has(.fcAsk) #playerModalBody+div{display:none}   /* 補償を選ぶ窓では「閉じる」を出さない(選ぶまで閉じない) */
+</style>
 </head>
 <body class="preLeague">
 <div class="wrap">
@@ -2831,6 +2874,9 @@ body:not(.aoArt) .aoOnly{display:none !important}
     <div class="formRow fullOnly"><label for="salarySel">年俸と契約更改</label>
       <select id="salarySel"><option value="off" selected>なし</option><option value="on">あり</option></select>
       <p class="formHint">「あり」:オフに自チームの契約更改(提示額と退団をまとめて決める。おまかせもある)。年俸は球団ポイントで払い、球団ポイントの上限は100点、入る点と使う点は3倍になります。</p></div>
+    <div class="formRow fullOnly"><label for="faCompSel">FAの補償</label>
+      <select id="faCompSel"><option value="new" selected>新しい形(指名権・金銭)</option><option value="human">人的補償(今まで)</option></select>
+      <p class="formHint">「新しい形」:FAで選手を取られた球団は、その選手の元の球団での年俸の順位で、獲得した球団の翌年のドラフトの2巡目・3巡目の指名権か球団ポイントを受け取ります(9位以下と、翌年の4月1日に35歳以上の選手は補償なし)。「人的補償」:獲得した球団の2軍から1人が元の球団へ移ります(今までの形)。</p></div>
     <div class="formRow"><label for="ownSel">オーナーの解任</label>
       <select id="ownSel"><option value="stay" selected>あり(続投もできる)</option><option value="move">あり(移籍のみ)</option><option value="off">なし</option></select>
       <p class="formHint">信頼が0になると解任されます。「続投もできる」は、いまの球団に残る道(信頼50から)も選べます。「移籍のみ」は、同じリーグの昨季の下位2球団からのオファーを受けて移ります。球団を移っても、実績・図鑑・殿堂は引き継がれます。「なし」にすると、今までどおりです。</p></div>
@@ -3447,7 +3493,7 @@ let practiceElsewhere=false;   // v1.4.c:ほかのタブで練習中(控えを�
   for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(k && k.startsWith("pennant") && !k.startsWith("pennantSave") && k!=="pennantPracticeSnap") del.push(k); }
   del.forEach(k=>localStorage.removeItem(k)); Object.entries(o).forEach(([k,v])=>localStorage.setItem(k,v)); localStorage.removeItem("pennantPracticeSnap"); try{ sessionStorage.removeItem("pennantPracticeOwner"); }catch(e){} }catch(e){} })();
 /* バージョン:公開のたびに末尾の英字を1つ進める(v1.0.a → … → v1.0.z → v1.1.a) */
-const APP_VERSION="v1.7.s";
+const APP_VERSION="v1.7.t";
 /* 体験版の切り替え:体験版のファイルは、この行を true にして作る(本編と同じプログラム) */
 const LITE=false, LITE_SEASONS=3;
 const DEV=false;   // v1.2.p:開発版(テスト機能がいつも出ている)。開発版を作るときは true に置き換える
@@ -7870,7 +7916,7 @@ function aiChooseProspect(t,pool,lottery){
   return best;
 }
 function aiWantsPick(t,count,pool){
-  if(count>=DRAFT_ROUNDS || !pool.length) return false;
+  if(count>=dfCap(t) || !pool.length) return false;
   if(count<3) return true;
   const i=aiChooseProspect(t,pool); if(i<0) return false;
   const it=pool[i], type= it.type==="batter"? "bat":"pit";
@@ -7976,7 +8022,7 @@ function advanceDraftAI(){
     const t=draft.order[draft.pickNo];
     const cnt=draft.picked.get(t)||0;
     if(t===me){
-      if(!draft.myDone && draft.myPicks<DRAFT_ROUNDS && draft.pool.length){ if(draft.myAuto){ djAutoPickMe(); continue; } return; }   // 自分の番(v1.5.j:おまかせならここで選ぶ)
+      if(!draft.myDone && draft.myPicks<dfCap(me) && draft.pool.length){ if(draft.myAuto){ djAutoPickMe(); continue; } return; }   // 自分の番(v1.5.j:おまかせならここで選ぶ)
       draft.pickNo++; continue;
     }
     if(aiWantsPick(t,cnt,draft.pool)){
@@ -8412,13 +8458,14 @@ function draftScreenHtml(){
     if(draft.myLost) html+=`<div class="notice" style="margin:6px 0">🎯 <b>${draft.myLost}</b>の抽選に外れました。残りの候補から再入札してください。</div>`;
   } else {
     html+= draft.mode==="joint"
-      ? `<p><b>第${round}巡目・全体${draft.teams.length+draft.pickNo+1}番目 — ${me.name}の指名番です</b><br><span class="small">指名済み ${draft.myPicks}/${DRAFT_ROUNDS}人。2巡目以降は両リーグを合わせた勝率の低い順(偶数巡は逆順)。</span></p>`
-      : `<p><b>${me.name}の独自スカウト</b><br><span class="small">獲得済み ${draft.myPicks}/${DRAFT_ROUNDS}人。上位リーグの合同ドラフトは終了しています。</span></p>`;
+      ? `<p><b>第${round}巡目・全体${draft.teams.length+draft.pickNo+1}番目 — ${me.name}の指名番です</b><br><span class="small">指名済み ${draft.myPicks}/${dfCap(me)}人。2巡目以降は両リーグを合わせた勝率の低い順(偶数巡は逆順)。</span></p>`
+      : `<p><b>${me.name}の独自スカウト</b><br><span class="small">獲得済み ${draft.myPicks}/${dfCap(me)}人。上位リーグの合同ドラフトは終了しています。</span></p>`;
   }
   if(draft.lotteryLog.length){
     const last=draft.lotteryLog.slice(-2);
     html+=`<div class="notice" style="margin:6px 0"><b>🎰 1位入札の抽選結果</b>`+last.map(r=>r.items.map(x=>`<div class="small" style="margin-top:3px">${x.attn?attnHtml(x.attn)+" ":""}${x.unique?'<span class="badge uniq">★目玉</span> ':''}<b>${x.name}</b>:${x.bidders.length}球団競合(${x.bidders.join("・")})→ <b style="color:var(--gold)">${x.winner}</b></div>`).join("")).join("")+`</div>`;
   }
+  html+=fcDraftNoteHtml();   // draft-fa:補償の指名権
   draft.offers.forEach((o,k)=>{
     const q=o.item.p, u=o.item.unique;
     html+=`<div class="card" style="border-color:var(--gold);margin:8px 0">
@@ -8462,12 +8509,13 @@ function draftScreenHtml(){
     const rows=list.map(({it,i},k)=>{ const q=it.p, u=it.unique;
       const lead=`${ssLeadHtml(it)}${u?`<span class="badge uniq">★目玉 ${"★".repeat(u.r)}</span>`:""}${recSet.has(it)?'<span class="badge" style="background:var(--gold);color:var(--onGold,var(--field2))">おすすめ</span>':''}${(q.retry)?`<span class="badge retryTag">再挑戦</span>`:""}`;
       return dcRowHtml(k, dcPadKeys[k]===selK, lead, q, dcPosLabel(it), `${retryTrackBtn(it)}${ssItem(it)? ssMarkBtn("d",i,q) : ""}${ssHid(it)? "" : infoBtnHtml(q)}<button class="sec" onclick="${lottery?`draftBid(${i})`:`draftSelectPick(${i})`}">${lottery?"入札":"指名"}</button>`, u?" uniqRow":""); }).join("");
-    html+= dcWrapHtml(rows,'<p class="small">候補がいません。</p>'); }
+    html+= dcWrapHtml(rows+dfGrayRows(f),'<p class="small">候補がいません。</p>'); }   // draft-fa:他球団に取られた候補はグレーで下に
   html+=`</div><div style="width:100%;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:10px">
     ${lottery? `<button class="sec" onclick="draftPassR1()">1巡目は入札しない</button>` : draft.mode==="joint"?`<button class="sec" onclick="draftPassTurn()">この巡は見送る</button><button class="sec" onclick="djAutoRest()">残りの巡はおまかせ</button>`:""}
     <button class="act" onclick="confirmFinishDraft()">指名を終える</button></div>`;
-  const recent=draft.log.slice(-8).reverse();
-  if(recent.length) html+=`<div style="width:100%;margin-top:10px"><h4>直近の指名</h4>${recent.map(x=>`<div class="playerRow"><span>${x.round?`${x.round}巡`:""} ${x.name} [${x.pos}]${x.note?` <span class="badge">${x.note}</span>`:""}${x.ssTaken? ` <span class="badge ssMk">あなたの${"◎○△"[x.ssTaken-1]}</span>` : ""}</span><span class="small">${x.team}</span></div>`).join("")}</div>`;
+  if(draft.mode==="joint") html+=`<div style="width:100%;margin-top:10px">${dfBoardWrap()}</div>`;   // draft-fa:「直近の指名」を指名ボードに
+  else { const recent=draft.log.slice(-8).reverse();
+  if(recent.length) html+=`<div style="width:100%;margin-top:10px"><h4>直近の指名</h4>${recent.map(x=>`<div class="playerRow"><span>${x.round?`${x.round}巡`:""} ${x.name} [${x.pos}]${x.note?` <span class="badge">${x.note}</span>`:""}${x.ssTaken? ` <span class="badge ssMk">あなたの${"◎○△"[x.ssTaken-1]}</span>` : ""}</span><span class="small">${x.team}</span></div>`).join("")}</div>`; }
   return html;
 }
 /* ===== ドラフトの再挑戦(v1.2.b) =====
@@ -8646,7 +8694,7 @@ function draftFinishPick(){
     }
     else { draft.pickNo++; advanceDraftAI(); }
   }
-  else if(draft.myPicks>=DRAFT_ROUNDS || !draft.pool.length){ endDraft(); }
+  else if(draft.myPicks>=dfCap(me) || !draft.pool.length){ endDraft(); }
   buildLineupUI();
   updateMatchup(); renderAll();
 }
@@ -13214,6 +13262,7 @@ function resolveFA(){
       e.p.svcYears=0; e.p.teamB=null;
       if(winner===me && !fa.auto) mine.push({p:e.p,type:e.type});
       else if(!aiSignToFarm(winner,e.p,e.type)) recordRelease(e.p,e.type,winner);
+      if(fcNew()) fcOnMove(e,winner,res); else {   // draft-fa:新しい形はランクごとの指名権・球団ポイント
       // 人的補償:獲得した球団は2軍の有望株3人をプロテクト(保護)し、残りの中から見込みの一番高い選手を元の球団へ
       const farmAll=[...winner.farm.bat.map(x=>({x,type:"bat"})),...winner.farm.pit.map(x=>({x,type:"pit"}))]
         .sort((a,b)=>potentialBase(b.x)-potentialBase(a.x)).slice(FA_PROTECT);
@@ -13225,6 +13274,7 @@ function resolveFA(){
         else if(!aiSignToFarm(e.from,c.x,c.type)) recordRelease(c.x,c.type,e.from);
         res.comp=c.x.name;
       }
+      }
       if(scoreOf(e.p)>=68 || e.p.signature || e.p.uniqueId){ popBump(e.from,-3); popBump(winner,1); }
       if(winner===me){ newsFA(true,e.p,e.from.name); achStatAdd("faSigned"); }
       else if(e.from===me && (scoreOf(e.p)>=68 || e.p.signature || e.p.uniqueId)) newsFA(false,e.p,winner.name);
@@ -13233,7 +13283,7 @@ function resolveFA(){
     fa.results.push(res);
   });
   const finish=()=>{ scheduleAutoSave(true); fa.active=false; fa.done=true; allTeamsEverywhere().forEach(refreshTeamBonuses); if(!fa.auto){ buildLineupUI(); updateMatchup(); renderAll(); } };
-  const next=()=>{ const it=mine.shift(); if(!it){ finish(); return; } addToFarm(it.p,it.type,next); };
+  const next=()=>{ const it=mine.shift(); if(!it){ fcAskAll(finish); return; } addToFarm(it.p,it.type,next); };   // draft-fa:補償を選ぶ窓(なければすぐ finish)
   next();
 }
 function runFAAuto(){ startFA(true); resolveFA(); }
@@ -13244,8 +13294,8 @@ function newsFA(incoming,p,other){
   addNews({kind: incoming? "fa_in":"fa_out", date:"FA", kicker:"FA移籍", vertical: incoming? "大型補強":"流出",
     headline: incoming? `${p.name}、${me.name}へ移籍` : `${p.name}、${other}へ流出`,
     sub: incoming? `${other}からFAで獲得${uq?` 「${uq.title}」`:""}` : `${me.name}の主力がFAで移籍`,
-    body: incoming? [`${me.name}が、${other}からFA宣言した${p.age}歳の${isP?`${p.pos==="先発"?"先発":"中継ぎ"}投手`:(POS_FULL[p.fielding]||"野手")}、${p.name}を獲得した。通算${stat}の実力者が加わる。`, `補償として、${other}には${me.name}の2軍から1人が移籍する。`]
-                   : [`${me.name}の${p.name}がFA権を行使し、${other}への移籍を決めた。通算${stat}の主力の穴をどう埋めるかが課題となる。`, `補償として、${other}の2軍から1人が加わる。`],
+    body: incoming? [`${me.name}が、${other}からFA宣言した${p.age}歳の${isP?`${p.pos==="先発"?"先発":"中継ぎ"}投手`:(POS_FULL[p.fielding]||"野手")}、${p.name}を獲得した。通算${stat}の実力者が加わる。`, fcNewsLine(true,p,other)]
+                   : [`${me.name}の${p.name}がFA権を行使し、${other}への移籍を決めた。通算${stat}の主力の穴をどう埋めるかが課題となる。`, fcNewsLine(false,p,other)],
     facts: isP? [["年齢",`${p.age}歳`],["通算勝利",String(p.career.w||0)],["防御率",((p.career.er||0)*9/Math.max(1,p.career.ip||0)).toFixed(2)]] : [["年齢",`${p.age}歳`],["通算安打",String(p.career.h||0)],["通算本塁打",String(p.career.hr||0)]],
     side:null, scene:{type: incoming? "draft":"relegation", caption: incoming? `入団会見に臨む${p.name}` : `去りゆく${p.name}`}});
 }
@@ -13253,13 +13303,13 @@ function faScreenHtml(){
   setTimeout(()=>showTip("fa"),0);
   const me=league[myTeam], offers=fa.list.filter(e=>e.myOffer).length;
   const desc=e=> e.type==="bat"? `[${POS_FULL[e.p.fielding]||e.p.fielding}] ミ${gSpanP(e.p,"meet")}/パ${gSpanP(e.p,"power")}/走${gSpanP(e.p,"speed")}/守${gSpanP(e.p,"fieldSkill")}` : `${e.p.pos==="先発"?"先発":"中継ぎ"} 球速${gSpanP(e.p,"velo")}/制球${gSpanP(e.p,"control")}/スタ${gSpanP(e.p,"stamina")}`;
-  let html=`<div style="width:100%"><h3>FA市場</h3><p class="small">FA宣言した選手に名乗りを上げられます(${offers}/${faMaxOffers()}人)。移籍先は、名乗りを上げた球団と元の球団の中から、成績・所属リーグ・補強の必要性・愛着などの「球団の魅力」に応じた抽選で決まります。獲得した選手は2軍に入り、代わりに2軍から1人を元の球団へ渡します(人的補償。2軍の有望株3人はプロテクトされます)。</p>`;
+  let html=`<div style="width:100%"><h3>FA市場</h3>${fcNew()? fcFaDescHtml(offers) : `<p class="small">FA宣言した選手に名乗りを上げられます(${offers}/${faMaxOffers()}人)。移籍先は、名乗りを上げた球団と元の球団の中から、成績・所属リーグ・補強の必要性・愛着などの「球団の魅力」に応じた抽選で決まります。獲得した選手は2軍に入り、代わりに2軍から1人を元の球団へ渡します(人的補償。2軍の有望株3人はプロテクトされます)。</p>`}`;
   html+=`<p class="small">${faL("名乗りを上げた選手には「見込み」が出て、球団ポイントで条件を上乗せできます(決まったときだけ払います)。","Players you bid on show your chance to sign them, and you can sweeten the offer with club points (paid only if he signs).")}</p>`+faMineHtml();   // v1.5.l
   if(!fa.list.length) html+=`<p>今年はFA宣言した選手がいません。</p>`;
   html+=fa.list.map((e,i)=>{
     const u=e.p.uniqueId? uniqueDef(e.p) : null, mineP=e.from===me;
     const btn= mineP? `<span class="small">あなたの選手(引き止め交渉中)</span>` : `<button class="${e.myOffer?"act":"sec"}" onclick="faToggleOffer(${i})">${e.myOffer?"名乗りを取り消す":"獲得に名乗り"}</button>`;
-    return `<div class="playerRow${u?" uniqRow":""}"><span>${u?`<span class="badge uniq">★目玉 ${"★".repeat(u.r)}</span> `:""}${mineP?'<span class="badge">自チーム</span> ':""}${localTagHtml(e.p,me)}${e.p.name} ${e.p.age}歳(${e.from.name}・在籍${svcOf(e.p)}年)<br><span class="small">${desc(e)}${e.suitors.length?`・他${e.suitors.length}球団が関心`:""}</span>${skillChipsHtml(e.p)}${faDealHtml(e,i)}</span><span style="display:flex;gap:6px;align-items:center">${infoBtnHtml(e.p)}${btn}</span></div>`;
+    return `<div class="playerRow${u?" uniqRow":""}"><span>${u?`<span class="badge uniq">★目玉 ${"★".repeat(u.r)}</span> `:""}${mineP?'<span class="badge">自チーム</span> ':""}${localTagHtml(e.p,me)}${e.p.name} ${e.p.age}歳(${e.from.name}・在籍${svcOf(e.p)}年)<br><span class="small">${desc(e)}${e.suitors.length?`・他${e.suitors.length}球団が関心`:""}</span>${skillChipsHtml(e.p)}${faDealHtml(e,i)}${fcRowHtml(e)}</span><span style="display:flex;gap:6px;align-items:center">${infoBtnHtml(e.p)}${btn}</span></div>`;
   }).join("");
   html+=`</div><div style="width:100%;text-align:center;margin-top:10px"><button class="act" onclick="resolveFA()">交渉を締め切って結果を見る</button></div>`;
   return html;
@@ -13267,7 +13317,7 @@ function faScreenHtml(){
 function faSummaryHtml(){
   if(!fa.results.length) return `<p class="small">今年のFA移籍はありませんでした。</p>`;
   const me=league[myTeam].name;
-  const row=r=>`<div class="playerRow"><span>${r.unique?'<span class="badge uniq">★目玉</span> ':''}${r.name} ${r.age}歳 [${r.pos}]<br><span class="small">${r.stay? `${r.from}に残留` : `${r.from} → <b>${r.to}</b>${r.comp?`(補償:${r.comp})`:""}`}</span></span></div>`;
+  const row=r=>`<div class="playerRow"><span>${r.unique?'<span class="badge uniq">★目玉</span> ':''}${r.name} ${r.age}歳 [${r.pos}]<br><span class="small">${r.stay? `${r.from}に残留` : `${r.from} → <b>${r.to}</b>${fcResTxt(r)}`}</span></span></div>`;
   const mineRows=fa.results.filter(r=>r.from===me||r.to===me);
   return `<h4 style="margin-top:10px">自チームに関わるFA</h4>${mineRows.length? mineRows.map(row).join("") : '<p class="small">なし</p>'}
     <details style="margin-top:8px"><summary class="small" style="cursor:pointer">全球団のFAの結果(${fa.results.length}人・移籍${fa.results.filter(r=>!r.stay).length}人)</summary>${fa.results.map(row).join("")}</details>`;
@@ -13452,7 +13502,7 @@ const MANUAL=[
   <p><b>目玉選手</b>:名前と経歴を持つ特別な選手が60人いて、毎年のドラフトに2〜3人登場します。1つのリーグでは1人1回だけ登場し、他球団も指名を狙ってきます。60人が出尽くした後は、引退した目玉選手の子が「2代目」として登場します。</p>
   <p><b>逆指名</b>:看板選手が引退した球団には、同じタイプの有望株が「後継者」として逆指名してくることがあります。目玉選手が、好みのタイプの球団を逆指名することもあります。受け入れると1巡目の指名権を使います。</p>
   <p class="fullOnly" id="manFaDeal"><b>FAの駆け引き</b>:名乗りを上げた選手(と、FA宣言した自チームの選手)には「獲得(残留)の見込み 約○%」と「魅力の内訳」が出ます。条件を「厚遇」(魅力 +1・球団ポイント3点)か「大型契約」(+2・6点)に上げると見込みが上がり、ポイントは決まったときだけ払います(年俸ありのリーグは3倍)。結果の画面では、選手がどこを選んだかと、あなたの見込み・何番目の魅力だったか、自チームのFA資格の選手のうち誰が宣言して誰が残ったかが分かります。</p>
-  <p class="fullOnly" id="manFA"><b>FA</b>:同じ球団に7シーズン以上在籍した26〜35歳の選手が、FA宣言することがあります。ドラフトの後の「FA市場」で、1年に3人まで獲得に名乗りを上げられます。移籍先は、名乗りを上げた球団と元の球団の中から、成績・所属リーグ・補強の必要性・愛着などの「球団の魅力」による抽選で決まります。獲得した選手は2軍に入り、代わりに2軍から1人を元の球団に渡します(人的補償)。2軍の有望株3人はプロテクト(保護)され、補償には選ばれません。自チームの選手がFA宣言することもあります。</p>`],
+  <p class="fullOnly" id="manFA"><b>FA</b>:同じ球団に7シーズン以上在籍した26〜35歳の選手が、FA宣言することがあります。ドラフトの後の「FA市場」で、1年に3人まで獲得に名乗りを上げられます。移籍先は、名乗りを上げた球団と元の球団の中から、成績・所属リーグ・補強の必要性・愛着などの「球団の魅力」による抽選で決まります。獲得した選手は2軍に入ります。元の球団への補償は、リーグ作成の「FAの補償」で決まります。「新しい形」では、元の球団での年俸の順位で、1〜3位(ランクA)は獲得した球団の翌年のドラフトの2巡目の指名権か球団ポイント、4〜7位(ランクB)は3巡目の指名権か球団ポイント、8位は球団ポイントだけ、9位以下と翌年の4月1日に35歳以上の選手は補償なしです。指名権か球団ポイントかは元の球団が選び、指名権をもらった球団はその巡目に2人指名します(年俸なしのリーグは、年俸の見込みで順位を決めます)。「人的補償」では、代わりに2軍から1人を元の球団に渡します。2軍の有望株3人はプロテクト(保護)され、補償には選ばれません。自チームの選手がFA宣言することもあります。</p>`],
  ["リーグの仕組み",`<p>自分のリーグ(コスモリーグ)と、もう一方のリーグ(ネビュラリーグ)があります。リーグ名は設定で変えられます。</p>
   <p class="fullOnly"><b>方式</b>:総当り、2部制(10チーム・6チームと4チームのディビジョン)、地区制(10チーム・5チームずつ)、3地区制(9チーム)から選べます。</p>
   <p class="fullOnly"><b>入れ替え戦</b>(2部制):上のディビジョンの最下位と、下のディビジョンの1位が戦います(3試合先取2勝)。さらに3年に1度、下部のカオスリーグとの入れ替え戦があります。</p>
@@ -20504,7 +20554,7 @@ I18N.add("en",{
 "目玉選手":"Phenoms",
 "{0}:名前と経歴を持つ特別な選手が60人いて、毎年のドラフトに2〜3人登場します。1つのリーグでは1人1回だけ登場し、他球団も指名を狙ってきます。60人が出尽くした後は、引退した目玉選手の子が「2代目」として登場します。":"{0}: There are 60 special players with names and backstories, and 2–3 of them appear in each year's draft. Each appears only once per league, and other clubs go after them, too. Once all 60 have appeared, children of retired phenoms show up as the \"2nd generation\".",
 "{0}:看板選手が引退した球団には、同じタイプの有望株が「後継者」として逆指名してくることがあります。目玉選手が、好みのタイプの球団を逆指名することもあります。受け入れると1巡目の指名権を使います。":"{0}: When a club's franchise player retires, a top prospect of the same type may choose that club as his \"successor\". A phenom may also choose a club of the type he likes. Accepting uses your first-round pick.",
-"{0}:同じ球団に7シーズン以上在籍した26〜35歳の選手が、FA宣言することがあります。ドラフトの後の「FA市場」で、1年に3人まで獲得に名乗りを上げられます。移籍先は、名乗りを上げた球団と元の球団の中から、成績・所属リーグ・補強の必要性・愛着などの「球団の魅力」による抽選で決まります。獲得した選手は2軍に入り、代わりに2軍から1人を元の球団に渡します(人的補償)。2軍の有望株3人はプロテクト(保護)され、補償には選ばれません。自チームの選手がFA宣言することもあります。":"{0}: A player aged 26–35 who has spent 7 or more seasons with the same club may declare free agency. In \"Free Agency\" after the draft, you can make offers to up to 3 players a year. Each destination is drawn by lot among the clubs that made offers and the old club, weighted by \"club appeal\" — record, league, need, loyalty, and so on. A signed player joins your Minors, and you hand one Minors player to his old club in return (compensation). Your top 3 Minors prospects are protected and cannot be taken. Your own players may declare free agency, too.",
+"{0}:同じ球団に7シーズン以上在籍した26〜35歳の選手が、FA宣言することがあります。ドラフトの後の「FA市場」で、1年に3人まで獲得に名乗りを上げられます。移籍先は、名乗りを上げた球団と元の球団の中から、成績・所属リーグ・補強の必要性・愛着などの「球団の魅力」による抽選で決まります。獲得した選手は2軍に入ります。元の球団への補償は、リーグ作成の「FAの補償」で決まります。「新しい形」では、元の球団での年俸の順位で、1〜3位(ランクA)は獲得した球団の翌年のドラフトの2巡目の指名権か球団ポイント、4〜7位(ランクB)は3巡目の指名権か球団ポイント、8位は球団ポイントだけ、9位以下と翌年の4月1日に35歳以上の選手は補償なしです。指名権か球団ポイントかは元の球団が選び、指名権をもらった球団はその巡目に2人指名します(年俸なしのリーグは、年俸の見込みで順位を決めます)。「人的補償」では、代わりに2軍から1人を元の球団に渡します。2軍の有望株3人はプロテクト(保護)され、補償には選ばれません。自チームの選手がFA宣言することもあります。":"{0}: A player aged 26–35 who has spent 7 or more seasons with the same club may declare free agency. In \"Free Agency\" after the draft, you can make offers to up to 3 players a year. Each destination is drawn by lot among the clubs that made offers and the old club, weighted by \"club appeal\" — record, league, need, loyalty, and so on. A signed player joins your Minors. Compensation to his old club follows the league setting \"FA compensation\". With the new style, it depends on his payroll rank at his old club: #1–3 (Rank A) = the signing club's round-2 pick in next year's draft or club points; #4–7 (Rank B) = a round-3 pick or club points; #8 = club points only; none for #9 or lower, or for players 35 or older next April 1. The old club chooses, and a club that receives a pick makes two picks in that round (leagues without salaries rank players by estimated salary). With player compensation, you hand one Minors player to his old club in return. Your top 3 Minors prospects are protected and cannot be taken. Your own players may declare free agency, too.",
 "リーグの仕組み":"How the leagues work",
 "自分のリーグ(コスモリーグ)と、もう一方のリーグ(ネビュラリーグ)があります。リーグ名は設定で変えられます。":"There is your league (the Cosmo League) and the other league (the Nebula League). You can rename the leagues in Settings.",
 "方式":"Format",
@@ -27227,6 +27277,313 @@ I18N.add("en",{"AIで作ったイラストを表示する":"Show AI-made illustr
   "最初の1年の案内役を出す(試合の画面の上に「いまやること」)":"Show the first-year guide (\"what to do now\" above the game screen)",
   "案内役の絵は画像生成AIで作ったものです。":"The guide's picture was made with an AI image generator."});
 try{ aoSync(); }catch(e){}
+
+/* ===== draft-fa:FAの補償の新しい形(ランクごとの指名権・球団ポイント)と、ドラフトの指名ボード =====
+   【1】FAの補償(リーグ作成の「FAの補償」。新しいリーグのはじめは「新しい形」、前からのセーブと体験版は「人的補償」のまま)
+   ・ランクは、FA宣言したときの元の球団の年俸の順位(助っ人を除く1軍・2軍の全員)。年俸「なし」のリーグは、年俸「あり」の他球団と同じ式の見込み(salFair)で並べる
+     A=1〜3位:翌年のドラフトの2巡目の指名権か球団ポイント/B=4〜7位:3巡目か球団ポイント/8位:球団ポイントだけ/9位以下:なし
+     翌年の4月1日に35歳以上(=いまの年齢+1が35以上)ならランクに関係なくなし
+   ・球団ポイントの目安は年俸の 130・105・80%(A の1〜3位)・100・87・73・60%(B の4〜7位)・60%(8位)。年俸 5000万円(SAL_PT。契約更改の昇給と同じ)で1点、
+     年俸「なし」のリーグも年俸の見込みで同じ換算。少なくとも1点
+   ・指名権を選べるのは、獲得した球団も元の球団も合同ドラフトに出る球団(上のリーグ)のときだけ。下のリーグ(カオス)の球団が関わるときは球団ポイントだけ
+   ・選ぶのは元の球団。自チームならゲームの窓(はじめは他球団と同じ決め方の案を入れておき、窓で変えられる)。他球団は若手の層と金額で決める(乱数は使わない)
+   ・指名権は fcState.picks に入れ、翌年のドラフトで、譲った球団のその巡目の番を、もらった球団が使う(buildSnakeOrder を包む)
+   【2】ドラフトの指名ボード(巡目×球団)・他球団の指名を1人ずつ発表・取られた候補をグレーで残す。見せ方だけ(結果も乱数も変えない) */
+function dfEsc(s){ return String(s==null? "" : s).replace(/[&<>"'`]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;","`":"&#96;"}[c])); }   // esc() と同じ(esc は別の囲みの中にあるので、ここにも置く)
+const FC_PCT=[130,105,80,100,87,73,60,60], FC_OLD=35, FC_YOUNG_POT=58, FC_PTS_LOW=2;
+let fcState={mode:"human",picks:[],log:[]};
+let fcAsk=[], fcAskCur=null, fcAskDone=null, fcCur=null;
+function fcEn(){ return typeof swEn==="function" && swEn(); }
+function dfL(ja,en){ return fcEn()? `<span data-noi18n>${en}</span>` : ja; }
+function fcNew(){ return !LITE && !!fcState && fcState.mode==="new"; }
+const FC_CLS={A:["ランクA","Rank A"],B:["ランクB","Rank B"],B2:["ランクB","Rank B"],C:["ランクC","Rank C"],old:["35歳以上","Age 35+"]};
+function fcClsName(c){ const x=FC_CLS[c]||FC_CLS.C; return fcEn()? x[1] : x[0]; }
+// --- 年俸の順位(乱数は使わない。年俸なしのリーグは見込みを計算するだけで p.sal は付けない) ---
+function fcWar(p,t,cx){
+  try{ const arr=sbLeagueArrOf(t.name); if(!arr) return 0;
+    let c=cx.ctx.get(arr); if(!c){ c=leagueContext(arr); cx.ctx.set(arr,c); }
+    const m= p.velo!==undefined? sbPit(p,c) : sbBat(p,c); return m && isFinite(m.war)? m.war : 0; }catch(e){ return 0; }
+}
+function fcSal(p,t,cx){
+  if(cx.sal.has(p)) return cx.sal.get(p);
+  const v= salOn()? salOf(p) : Math.max(SAL_MIN, Math.round((salBase(p)+Math.max(0,fcWar(p,t,cx))*2500)/100)*100);   // salFair と同じ式
+  cx.sal.set(p,v); return v;
+}
+function fcCx(){ return {ctx:new Map(), sal:new Map()}; }
+function fcCalc(p,t,cx){
+  cx=cx||fcCx(); ensureFarm(t);
+  const list=salTeamPlayers(t); if(!list.includes(p)) list.push(p);
+  const mine=fcSal(p,t,cx), rank=1+list.filter(x=>x!==p && fcSal(x,t,cx)>mine).length;
+  const cls= p.age+1>=FC_OLD? "old" : rank<=3? "A" : rank<=7? "B" : rank===8? "B2" : "C";
+  const pct= (cls==="old"||cls==="C")? 0 : FC_PCT[rank-1];
+  const pts= pct? Math.max(1, Math.round(mine*pct/100/SAL_PT)) : 0;
+  return {rank, cls, round: cls==="A"? 2 : cls==="B"? 3 : 0, pct, sal:mine, pts};
+}
+// --- 元の球団の決め方:若手(23歳以下・見込み58以上。1軍・2軍)が、同じリーグの球団の平均より少なければ指名権、平均以上なら球団ポイント。
+//     球団ポイントが2点以下なら指名権。自チーム(おまかせ・窓のはじめの案)は、球団ポイントが上限からあふれるときも指名権 ---
+function fcYoung(t){ ensureFarm(t); return [...oneGun(t),...t.farm.bat,...t.farm.pit].filter(x=>!x.imp && x.age<=23 && potentialBase(x)>=FC_YOUNG_POT).length; }
+function fcYoungAvg(t){ const lg=leagueOfTeam(t)||[t]; return lg.reduce((a,x)=>a+fcYoung(x),0)/Math.max(1,lg.length); }
+function fcWantsPick(t,c){
+  if(league && t===league[myTeam] && clubPoints+c.pts>clubMax()) return true;
+  return c.pts<=FC_PTS_LOW || fcYoung(t)<fcYoungAvg(t);
+}
+function fcPickUsed(giver,round,dy){ return fcState.picks.some(x=>x.dy===dy && x.giver===giver && x.round===round); }
+// 決めた補償を当てる(sign=+1)・取り消す(-1。自チームが窓で選び直したとき)
+function fcApply(r,sign){
+  const me=league[myTeam], g=r._g, v=r._r;
+  if(r.kind==="pick"){
+    if(sign>0){ r.pk={dy:r.dy, round:r.round, giver:g, recv:v, gn:g.name, rn:v.name, player:r.player, st:""}; fcState.picks.push(r.pk); }
+    else if(r.pk){ const i=fcState.picks.indexOf(r.pk); if(i>=0) fcState.picks.splice(i,1); r.pk=null; }
+  } else if(r.kind==="pts"){
+    if(v===me){ if(sign>0){ const b=clubPoints; clubPoints=Math.min(clubMax(),clubPoints+r.pts); r.got=clubPoints-b; } else { clubPoints=Math.max(0,clubPoints-(r.got||0)); r.got=0; } }
+    if(g===me){ if(sign>0){ const pay=Math.min(clubPoints,r.pts); clubPoints-=pay; r.paid=pay; } else { clubPoints+=r.paid||0; r.paid=0; } }
+  }
+}
+// resolveFA の中(人的補償の代わり)。e:FAの1人、winner:移籍先
+function fcOnMove(e,winner,res){
+  const me=league[myTeam], c=e._fc || fcCalc(e.p,e.from);
+  const r={y:year, dy:year+1, player:e.p.name, age:e.p.age, from:e.from.name, to:winner.name, cls:c.cls, rank:c.rank, round:c.round, pts:c.pts, pct:c.pct, sal:c.sal, kind:"none", canPick:false};
+  r._g=winner; r._r=e.from;
+  if(c.cls!=="old" && c.cls!=="C"){
+    r.canPick= c.round>0 && isUpperTeam(winner) && isUpperTeam(e.from) && !fcPickUsed(winner,c.round,r.dy);   // 合同ドラフトに出る球団どうしだけ。同じ年に同じ巡目を2つは譲れない(2人目からは球団ポイントだけ)
+    r.kind= (r.canPick && fcWantsPick(e.from,c))? "pick" : "pts";
+    fcApply(r,1);
+  }
+  fcState.log.push(r); if(fcState.log.length>200) fcState.log.splice(0,fcState.log.length-200);
+  res.fc=r; fcCur=r;
+  if(e.from===me && !fa.auto && r.canPick) fcAsk.push(r);
+  else if(e.from===me && r.kind!=="none") noticeAdd("fa", fcNoticeTxt(r));
+  if(winner===me) noticeAdd("fa", fcNoticeTxt(r));
+}
+function fcWhat(r,en){   // 補償の中身を1つの言い方で
+  if(r.kind==="pick") return en? `the ${dfEsc(r.to)}' round-${r.round} pick in next year's draft goes to the ${dfEsc(r.from)}` : `${dfEsc(r.to)}の来年のドラフトの${r.round}巡目の指名権を${dfEsc(r.from)}へ`;
+  if(r.kind==="pts") return en? `the ${dfEsc(r.to)} pay the ${dfEsc(r.from)} ${r.pts} club points` : `${dfEsc(r.to)}から${dfEsc(r.from)}へ球団ポイント${r.pts}点`;
+  return en? (r.cls==="old"? "none (35 or older next April 1)" : "none (Rank C)") : (r.cls==="old"? "なし(翌年の4月1日に35歳以上)" : "なし(ランクC)");
+}
+function fcNoticeTxt(r){
+  const en=fcEn(), me=league[myTeam].name;
+  if(en) return `<span data-noi18n>FA compensation for ${dfEsc(r.player)} (${fcClsName(r.cls)}): ${fcWhat(r,true)}${r.paid!==undefined && r.to===me && r.kind==="pts"? ` (paid ${r.paid})` : ""}</span>`;
+  return `FAの補償(${dfEsc(r.player)}・${fcClsName(r.cls)}):${fcWhat(r,false)}${r.paid!==undefined && r.to===me && r.kind==="pts" && r.paid<r.pts? `(所持が足りず${r.paid}点を払った)` : ""}`;
+}
+// --- 自チームが元の球団のとき:ゲームの窓で選ぶ ---
+function fcAskAll(done){ const r=fcAsk.shift(); if(!r){ done(); return; } fcAskOpen(r,done); }
+function fcAskOpen(r,done){
+  fcAskCur=r; fcAskDone=done;
+  const en=fcEn();
+  openModal(`<div class="fcAsk"><h3>${dfL("FAの補償を選んでください","Choose your FA compensation")}</h3>
+    <p>${en? `<span data-noi18n>${dfEsc(r.player)} (${r.age}) left for the ${dfEsc(r.to)}. He was #${r.rank} in your payroll (${fcClsName(r.cls)}), so you choose one:</span>` : `${dfEsc(r.player)}(${r.age}歳)が${dfEsc(r.to)}へ移籍しました。年俸は球団内${r.rank}位(${fcClsName(r.cls)})なので、補償をどちらか選べます。`}</p>
+    <div class="fcOpts">
+      <button class="act fcOpt" type="button" onclick="fcAskPick('pick')"><b>${dfL(`${dfEsc(r.to)}の${r.round}巡目の指名権`,`The ${dfEsc(r.to)}' round-${r.round} pick`)}</b><span class="small">${dfL(`来年のドラフトで、${r.round}巡目に2人指名できます(${dfEsc(r.to)}は${r.round}巡目に指名できません)`,`Next year's draft: you pick twice in round ${r.round}; the ${dfEsc(r.to)} skip that round`)}</span></button>
+      <button class="sec fcOpt" type="button" onclick="fcAskPick('pts')"><b>${dfL(`球団ポイント ${r.pts}点`,`${r.pts} club points`)}</b><span class="small">${en? `<span data-noi18n>About ${r.pct}% of his salary${salOn()? ` (${salYen(r.sal)})` : ""} · you have ${clubPoints} (max ${clubMax()})${clubPoints+r.pts>clubMax()? ` · ${clubPoints+r.pts-clubMax()} would be lost over the cap` : ""}</span>` : `年俸の約${r.pct}%${salOn()? `(年俸 ${salYen(r.sal)})` : "(年俸の見込みから)"}・所持${clubPoints}点(上限${clubMax()})${clubPoints+r.pts>clubMax()? `・上限をこえる${clubPoints+r.pts-clubMax()}点は入りません` : ""}`}</span></button>
+    </div>
+    <p class="small">${dfL(`若手の層(23歳以下で見込みの高い選手):${fcYoung(league[myTeam])}人(リーグの平均 ${fcYoungAvg(league[myTeam]).toFixed(1)}人)。`,`Young depth (23 or younger, good potential): ${fcYoung(league[myTeam])} (league average ${fcYoungAvg(league[myTeam]).toFixed(1)}).`)}</p></div>`);
+}
+function fcAskPick(kind){
+  const r=fcAskCur; if(!r) return;
+  if(kind!==r.kind && (kind==="pts" || r.canPick)){ fcApply(r,-1); r.kind=kind; fcApply(r,1); }
+  r.ch=1; noticeAdd("fa", fcNoticeTxt(r));
+  const d=fcAskDone; fcAskCur=null; fcAskDone=null; closeModal();
+  fcAskAll(d||(()=>{}));
+}
+{ const orig=closeModal; closeModal=function(){ if(fcAskCur) return; return orig.apply(this,arguments); }; }   // 選ぶまで窓は閉じない
+// FA の画面:1人ずつの補償の見込み
+function fcRowHtml(e){
+  if(!fcNew() || !e || !e.p) return "";
+  const c=e._fc || (e._fc=fcCalc(e.p,e.from)), en=fcEn();
+  const what= c.cls==="old"? dfL("補償なし(翌年の4月1日に35歳以上)","No compensation (35+ next April 1)")
+    : c.cls==="C"? dfL(`補償なし(年俸は球団内${c.rank}位)`,`No compensation (#${c.rank} in payroll)`)
+    : c.cls==="B2"? dfL(`補償:球団ポイント約${c.pts}点(年俸は球団内8位)`,`Compensation: about ${c.pts} club points (#8 in payroll)`)
+    : (en? `<span data-noi18n>Compensation: the signing club's round-${c.round} pick or about ${c.pts} club points (#${c.rank} in payroll)</span>` : `補償:獲得した球団の${c.round}巡目の指名権か球団ポイント約${c.pts}点(年俸は球団内${c.rank}位)`);
+  return `<div class="small fcRow"><span class="badge fcCls fc${c.cls}">${fcClsName(c.cls)}</span> ${what}</div>`;
+}
+function fcFaDescHtml(offers){
+  return `<p class="small">${dfL(`FA宣言した選手に名乗りを上げられます(${offers}/${faMaxOffers()}人)。移籍先は、名乗りを上げた球団と元の球団の中から、成績・所属リーグ・補強の必要性・愛着などの「球団の魅力」に応じた抽選で決まります。獲得した選手は2軍に入ります。`,
+    `You can make offers to players who have declared free agency (${offers}/${faMaxOffers()}). Each player's destination is drawn by lot among the clubs that made offers and the old club, weighted by "club appeal" — record, league, need, loyalty, and so on. A signed player joins your Minors.`)}</p>
+    <p class="small fcHow">${dfL(`補償(このリーグは新しい形):元の球団での年俸の順位で決まります。ランクA(1〜3位)=獲得した球団の来年のドラフトの2巡目の指名権か球団ポイント、ランクB(4〜7位)=3巡目の指名権か球団ポイント、8位=球団ポイントだけ、9位以下=なし。翌年の4月1日に35歳以上ならなし。どちらにするかは元の球団が選びます。${salOn()? "" : "このリーグは年俸がないので、年俸の見込みで順位を決めます。"}`,
+    `Compensation (new style in this league) depends on his payroll rank at his old club: Rank A (#1–3) = the signing club's round-2 pick in next year's draft or club points; Rank B (#4–7) = a round-3 pick or club points; #8 = club points only; #9 or lower = none. None if he is 35 or older next April 1. The old club chooses.${salOn()? "" : " This league has no salaries, so the rank uses estimated salaries."}`)}</p>`;
+}
+// FA の結果の1行
+function fcResTxt(r){
+  if(r.fc){ const x=r.fc; return fcEn()? ` <span data-noi18n>(compensation: ${fcWhat(x,true)})</span>` : `(補償:${fcWhat(x,false)})`; }
+  return r.comp? `(補償:${r.comp})` : "";
+}
+// 号外の補償の1文(人的補償のリーグは今までの文)
+function fcNewsLine(incoming,p,other){
+  const me=league[myTeam];
+  if(!fcNew() || !fcCur || fcCur.player!==p.name) return incoming? `補償として、${other}には${me.name}の2軍から1人が移籍する。` : `補償として、${other}の2軍から1人が加わる。`;
+  const r=fcCur;
+  if(r.kind==="none") return r.cls==="old"? "35歳以上のため、補償はない。" : "ランクCのため、補償はない。";
+  if(incoming) return r.kind==="pick"? `補償として、${other}には来年のドラフトの${r.round}巡目の指名権を渡す。` : `補償として、${other}に球団ポイント${r.pts}点を払う。`;
+  if(!fa.auto && r.canPick) return `補償は、${other}の${r.round}巡目の指名権か球団ポイント${r.pts}点から選ぶ。`;
+  return r.kind==="pick"? `補償として、${other}の来年のドラフトの${r.round}巡目の指名権を得る。` : `補償として、${other}から球団ポイント${r.pts}点を受け取る。`;
+}
+// resolveFA の前に、全員のランクを決めておく(移籍で抜ける前の順位)
+{ const orig=resolveFA; resolveFA=function(){
+    if(fcNew()){ fcAsk=[]; const cx=fcCx(); try{ fa.list.forEach(e=>{ e._fc=fcCalc(e.p,e.from,cx); }); }catch(err){ console.error("fc",err); } }
+    return orig.apply(this,arguments); }; }
+// FA の結果:自チームの補償をまとめて上に
+{ const orig=faSummaryHtml; faSummaryHtml=function(){
+    const h=orig.apply(this,arguments); if(!fcNew()) return h;
+    const me=league[myTeam].name, rs=(fa.results||[]).filter(r=>r.fc && !r.stay && (r.from===me||r.to===me) && r.fc.y===year);
+    if(!rs.length) return h;
+    return `<h4 style="margin-top:10px">${dfL("FAの補償","FA compensation")}</h4>${rs.map(r=>`<div class="playerRow"><span><span class="badge fcCls fc${r.fc.cls}">${fcClsName(r.fc.cls)}</span> ${dfEsc(r.name)}:${fcEn()? `<span data-noi18n>${fcWhat(r.fc,true)}</span>` : fcWhat(r.fc,false)}</span></div>`).join("")}`+h; }; }
+
+// --- ドラフト:補償の指名権を順番に当てる ---
+function fcPicksNow(){ return (fcState && fcState.picks || []).filter(x=>x.dy===year); }
+{ const orig=buildSnakeOrder; buildSnakeOrder=function(teams,rounds){
+    const o=orig(teams,rounds), cs=fcPicksNow();
+    if(!cs.length) return o;
+    const n=teams.length, base= rounds===DRAFT_ROUNDS-1? 2 : 1, own=o.slice(), ins=[];
+    cs.forEach(c=>{
+      const r=c.round-base; if(r<0 || r>=rounds){ c.st="void"; return; }
+      if(!teams.includes(c.recv)){ c.st= (league && c.recv===league[myTeam])? "scout" : "void"; return; }   // もらった球団が合同ドラフトにいない(自チームが独自スカウトなら獲得枠が1つ増える)
+      if(teams.includes(c.giver)){
+        let k=-1; for(let i=r*n;i<(r+1)*n;i++) if(own[i]===c.giver){ k=i; break; }
+        if(k<0 || o[k]!==c.giver){ c.st="void"; return; }
+        o[k]=c.recv; c.st="used";
+      } else ins.push([r,c]);   // 譲った球団が合同ドラフトにいない(自チームが独自スカウト):もらった球団の番の直後に1つ足す
+    });
+    ins.sort((a,b)=>b[0]-a[0]).forEach(([r,c])=>{ let k=-1; for(let i=r*n;i<(r+1)*n;i++) if(own[i]===c.recv){ k=i; break; } if(k<0){ c.st="void"; return; } o.splice(k+1,0,c.recv); own.splice(k+1,0,c.giver); c.st="used"; });
+    if(draft && draft.mode==="joint") draft.slotOwn=own;
+    return o; }; }
+function dfCap(t){ let c=DRAFT_ROUNDS; fcPicksNow().forEach(x=>{ if(x.st==="void") return; if(x.recv===t) c++; if(x.giver===t) c--; }); return c; }
+{ const orig=endDraft; endDraft=function(){ fcPicksNow().forEach(x=>{ if(!x.st) x.st="void"; }); if(fcState && fcState.picks) fcState.picks=fcState.picks.filter(x=>x.dy>year); return orig.apply(this,arguments); }; }
+function fcDraftNoteHtml(){
+  const cs=fcPicksNow().filter(x=>x.st!=="void"); if(!cs.length || !draft || draft.mode!=="joint") return "";
+  const en=fcEn(), me=league[myTeam];
+  return `<div class="notice fcDraft small"><b>${dfL("FAの補償の指名権","Compensation picks")}</b>${cs.map(x=>`<div>${en? `<span data-noi18n>Round ${x.round}: the ${dfEsc(x.rn)} use the ${dfEsc(x.gn)}' pick (for ${dfEsc(x.player)})</span>` : `第${x.round}巡:${dfEsc(x.gn)}の指名権を${dfEsc(x.rn)}が使う(${dfEsc(x.player)}のFAの補償)`}${(x.recv===me||x.giver===me)? ` <span class="badge">${dfL("自チーム","You")}</span>` : ""}</div>`).join("")}${(cs.some(x=>x.recv===me||x.giver===me))? `<div>${en? `<span data-noi18n>You can make up to ${dfCap(me)} picks this year.</span>` : `今年の自チームの指名は${dfCap(me)}人まで。`}</div>` : ""}</div>`;
+}
+
+// --- 指名ボード:記録に、巡目・指名権の元の球団・出身・守備の分け方を足す(見せ方だけ) ---
+const DF_BG={"高卒":["高校","HS"],"大卒":["大学","College"],"社会人":["社会人","Corp."],"独立リーグ":["独立L","Indy"]};
+function dfBg(bg){ const x=DF_BG[bg]; return x? (fcEn()? x[1] : x[0]) : (bg||""); }
+{ const orig=logPick; logPick=function(t,pl,type,note){
+    const r=orig.apply(this,arguments);
+    try{ const L=draft.log[draft.log.length-1];
+      if(L && pl && L.name===pl.name){
+        L.bg=pl.background; L.ty=type; L.dp=djPosOf({type: type==="bat"? "batter" : "pitcher", p:pl});
+        if(pl.ss){ if(pl.ss.gem && pl.ss.lv>=1) L.gem=1; if(pl.ss.lv>=1) L.ssSeen=1; }
+        if(draft.mode==="joint"){
+          L.ph= draft.phase==="picks"? 1 : 0;
+          if(L.ph){ const n=Math.max(1,draft.teams.length||1); L.rd= Math.floor(draft.pickNo/n)+((typeof usRules==="function" && usRules())? 1 : 2);
+            const own=draft.slotOwn && draft.slotOwn[draft.pickNo]; if(own && own!==t) L.own=own.name; }
+        }
+      } }catch(e){}
+    return r; }; }
+let dfFor=null, dfSeen=0, dfTimer=null, dfLast=null;
+function dfSpeed(){ let v=null; try{ v=tdLsGet("pennantDfSpeed"); }catch(e){} return v==="f"||v==="i"? v : "n"; }
+function dfSetSpeed(k){ try{ tdLsSet("pennantDfSpeed",k); }catch(e){} if(k==="i"){ dfSkip(); return; } dfRenderCtl(); if(dfTimer){ clearTimeout(dfTimer); dfTimer=null; } dfStartTimer(); }
+function dfDelay(){ return dfSpeed()==="f"? 320 : 950; }
+function dfAnim(L){ return !!L && L.ph===1 && league && L.team!==league[myTeam].name && dfSpeed()!=="i"; }
+function dfSync(){
+  if(!draft){ return; }
+  if(dfFor!==draft){ dfFor=draft; dfSeen= draft._dfNew? 0 : draft.log.length; dfLast=null; }
+  if(!draft.active || draft.finished){ dfSeen=draft.log.length; return; }
+  while(dfSeen<draft.log.length && !dfAnim(draft.log[dfSeen])) dfSeen++;
+}
+function dfBusy(){ dfSync(); return !!draft && draft.active && !draft.finished && draft.mode==="joint" && dfSeen<draft.log.length; }
+function dfSeenNow(){ dfSync(); return Math.min(dfSeen,draft.log.length); }
+{ const orig=startDraft; startDraft=function(){ const r=orig.apply(this,arguments); try{ if(draft){ draft._dfNew=1; dfFor=draft; dfSeen=0; dfLast=null; } }catch(e){} return r; }; }
+function dfCols(){
+  const n=draft.teams.length;
+  if(draft.slotOwn && draft.slotOwn.length>=n) return draft.slotOwn.slice(0,n);
+  if(draft.order && draft.order.length>=n) return draft.order.slice(0,n);
+  return [...draft.teams].sort((a,b)=>tbCmp(b,a));
+}
+function dfMarks(L){
+  const en=fcEn();
+  return `${L.unique? `<span class="badge uniq dfMk">${en? '<span data-noi18n>★Phenom</span>' : "★目玉"}</span>` : ""}${L.ssTaken? `<span class="badge ssMk dfMk">${en? `<span data-noi18n>Your ${"◎○△"[L.ssTaken-1]}</span>` : `あなたの${"◎○△"[L.ssTaken-1]}`}</span>` : ""}${L.gem? `<span class="badge djGem dfMk">${en? '<span data-noi18n>💎 Gem</span>' : "💎 隠し玉"}</span>` : ""}`;
+}
+function dfPosTxt(L){ return L.ty==="pit"? (fcEn()? "P" : "投手") : (L.pos||""); }
+function dfCellHtml(L){
+  const me=league[myTeam].name;
+  return `<div class="dfP${L.team===me? " mine" : ""}${(L.unique||L.ssTaken||L.gem) && L.team!==me? " hot" : ""}">${L.own? `<span class="dfBy">${dfByTxt(L)}</span>` : ""}<b>${dfEsc(L.name)}</b><span class="dfSub">${L.pos||""}${L.bg? "・"+dfBg(L.bg) : ""}</span>${L.team!==me? dfMarks(L) : ""}</div>`;
+}
+function dfByTxt(L){ return fcEn()? `<span data-noi18n>${dfEsc(L.team)} (${dfEsc(L.own)}'s pick)</span>` : `${dfEsc(L.team)}(${dfEsc(L.own)}分)`; }
+function dfBoardHtml(lim){
+  if(!draft || draft.mode!=="joint" || !draft.teams || !draft.teams.length) return "";
+  const cols=dfCols(), me=league[myTeam], log=draft.log.slice(0,lim), en=fcEn();
+  const R=Math.max(DRAFT_ROUNDS, ...log.map(L=>L.rd||L.round||0));
+  let h=`<div class="dfBoardBox"><table class="dfBoard" id="dfBoard"><thead><tr><th class="dfRd">${dfL("巡","Rd")}</th>${cols.map(t=>`<th class="${t===me? "me" : ""}">${teamDot(t.name)}${dfEsc(t.name)}</th>`).join("")}</tr></thead><tbody>`;
+  for(let r=1;r<=R;r++){
+    h+=`<tr><th class="dfRd">${en? `<span data-noi18n>${r}</span>` : `${r}巡`}</th>`+cols.map((t,ci)=>`<td id="dfc-${r}-${ci}" class="${t===me? "me" : ""}">${log.filter(L=>(L.rd||L.round)===r && (L.own||L.team)===t.name).map(dfCellHtml).join("")}</td>`).join("")+`</tr>`;
+  }
+  return h+`</tbody></table></div>`;
+}
+function dfBoardWrap(open){
+  const b=dfBoardHtml(dfSeenNow()); if(!b) return "";
+  return `<details class="dfBoardD" ${open===false? "" : "open"}><summary><b>${dfL("指名ボード","Draft board")}</b> <span class="small">${dfL("巡目×球団。決まった所から埋まります","Rounds × clubs. Filled in as picks are made")}</span></summary>${b}</details>`;
+}
+function dfAnnTxt(L){
+  if(!L) return dfL("他球団の指名を発表します…","Announcing the other clubs' picks…");
+  const en=fcEn();
+  return en? `<span data-noi18n>Round ${L.rd||L.round} · <b>${dfEsc(L.team)}</b>${L.own? ` (${dfEsc(L.own)}'s pick)` : ""} · <b>${dfEsc(L.name)}</b> (${L.ty==="pit"? "P" : (L.pos||"")} · ${dfBg(L.bg)})</span>${dfMarks(L)}`
+    : `第${L.rd||L.round}巡 <b>${dfEsc(L.team)}</b>${L.own? `(${dfEsc(L.own)}分)` : ""} <b class="dfAnnName">${dfEsc(L.name)}</b>(${dfPosTxt(L)}・${dfBg(L.bg)})${dfMarks(L)}`;
+}
+function dfCtlHtml(){
+  const s=dfSpeed(), b=(k,ja,en)=>`<button class="${s===k? "act" : "sec"} dfSp" type="button" onclick="dfSetSpeed('${k}')">${dfL(ja,en)}</button>`;
+  const left=draft.log.slice(dfSeen).filter(dfAnim).length;
+  return `<span class="small">${dfL("速さ","Speed")}</span>${b("n","ふつう","Normal")}${b("f","速い","Fast")}${b("i","すぐ","Instant")}<button class="sec dfSkip" type="button" onclick="dfSkip()">${dfL(`飛ばす(残り${left}人)`,`Skip (${left} left)`)}</button>`;
+}
+function dfRenderCtl(){ const c=document.getElementById("dfCtl"); if(c) c.innerHTML=dfCtlHtml(); }
+function dfBusyHtml(){
+  const me=league[myTeam];
+  return `<div style="width:100%"><div class="draftTopBar"><h3 style="margin:0">🎉 ${dfL("合同ドラフト会議","Joint Draft")}</h3></div>
+    <div class="dfAnn" aria-live="polite"><div class="dfAnnT small">${dfL(`${dfEsc(me.name)}の番までの他球団の指名`,`Picks before your turn`)}</div><div class="dfAnnMain" id="dfAnnMain">${dfAnnTxt(dfLast)}</div><div class="dfCtl" id="dfCtl">${dfCtlHtml()}</div></div>
+    ${fcDraftNoteHtml()}${dfBoardWrap()}
+    <p class="small">${dfL("発表が終わると、指名の画面に戻ります。","When the announcements end, you'll be back at your pick.")}</p></div>`;
+}
+function dfStartTimer(){ if(dfTimer) return; dfTimer=setTimeout(dfTick, dfLast? dfDelay() : 350); }
+function dfTick(){
+  dfTimer=null;
+  if(!draft || dfFor!==draft || !document.getElementById("dfBoard")) return;   // 画面が替わった:次に描くときに続きから
+  const L=draft.log[dfSeen]; if(!L){ updateMatchup(); return; }
+  const from=dfSeen; dfSeen++; dfLast=L; dfSync();
+  const cols=dfCols();
+  for(let i=from;i<dfSeen;i++){ const x=draft.log[i], ci=cols.findIndex(t=>t.name===(x.own||x.team)), c=document.getElementById(`dfc-${x.rd||x.round}-${ci}`); if(c){ c.insertAdjacentHTML("beforeend",dfCellHtml(x)); if(i===from){ const el=c.lastElementChild; if(el) el.classList.add("dfNew"); } } }
+  const m=document.getElementById("dfAnnMain"); if(m){ m.innerHTML=dfAnnTxt(L); m.classList.remove("dfPop"); void m.offsetWidth; m.classList.add("dfPop"); }
+  dfRenderCtl();
+  if(dfBusy()) dfStartTimer(); else setTimeout(()=>{ if(!dfBusy()) updateMatchup(); }, dfSpeed()==="f"? 350 : 700);
+}
+function dfSkip(){ if(dfTimer){ clearTimeout(dfTimer); dfTimer=null; } if(draft) dfSeen=draft.log.length; updateMatchup(); }
+{ const orig=draftScreenHtml; draftScreenHtml=function(){
+    try{ if(draft && draft.active && !draft.finished && !draft.draw && draft.mode==="joint" && draft.selectedIdx===null && dfBusy()){ dfStartTimer(); return dfBusyHtml(); } }catch(e){ console.error("df",e); }
+    return orig.apply(this,arguments); }; }
+// 他球団に取られた候補(グレー。選べない。並びの下)
+function dfGrayRows(f){
+  if(!draft || draft.mode!=="joint") return "";
+  const me=league[myTeam].name, lim=dfSeenNow(), en=fcEn();
+  const L=draft.log.slice(0,lim).filter(x=>x.team!==me && x.ty && (f==="all" || (f==="batter" && x.ty==="bat") || (f==="pitcher" && x.ty==="pit") || (f==="retry" && x.rt) || (f==="sslist" && x.ssTaken) || (f==="ssseen" && x.ssSeen)) && (!draft.posF || x.dp===draft.posF));
+  if(!L.length) return "";
+  return `<div class="dfTkHead small">${dfL(`他球団が指名した候補(${L.length}人)`,`Taken by other clubs (${L.length})`)}</div>`+L.slice().reverse().map(x=>`<div class="playerRow dcRow dfTk" aria-disabled="true"><span class="dcName">${dfMarks(x)}<span class="dcHead">${dfEsc(x.name)}</span><span class="posBadge dcPos">${x.pos||""}</span><span class="small dcAge">${en? `<span data-noi18n>${x.age} (${dfBg(x.bg)})</span>` : `${x.age}歳(${x.bg||""})`}</span></span><span class="dcBtns"><span class="badge dfTkTag">${en? `<span data-noi18n>${dfEsc(x.team)} · Rd ${x.rd||x.round}</span>` : `${dfEsc(x.team)}が${x.rd||x.round}巡目で指名`}</span></span></div>`).join("");
+}
+// ドラフトのあとのまとめにもボード
+{ const orig=draftSummaryHtml; draftSummaryHtml=function(){ const h=orig.apply(this,arguments); try{ if(draft && draft.mode==="joint" && draft.log.length) return h+dfBoardWrap(false); }catch(e){} return h; }; }
+
+// --- リーグ作成・セーブ ---
+{ const orig=startLeague; startLeague=function(){
+    const s=document.getElementById("faCompSel");
+    fcState={mode: (!LITE && s && s.value==="human")? "human" : LITE? "human" : (s? "new" : "human"), picks:[], log:[]};
+    return orig.apply(this,arguments); }; }
+{ const orig=collectState; collectState=function(){ const st=orig.apply(this,arguments); st.fcState=fcState; return st; }; }
+{ const orig=applyState; applyState=function(st){ const r=orig.apply(this,arguments);
+    try{ const f=st && st.fcState; fcState= (f && typeof f==="object" && (f.mode==="new"||f.mode==="human"))? {mode:f.mode, picks:Array.isArray(f.picks)? f.picks : [], log:Array.isArray(f.log)? f.log : []} : {mode:"human",picks:[],log:[]}; }catch(e){ fcState={mode:"human",picks:[],log:[]}; }
+    dfFor=null; return r; }; }
+LEAGUE_SETTING_ROWS.push({k:"faComp",label:"FAの補償",full:true,get:()=> fcNew()? "新しい形(指名権・金銭)" : "人的補償"});
+I18N.add("en",{
+  "FAの補償":"FA compensation",
+  "新しい形(指名権・金銭)":"New style (draft picks · club points)",
+  "人的補償(今まで)":"Player compensation (classic)",
+  "人的補償":"Player compensation",
+  "「新しい形」:FAで選手を取られた球団は、その選手の元の球団での年俸の順位で、獲得した球団の翌年のドラフトの2巡目・3巡目の指名権か球団ポイントを受け取ります(9位以下と、翌年の4月1日に35歳以上の選手は補償なし)。「人的補償」:獲得した球団の2軍から1人が元の球団へ移ります(今までの形)。":"\"New style\": a club that loses a free agent receives the signing club's round-2 or round-3 pick in next year's draft, or club points, depending on his payroll rank at his old club (none for #9 or lower, or for players 35 or older next April 1). \"Player compensation\": one Minors player from the signing club moves to the old club (the classic rule).",
+  "補償として、{0}には来年のドラフトの{1}巡目の指名権を渡す。":"As compensation, the {0} get our round-{1} pick in next year's draft.",
+  "補償として、{0}に球団ポイント{1}点を払う。":"As compensation, we pay the {0} {1} club points.",
+  "補償として、{0}の来年のドラフトの{1}巡目の指名権を得る。":"As compensation, we get the {0}' round-{1} pick in next year's draft.",
+  "補償として、{0}から球団ポイント{1}点を受け取る。":"As compensation, we receive {1} club points from the {0}.",
+  "補償は、{0}の{1}巡目の指名権か球団ポイント{2}点から選ぶ。":"As compensation, we choose between the {0}' round-{1} pick and {2} club points.",
+  "35歳以上のため、補償はない。":"He is 35 or older, so there is no compensation.",
+  "ランクCのため、補償はない。":"He is Rank C, so there is no compensation."
+});
 
 let csMode="champ";
 function csOn(){
