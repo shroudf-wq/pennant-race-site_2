@@ -2843,6 +2843,36 @@ html[lang=en] .paper .pFlow .res{white-space:normal}
 .paper .pQuote .say{display:block}
 
 </style>
+<style id="nl2Css">
+/* ===== news-long2:題字の色(金・銀・ふつう)と、長い記事の表 =====
+   ふつう(スポーツ紙):v1.7.x の題字に戻す(紙の上に赤い札の題字・下に太い黒い線)。演出の青い題字・球団カラー版は今までどおり帯の色
+   金(goldMast):優勝・日本一の号外(と、実績の「金の題字」をオンにしたとき)。銀(silverMast):長い記事。金と銀は球団カラー版・演出の青より強い */
+.paper.pd-sports{--np-name-bg:#d0161c;--np-name-ink:#fff}
+.paper.pd-sports:not(.goldMast):not(.silverMast):not(.pc-team):not(.pe-blue){--np-mast:transparent;--np-mast-ink:#17171b}
+.paper.pd-sports:not(.goldMast):not(.silverMast):not(.pc-team):not(.pe-blue) .pMast{background:transparent;border-bottom:4px solid #17171b;border-radius:0;padding:0;margin:0 0 10px;align-items:stretch}
+.paper.pd-sports:not(.goldMast):not(.silverMast):not(.pc-team):not(.pe-blue) .pName{background:var(--np-name-bg);color:var(--np-name-ink);padding:5px 12px 3px;display:flex;align-items:center}
+.paper.pd-sports:not(.goldMast):not(.silverMast):not(.pc-team):not(.pe-blue) .pRight{padding:4px 0}
+.paper.pd-sports:not(.goldMast):not(.silverMast):not(.pc-team):not(.pe-blue) .exSeal{border-color:#fff;color:#fff}
+/* 金(news-long の金をそのまま。球団カラー版よりも強く) */
+.paper.goldMast .pMast,.paper.pd-sports.pc-team.goldMast .pMast,.paper.pd-sports.pe-blue.goldMast .pMast{background:linear-gradient(135deg,#a8761f 0%,#f2d47c 45%,#c8952f 70%,#f6e2a0 100%) !important;border-radius:4px}
+/* 銀 */
+.paper.silverMast{--np-mast:linear-gradient(135deg,#7d838b 0%,#eef1f4 45%,#a3a9b1 70%,#f6f8fa 100%);--np-mast-ink:#1b2027}
+.paper.silverMast .pMast,.paper.pd-sports.pc-team.silverMast .pMast,.paper.pd-sports.pe-blue.silverMast .pMast{background:linear-gradient(135deg,#7d838b 0%,#eef1f4 45%,#a3a9b1 70%,#f6f8fa 100%) !important;border-radius:4px;border-bottom-color:#4a5058}
+.paper.silverMast .pName,.paper.silverMast .pDate{color:#1b2027 !important;background:transparent !important;text-shadow:0 1px 0 rgba(255,255,255,.55)}
+.paper.silverMast .exSeal{border-color:#3a4049;color:#3a4049}
+.paper.pd-showa.silverMast .pMast{padding:6px 8px}
+.paper.goldMast .pName{background:transparent !important}
+/* 長い記事の表(通算成績・年度別・シリーズの流れ・記録の比べ・連勝の試合) */
+.paper .pTab td.pK{white-space:normal;font-weight:700}
+.paper .pTab td.c{width:auto}
+.paper .pTab th.c{width:auto}
+@container (max-width:470px){
+  .paper .pTab th,.paper .pTab td{padding:5px 4px;font-size:12.5px}
+  .paper .pTab td.c{white-space:normal;overflow-wrap:anywhere}
+  .paper.pd-sports:not(.goldMast):not(.silverMast):not(.pc-team):not(.pe-blue) .pName{padding:4px 9px 2px}
+}
+
+</style>
 </head>
 <body class="preLeague">
 <div class="wrap">
@@ -3599,7 +3629,7 @@ let practiceElsewhere=false;   // v1.4.c:ほかのタブで練習中(控えを�
   for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(k && k.startsWith("pennant") && !k.startsWith("pennantSave") && k!=="pennantPracticeSnap") del.push(k); }
   del.forEach(k=>localStorage.removeItem(k)); Object.entries(o).forEach(([k,v])=>localStorage.setItem(k,v)); localStorage.removeItem("pennantPracticeSnap"); try{ sessionStorage.removeItem("pennantPracticeOwner"); }catch(e){} }catch(e){} })();
 /* バージョン:公開のたびに末尾の英字を1つ進める(v1.0.a → … → v1.0.z → v1.1.a) */
-const APP_VERSION="v1.7.y";
+const APP_VERSION="v1.7.z";
 /* 体験版の切り替え:体験版のファイルは、この行を true にして作る(本編と同じプログラム) */
 const LITE=false, LITE_SEASONS=3;
 const DEV=false;   // v1.2.p:開発版(テスト機能がいつも出ている)。開発版を作るときは true に置き換える
@@ -12148,7 +12178,7 @@ function newsPaperHtml(n){
   const tcStyle= tc? ` style="--mastBg:${esc(tc)};--mastInk:${isLight(tc)? "#111":"#fff"}"` : "";
   const heads=`<div class="pTop"><div class="pHeads"><div class="pKicker">${esc(n.kicker||"")}</div><h2 class="pHead">${esc(n.headline)}</h2><p class="pSub">${esc(n.sub||"")}</p></div><div class="pVert">${esc(n.vertical||"")}</div></div>`;
   const photo=`<figure class="pPhoto"><div class="pPhotoArt">${newsSceneSvg(n.scene||{})}${rp.layout==="photo"? `<div class="pOverHead">${heads}</div>` : ""}</div><figcaption>${esc((n.scene&&n.scene.caption)||"")}</figcaption></figure>`;
-  return `<article class="paper pd-${pd} pl-${rp.layout}${L? " is-long" : ""}${fx? " "+fx : ""}${tc? " pc-team" : ""}${goldMastOn()?" goldMast":""}"${tcStyle}>
+  return `<article class="paper pd-${pd} pl-${rp.layout}${L? " is-long" : ""}${fx? " "+fx : ""}${tc? " pc-team" : ""}${nl2MastCls(n,L)}"${tcStyle}>
     <header class="pMast"><div class="pName">${fx==="pe-win"? '<span class="pIwai">祝</span>' : ""}${pd==="yukan"? "夕刊ペナント" : "日刊ペナント"}${n.mode==="ex"? '<span class="exSeal">EX</span>' : n.mode==="special"? '<span class="exSeal sp">SP</span>' : ""}</div><div class="pRight">${newsFlagHtml(n)}<div class="pDate"><span>${esc(n.year)}年目 ${esc(n.date)}</span><span>${esc(n.league||"")} 号外</span></div></div></header>
     ${rp.layout==="photo"? photo : heads+photo}
     ${L? nlLongHtml(L) : `<div class="pBody">${(n.body||[]).map(t=>`<p>${esc(t)}</p>`).join("")}</div>`}
@@ -28196,6 +28226,496 @@ function nlLongHtml(L){
     I18N.ctx("en",".pFlow .pInn",inn); I18N.ctx("en",".pFacts b",ipm); }   // 「2回」「9回」は別の所の訳(2×・nine innings)があるので、紙面の中だけ回の訳にする
   I18N.ctx("en",".pFlow th",{"回":"Inn","結果":"Result","内容":"Play","打者":"BF","三振":"K"});
   I18N.ctx("en",".pQuote .who",{"監督":"The manager"});
+}catch(e){} })();
+
+/* ===== news-long2:題字の金と銀・長い記事にする出来事を足す(news-long の続き) =====
+   ・題字:優勝・日本一(ポストシーズン制覇)の号外は金、長い記事(is-long)は銀。両方に当たるときは金。ほかは v1.7.x のスポーツ紙の題字(赤い札)
+     実績の「金の題字」(設定)をオンにしているときは、今までどおり全部の号外が金
+   ・長い記事を足す出来事:
+       A 1試合3本塁打(新しい号外。storyNews なので乱数は使わない)
+       B ポストシーズン制覇・日本一(newsPostseason の号外に中身を足す)
+       C 引退(newsRetire)・殿堂入り(newsHallOfFame)
+       D リーグ新記録など(newsRecords)
+       E 10連勝・10連敗(streakNews)
+     B〜E は今ある号外を作ったあとに、いちばん新しい号外へ issue.lg を足すだけ(号外は増やさない。addNews を新しく呼ばない)
+   ・言い回しの選び分けは名前と年と日付(forteHash)。ゲームの乱数・Math.random は使わない。試合の結果には触れない
+   ・表(L.tabs)は news-long の試合の流れと同じ見た目。前の版(v1.7.y)で開くと表と歩みの見出しだけ出ない(ほかは出る) */
+let nl2Pre=null, nl2RecPrev=null;
+// --- 題字の色 ---
+function nl2Win(n){ const k=n && n.kind; return k==="pennant" || k==="champion" || k==="world_win" || k==="cup_win" || (k==="feat" && n.vertical==="優勝決定"); }
+function nl2MastCls(n,L){ try{ if(goldMastOn() || nl2Win(n)) return " goldMast"; if(L) return " silverMast"; }catch(e){} return ""; }
+
+// --- 帳面(leagueRecords.nl に足す)。hr3:[年,球団,名前] / st:[年,球団,1=連勝・-1=連敗] ---
+function nl2Book(){
+  const B=nlBook();
+  if(!Array.isArray(B.hr3)){ B.hr3=[];   // はじめて使うとき:今いる選手の「できごと」(p.feats)から
+    try{ allTeamsEverywhere().forEach(t=>[...oneGun(t),...((t.farm&&t.farm.bat)||[]),...(t.il||[])].forEach(p=>{ (Array.isArray(p.feats)? p.feats : []).forEach(f=>{ if(f && f.k==="hr3" && typeof f.y==="number") B.hr3.push([f.y,t.name,p.name]); }); }));
+      B.hr3.sort((a,b)=>a[0]-b[0]); }catch(e){} }
+  if(!Array.isArray(B.st)){ B.st=[];
+    try{ (newsArchive||[]).forEach(n=>{ if(n && n.kind==="feat" && (n.vertical==="10連勝" || n.vertical==="10連敗")) B.st.push([n.year,String(n.team||""),n.vertical==="10連勝"? 1 : -1]); }); }catch(e){} }
+  return B;
+}
+{ const o=recRename; recRename=function(what,old,nw){ const r=o.apply(this,arguments); try{ const B=leagueRecords && leagueRecords.nl; if(B && what==="team") (B.st||[]).forEach(x=>{ if(x[1]===old) x[1]=nw; }); }catch(e){} return r; }; }
+
+// --- 号外を作ったあとに中身を足す(いちばん新しい号外が、いま作られたものなら) ---
+function nl2After(fn,kinds,build){
+  return function(){
+    const a=(typeof newsArchive!=="undefined" && newsArchive)? newsArchive[newsArchive.length-1] : null;
+    const r=fn.apply(this,arguments);
+    try{ const n=newsArchive[newsArchive.length-1]; if(n && n!==a && kinds.includes(n.kind) && !n.lg) build(n,...arguments); }catch(e){ if(typeof console!=="undefined") console.error("nl2",e); }
+    return r;
+  };
+}
+// 自チームの選手を、年を取る前に控える(引退した選手の年度別成績と経歴を読むため。値は変えない)
+{ const o=noSnapBeforeAge; noSnapBeforeAge=function(){ try{ const me=league[myTeam]; nl2Pre=new Map(); [...oneGun(me),...me.farm.bat,...me.farm.pit,...(me.il||[])].forEach(p=>{ if(p && p.name) nl2Pre.set(p.name,p); }); }catch(e){ nl2Pre=null; } return o.apply(this,arguments); }; }
+// 記録を確かめる前の歴代1位を控える(前の記録の持ち主と比べるため)
+{ const o=checkRecords; checkRecords=function(){ try{ nl2RecPrev= leagueRecords? JSON.parse(JSON.stringify({s:leagueRecords.s||{}, c:leagueRecords.c||{}})) : null; }catch(e){ nl2RecPrev=null; } return o.apply(this,arguments); }; }
+newsPostseason=nl2After(newsPostseason,["champion"],(n,winner)=>nl2BuildPs(n,winner));
+newsRetire=nl2After(newsRetire,["retire"],(n,list)=>nl2BuildRet(n,list));
+newsHallOfFame=nl2After(newsHallOfFame,["hof"],(n,p,reason)=>nl2BuildHof(n,p,reason));
+newsRecords=nl2After(newsRecords,["award"],(n,list)=>nl2BuildRec(n,list));
+{ const o=streakNews; streakNews=function(t,dir){ try{ nl2Book(); }catch(e){} return nl2After(o,["feat"],(n)=>nl2BuildSt(n,t,dir)).apply(this,arguments); }; }
+// A:1試合3本塁打の号外(featsDetect のあと。cyc と同じく、このリーグの球団が出た試合で、順位に数える試合とポストシーズン)
+{ const o=featsDetect; featsDetect=function(r,counts){
+    try{ if(league) nl2Book(); }catch(e){}
+    const g=nlGame, d=nlDay; nlGame=r; nlDay=nlDateNow(0);
+    try{ const x=o.apply(this,arguments);
+      try{ nl2Hr3(r,counts); }catch(e){ if(typeof console!=="undefined") console.error("nl2Hr3",e); }
+      return x; }
+    finally{ nlGame=g; nlDay=d; } }; }
+function nl2Hr3(r,counts){
+  if(!r || !r.feats || r._nl2h || !league) return; const home=r.homeTeam, away=r.awayTeam;
+  if(!(league.includes(home) || league.includes(away))) return;
+  if(!(counts || (storyReal(home) && storyReal(away)))) return;
+  r._nl2h=1;
+  r.feats.filter(x=>x.k==="hr3").forEach(x=>{
+    if(r.feats.some(y=>y.k==="cyc" && y.n===x.n && y.t===x.t)) return;   // サイクルの号外があるときは出さない
+    const [hr,rbi]=x.v, sc=`${away.name} ${r.aScore} - ${r.hScore} ${home.name}`, w= hr>=4? `${hr}本塁打` : "3本塁打";
+    const issue={kind:"feat", date:"試合後", kicker:"記録", vertical:hr>=4? `${hr}発` : "3発", team:x.t, headline:`${x.n}、1試合${w}`, sub:`${x.t}が${x.o}に(${sc})`,
+      body:[`${x.t}の${x.n}が${x.o}戦で、1試合${w}を放った。`, `この日は${hr}本塁打${rbi}打点。打球がスタンドに消えるたびに、球場が大きく沸いた。`],
+      facts:[["選手",x.n],["本塁打",`${hr}本`],["打点",String(rbi)]], side:null, scene:{type:"hr", caption:`${w}の${x.n}`}};
+    try{ nl2BuildHr3(issue,r,x); }catch(e){ if(typeof console!=="undefined") console.error("nl2BuildHr3",e); }
+    storyNews(issue);
+  });
+}
+
+// --- 小さな部品 ---
+function nl2Date(d){ try{ if(!d) return ""; const x= d instanceof Date? d : new Date(d); return isNaN(x.getTime())? "" : formatDate(x); }catch(e){ return ""; } }
+const nl2Pick=(arr,key)=>arr[forteHash(key)%arr.length];
+function nl2Quotes(k,name,key,who2){ const Q=NL2_Q[k]; if(!Q) return []; const out=[]; if(Q.s && name) out.push([name, nl2Pick(Q.s,name+"|"+key+"|s")]); if(Q.m) out.push([who2||"監督", nl2Pick(Q.m,(name||"")+"|"+key+"|m")]); return out; }
+function nl2Era(c){ return ((c.er||0)*9/Math.max(1,c.ip||0)).toFixed(2); }
+function nl2Avg(c){ return fmtRate((c.ab||0)? (c.h||0)/c.ab : 0); }
+function nl2PlayerAny(name){ let hit=null; try{ allTeamsEverywhere().some(t=>[...oneGun(t),...((t.farm&&t.farm.bat)||[]),...((t.farm&&t.farm.pit)||[]),...(t.il||[])].some(p=>{ if(p && p.name===name){ hit=p; return true; } return false; })); }catch(e){} return hit; }
+// 通算の順位(記録が残っている範囲=引退選手の記録+今いる選手)。self は数えない
+function nl2Rank(k,isPit,v,self){
+  let n=0;
+  try{ (isPit? retiredPitchers : retiredBatters).forEach(r=>{ if(r && r.career && r.name!==self && (r.career[k]||0)>v) n++; });
+    allTeamsEverywhere().forEach(t=>[...oneGun(t),...((t.farm&&t.farm.bat)||[]),...((t.farm&&t.farm.pit)||[]),...(t.il||[])].forEach(p=>{ if(!p || p.name===self || (p.velo!==undefined)!==isPit) return; if(careerPlus(p,k)>v) n++; })); }catch(e){}
+  return n+1;
+}
+// 年度別の行(1軍)。cur=今季の行を足す
+function nl2Years(p,isPit,cur){
+  const rows=(Array.isArray(p && p.yr)? p.yr : []).filter(r=>r && !r.farm).slice();
+  if(cur){ try{ const c=ymCurRow(p,isPit); if(c && !(rows.length && rows[rows.length-1].y===year)) rows.push(c); }catch(e){} }
+  return rows;
+}
+function nl2YearTab(rows,isPit){
+  if(!rows.length) return null;
+  const sc=r=> isPit? (r.w||0)*3+(r.sv||0)+(r.ip||0)/20 : (r.hr||0)*2+(r.h||0)/10+(r.rbi||0)/10;
+  let best=0; rows.forEach((r,i)=>{ if(sc(r)>sc(rows[best])) best=i; });
+  const body=rows.map(r=> isPit? [`${r.y}年目`, String(r.g||0), `${r.w||0}勝${r.l||0}敗`, String(r.sv||0), nl2Era(r)]
+                               : [`${r.y}年目`, String(r.g||0), nl2Avg(r), String(r.hr||0), String(r.rbi||0)]);
+  return {t:"年度別の成績", h: isPit? ["年","登板","勝敗","セーブ","防御率"] : ["年","試合","打率","本塁打","打点"], r:body, hl:[best], best:rows[best]};
+}
+// 通算成績の表(項目・通算・歴代の順位)
+function nl2CareerTab(c,isPit,self){
+  const K= isPit? [["登板","gp"],["勝利","w"],["敗戦","l"],["セーブ","sv"],["ホールド","hold"],["奪三振","so"],["投球回","ip"]] : [["試合","g"],["安打","h"],["本塁打","hr"],["打点","rbi"],["盗塁","sb"],["四球","bb"]];
+  const rk=new Set(isPit? ["w","sv","so"] : ["h","hr","rbi","sb"]);
+  const rows=K.map(([n,k])=>{ const v= k==="ip"? Math.round((c.ip||0)*10)/10 : (c[k]||0); const q= rk.has(k) && v>0? nl2Rank(k,isPit,v,self) : 0; return [n, String(v), q && q<=30? `${q}位` : "—"]; });   // 歴代30位までを出す
+  rows.push(isPit? ["防御率", nl2Era(c), "—"] : ["打率", nl2Avg(c), "—"]);
+  return {t:"通算成績", h:["項目","通算","歴代"], r:rows, hl:[]};
+}
+function nl2Honors(p){
+  const cnt=new Map(); (Array.isArray(p && p.honors)? p.honors : []).forEach(h=>{ if(h && h.t && h.t!=="世界一") cnt.set(h.t,(cnt.get(h.t)||0)+1); });
+  return [...cnt.entries()].sort((a,b)=>b[1]-a[1]).slice(0,4);
+}
+// 歩み(入団から):出身と入団の道・経歴(球団の移り変わり)・主なタイトル・自己最高の年・殿堂入り
+function nl2Road(p,rec,isPit,best,startY){
+  const out=[]; if(!p && !rec) return out;
+  const nm=(p||rec).name;
+  try{ const h=p? homeOf(p) : null, bg=(p && p.background) || (rec && rec.background) || "", via=NB_BG[(typeof usRules==="function" && usRules() && bg==="社会人")? "独立リーグ" : bg];
+    if(h && h.pref) out.push(via? `${nm}は${h.pref}出身。${via}。` : `${nm}は${h.pref}出身。`);
+    else if(p && p.imp) out.push(`${nm}は海外から加わった助っ人。`); }catch(e){}
+  if(startY) out.push(`${startY}年目に1軍の舞台を踏んだ。`);
+  const path=(p && Array.isArray(p.path) && p.path.length)? p.path : (rec && Array.isArray(rec.path))? rec.path : [];
+  if(path.length>=2) out.push(`${path.join("、")}と球団を渡り歩いた。`);
+  else if(path.length===1) out.push(`${path[0]}ひと筋でプレーした。`);
+  const hn=nl2Honors(p); if(hn.length) out.push(`主なタイトルは${hn.map(([t,n])=> n>1? `${t}×${n}` : t).join("、")}。`);
+  if(best) out.push(isPit? `自己最高のシーズンは${best.y}年目で、${best.w||0}勝${best.l||0}敗、防御率${nl2Era(best)}。` : `自己最高のシーズンは${best.y}年目で、打率${nl2Avg(best)}、${best.hr||0}本塁打、${best.rbi||0}打点。`);
+  if(p && p.hof && typeof p.hof.y==="number" && p.hof.y!==year) out.push(`${p.hof.y}年目に${p.hof.reason||"通算の記録"}でペナント殿堂入りを果たした。`);
+  return out;
+}
+
+// --- A:1試合3本塁打 ---
+function nl2BuildHr3(issue,r,x){
+  if(!r.box) return;
+  const {T,O,S,rs,ra}=nlSides(r,x.t), br=nlBatRow(S,x.n); if(!br) return;
+  const pas=bxPaList(br.row[10]), p=nlPlayer(T,x.n), key=year+"|"+(nlDay||issue.date||"");
+  const [hr,rbi]=x.v, ab=br.row[2], hh=br.row[4];
+  let k=0; const rows=pas.map(a=>{ const q=nlPa(a.c); const h=q.h==="本"; if(h) k++; return [a.i, q.cat, q.txt, a.r||0, h? `${k}本目` : "", h? 1 : 0]; });
+  const inns=pas.filter(a=>nlPa(a.c).h==="本").map(a=>a.i);
+  const B=nl2Book(), w=nlWeigh(B.hr3,x.t,x.n);
+  const lead=[nl2Pick([`${x.t}の${x.n}が${x.o}戦で${hr}本の本塁打を放った。`, `${x.o}戦で、${x.t}の${x.n}が1試合${hr}本塁打の大暴れを見せた。`], x.n+"|"+key+"|l"),
+    inns.length>=3? `${inns.slice(0,-1).map(i=>`${i}回`).join("、")}、そして${inns[inns.length-1]}回にスタンドへ運んだ。` : "",
+    w.k===1? "記録が残る中では、リーグで初めての1試合3本塁打となった。" : w.same>0? `今季${w.same+1}人目の1試合3本塁打となった。` : `リーグでは${w.gap}年ぶりの1試合3本塁打となった。`].join("");
+  const body=[];
+  body.push(br.ord? `${x.n}は${x.o}戦に${br.ord}番で出場し、${ab}打数${hh}安打${rbi}打点。` : `${x.n}は${x.o}戦に途中から出場し、${ab}打数${hh}安打${rbi}打点。`);
+  body.push(`${hr}本の本塁打で${rbi}打点を挙げ、打線を引っ張った。`);
+  body.push(nlScoreLine(x.t,x.o,rs,ra));
+  if(p && (p.pa||0)>=10){ const L=batLine(p); body.push(`${x.n}は今季、打率${fmtRate(L.avg)}、${p.hr||0}本塁打、${p.rbi||0}打点。`); }
+  const L= p? batLine(p) : null;
+  const note=nlWeighNotes(w); if(hr>=4) note.unshift(`1試合${hr}本塁打`);
+  issue.lg={v:1, k:"hr3", lead, body, flow:{t:"b", rows}, note, q:nl2Quotes("hr3",x.n,key), bio:nlBio(p),
+    facts: p? [["この日",`${hr}本塁打`],["打点",String(rbi)],["今季本塁打",String(p.hr||0)],["打率",fmtRate(L.avg)],["達成",w.k===1? "リーグ初" : `${w.k}人目`],["年齢",`${p.age}歳`]]
+             : [["この日",`${hr}本塁打`],["打点",String(rbi)],["安打",String(hh)],["達成",w.k===1? "リーグ初" : `${w.k}人目`]]};
+  B.hr3.push([year,x.t,x.n]);
+}
+
+// --- B:ポストシーズン制覇・日本一 ---
+function nl2BuildPs(n,winner){
+  const me=league[myTeam]; if(!me || winner!==me) return;
+  const log=((post && post.seriesLog)||[]).filter(s=>s.a===me.name || s.b===me.name); if(!log.length) return;
+  const g=(allResults||[]).filter(x=>x && x.year===year+0.5 && (x.home===me.name || x.away===me.name));
+  // 試合を相手ごとのひと続きに分けて、シリーズに当てる
+  const grp=[]; g.forEach(x=>{ const opp= x.home===me.name? x.away : x.home; if(!grp.length || grp[grp.length-1].opp!==opp) grp.push({opp,games:[]}); grp[grp.length-1].games.push(x); });
+  const ser=log.map(s=>{ const A=s.a===me.name; return {stage:s.stage||"ポストシーズン", opp:A? s.b : s.a, w:A? s.wa : s.wb, l:A? s.wb : s.wa, adv:s.adv||0}; });
+  const rows=[]; let gi=0, W=0, L=0, RS=0, RA=0, oneRun=0;
+  ser.forEach(s=>{ while(gi<grp.length && grp[gi].opp!==s.opp) gi++; const G=gi<grp.length? grp[gi].games : []; gi++;
+    G.forEach((x,i)=>{ const h=x.home===me.name, ms=h? x.h : x.a, os=h? x.a : x.h, res= ms>os? "○" : ms<os? "●" : "△";
+      if(ms>os) W++; else if(ms<os) L++; RS+=ms; RA+=os; if(Math.abs(ms-os)===1) oneRun++;
+      rows.push([`${s.stage} 第${i+1}戦`, s.opp, `${ms}-${os}`, res]); }); });
+  const fin=ser[ser.length-1], last=rows.length? rows[rows.length-1] : null, key=year+"|"+me.name;
+  const mvp=(post.mvp && post.mvp.year===year && post.mvp.team===me.name)? post.mvp : null, mp= mvp? nl2PlayerAny(mvp.name) : null;
+  const prevY=new Set(); (newsArchive||[]).forEach(x=>{ if(x && x.kind==="champion" && x.team===me.name && x.year<year) prevY.add(x.year); });
+  const lastY= prevY.size? Math.max(...prevY) : null; let streak=1; while(prevY.has(year-streak)) streak++;
+  const lead=[`${me.name}がポストシーズンを勝ち抜き、${year}年目の頂点に立った。`, `${fin.stage}では${fin.opp}を${fin.w}勝${fin.l}敗で下した。`,
+    mvp? `ポストシーズンMVPには${mvp.name}が選ばれた。` : ""].join("");
+  const body=[];
+  ser.forEach((s,i)=>{ if(i===ser.length-1) return; body.push(`${s.stage}は${s.opp}と戦い、${s.w}勝${s.l}敗で勝ち上がった。`); });
+  if(last) body.push(`最後の試合は${last[1]}に${last[2].replace("-","対")}で${last[3]==="○"? "勝ち" : "決め"}、歓喜の輪ができた。`);
+  if(rows.length) body.push(`ポストシーズンの${rows.length}試合で${W}勝${L}敗、${RS}得点・${RA}失点。${oneRun? `1点差の試合は${oneRun}つあった。` : ""}`);
+  body.push(`レギュラーシーズンは${recOf(me)}だった。`);
+  if(mvp) body.push(`MVPの${mvp.name}は${mvp.line}。`);
+  const note=[champCount>1? `ポストシーズン制覇は通算${champCount}度目` : "ポストシーズン初制覇"];
+  if(lastY!==null) note.push(lastY===year-1? `${streak}年連続の制覇` : `${year-lastY}年ぶりの制覇`);
+  if(rows.length) note.push(`ポストシーズン${W}勝${L}敗`);
+  const q=[]; if(mvp) q.push([mvp.name, nl2Pick(NL2_Q.ps.s, mvp.name+"|"+key)]); q.push(["監督", nl2Pick(NL2_Q.ps.m, me.name+"|"+key)]);
+  const bio= mp? nlBio(mp) : [];
+  n.lg={v:1, k:"ps", lead, body, flow:null, tabs: rows.length? [{t:"シリーズの流れ(試合ごと)", h:["試合","相手","スコア","結果"], r:rows, hl:rows.map((r,i)=>r[3]==="○" && i===rows.length-1? i : -1).filter(i=>i>=0)}] : [],
+    note, q, bio, bioT: mvp? "MVPの歩み" : "", facts:[["シーズン",recOf(me)],[fin.stage,`${fin.w}勝${fin.l}敗`],["PS通算",`${W}勝${L}敗`],["得点",String(RS)],["失点",String(RA)],["MVP",mvp? mvp.name : "—"]]};
+}
+
+// --- C:引退・殿堂入り ---
+function nl2BuildRet(n,list){
+  const nm=String(n.headline||"").replace(/、現役引退$/,""), rec=(list||[]).find(x=>x && x.name===nm); if(!rec || !rec.career) return;
+  const me=league[myTeam], c=rec.career, isPit=c.ip!==undefined && !(c.ab>0), p=(nl2Pre && nl2Pre.get(nm)) || null;
+  const yrs=nl2Years(p,isPit,false), yt=nl2YearTab(yrs,isPit), ct=nl2CareerTab(c,isPit,nm), key=year+"|"+nm;
+  const pro= (p && typeof p.svcYears==="number")? p.svcYears+1 : yrs.length;
+  const mk= isPit? [["w","勝"],["so","奪三振"],["sv","セーブ"]] : [["h","安打"],["hr","本塁打"],["rbi","打点"]];
+  const ranks=mk.filter(([k])=>(c[k]||0)>0).map(([k,u])=>[k,u,c[k]||0,nl2Rank(k,isPit,c[k]||0,nm)]).filter(x=>x[3]<=30).sort((a,b)=>a[3]-b[3]);
+  const top=ranks[0], fw=String(n.vertical||"")==="花道";
+  const stat= isPit? `通算${c.w||0}勝${c.l||0}敗${c.sv? `${c.sv}セーブ` : ""}、防御率${nl2Era(c)}` : `通算${c.h||0}安打、${c.hr||0}本塁打、打率${nl2Avg(c)}`;
+  const lead=[`${me.name}の${nm}が、ユニフォームを脱ぐ。`, pro>0? `プロ${pro}年で、${stat}の成績を残した。` : `${stat}の成績を残した。`,
+    top? `通算${top[2]}${top[1]}は、記録が残る中で歴代${top[3]}位。` : ""].join("");
+  const body=[];
+  if(fw) body.push("引退を予告して迎えた最後のシーズンを、ユニフォームで締めくくった。");
+  if(yt && yt.best) body.push(isPit? `いちばん輝いたのは${yt.best.y}年目。${yt.best.w||0}勝を挙げ、防御率${nl2Era(yt.best)}の成績を残した。` : `いちばん輝いたのは${yt.best.y}年目。打率${nl2Avg(yt.best)}、${yt.best.hr||0}本塁打を記録した。`);
+  if(yrs.length){ const l=yrs[yrs.length-1]; body.push(isPit? `最後のシーズンは${l.g||0}試合に登板し、${l.w||0}勝${l.l||0}敗だった。` : `最後のシーズンは${l.g||0}試合に出場し、打率${nl2Avg(l)}だった。`); }
+  body.push("長年チームを支えたベテランに、スタンドから惜しみない拍手が送られた。");
+  const note=ranks.slice(0,2).map(([k,u,v,rk])=>`通算${v}${u}は歴代${rk}位`);
+  if(pro>0) note.push(`プロ${pro}年`); if(p && p.hof) note.push("殿堂入り選手"); if(fw) note.push("予告した最後の年");
+  const yb=yt&&yt.best, tabs=[ct]; if(yt){ delete yt.best; tabs.push(yt); }
+  n.lg={v:1, k:"ret", lead, body, flow:null, tabs, note, q:nl2Quotes("ret",nm,key), bio:nl2Road(p,rec,isPit,yb,yrs.length? yrs[0].y : 0), bioT:"入団からの歩み",
+    facts: isPit? [["プロ",`${pro}年`],["登板",String(c.gp||0)],["勝利",String(c.w||0)],["セーブ",String(c.sv||0)],["奪三振",String(c.so||0)],["防御率",nl2Era(c)]]
+                : [["プロ",`${pro}年`],["試合",String(c.g||0)],["安打",String(c.h||0)],["本塁打",String(c.hr||0)],["打点",String(c.rbi||0)],["打率",nl2Avg(c)]]};
+}
+function nl2BuildHof(n,p,reason){
+  if(!p) return; const me=league[myTeam], isPit=p.velo!==undefined, nm=p.name, key=year+"|"+nm;
+  const c={}; (isPit? PIT_KEYS : BAT_KEYS).forEach(k=>{ c[k]=careerPlus(p,k); });
+  const yrs=nl2Years(p,isPit,true), yt=nl2YearTab(yrs,isPit), ct=nl2CareerTab(c,isPit,nm);
+  const mk= isPit? [["w","勝"],["sv","セーブ"],["so","奪三振"]] : [["h","安打"],["hr","本塁打"],["rbi","打点"]];
+  const ranks=mk.filter(([k])=>(c[k]||0)>0).map(([k,u])=>[k,u,c[k]||0,nl2Rank(k,isPit,c[k]||0,nm)]).filter(x=>x[3]<=30).sort((a,b)=>a[3]-b[3]);
+  const pro=(typeof p.svcYears==="number")? p.svcYears+1 : yrs.length, top=ranks[0];
+  const lead=[`${me.name}の${nm}が${reason}を達成し、ペナント殿堂入りを果たした。`, `${p.age}歳、プロ${pro}年目での到達となった。`, top? `通算${top[2]}${top[1]}は、記録が残る中で歴代${top[3]}位。` : ""].join("");
+  const body=[];
+  body.push(isPit? `ここまで通算${c.w||0}勝${c.l||0}敗${c.sv? `${c.sv}セーブ` : ""}、防御率${nl2Era(c)}。` : `ここまで通算${c.h||0}安打、${c.hr||0}本塁打、${c.rbi||0}打点、打率${nl2Avg(c)}。`);
+  if(yt && yt.best) body.push(isPit? `いちばん輝いたのは${yt.best.y}年目。${yt.best.w||0}勝を挙げ、防御率${nl2Era(yt.best)}の成績を残した。` : `いちばん輝いたのは${yt.best.y}年目。打率${nl2Avg(yt.best)}、${yt.best.hr||0}本塁打を記録した。`);
+  if(isPit && (p.ip||0)>=10) body.push(`今季は${p.w||0}勝${p.l||0}敗、防御率${nl2Era(p)}。`); else if(!isPit && (p.pa||0)>=30) body.push(`今季は打率${fmtRate(batLine(p).avg)}、${p.hr||0}本塁打、${p.rbi||0}打点。`);
+  body.push("長年の積み重ねに、スタンドから大きな拍手が送られた。");
+  const note=[`殿堂入りは球団で${(hallOfFame||[]).filter(h=>h && h.team===me.name).length}人目`].concat(ranks.slice(0,2).map(([k,u,v,rk])=>`通算${v}${u}は歴代${rk}位`));
+  note.push(`殿堂入りはリーグで${(hallOfFame||[]).length}人目`);
+  const yb=yt&&yt.best, tabs=[ct]; if(yt){ delete yt.best; tabs.push(yt); }
+  n.lg={v:1, k:"hof", lead, body, flow:null, tabs, note, q:nl2Quotes("hof",nm,key), bio:nl2Road(p,null,isPit,yb,yrs.length? yrs[0].y : 0), bioT:"入団からの歩み",
+    facts: isPit? [["達成",reason],["年齢",`${p.age}歳`],["プロ",`${pro}年目`],["勝利",String(c.w||0)],["奪三振",String(c.so||0)],["防御率",nl2Era(c)]]
+                : [["達成",reason],["年齢",`${p.age}歳`],["プロ",`${pro}年目`],["本塁打",String(c.hr||0)],["打点",String(c.rbi||0)],["打率",nl2Avg(c)]]};
+}
+
+// --- D:記録(リーグ新記録・プロ野球記録超え・メジャー記録超え) ---
+function nl2BuildRec(n,list){
+  let L=(list||[]).filter(x=>x && x.p && x.r);
+  if(typeof wlOn!=="undefined" && wlOn && typeof wltRealLv==="function") L=L.filter(x=>!wltRealLv(x.r.lv));   // 女子リーグは「リーグ新記録」だけ(号外と同じ)
+  if(!L.length) return;
+  const rank={mlb:3,npb:2,lg:1}; L=L.slice().sort((a,b)=>(rank[b.r.lv]-rank[a.r.lv]) || (a.r.kind<b.r.kind? 1 : -1));
+  { const seen=new Set(); L=L.filter(x=>{ const k=x.p.name+"|"+x.r.kind+"|"+x.r.k; if(seen.has(k)) return false; seen.add(k); return true; }); }   // 同じ記録のプロ野球超え・メジャー超えは上の1つだけ
+  const me=league[myTeam], top=L[0], p=top.p, r=top.r, key=year+"|"+p.name, P=nl2RecPrev||{s:{},c:{}};
+  const prev=x=>{ const c=(P[x.r.kind]||{})[x.r.k]; return (c && typeof c.v==="number")? c : null; };
+  const d0=(r.kind==="s"? REC_S : REC_C).find(d=>d.k===r.k)||{}, pv=prev(top);
+  const diff=(a,b,d)=>{ const v=Math.abs(a-b); return d.rate? (d.k==="avg"? fmtRate(v).replace(/^\./,".") : v.toFixed(2)) : String(Math.round(v*10)/10); };
+  const lead=[`${me.name}の${p.name}が、${recName(r.kind,r.k)}で${recFmt(r.kind,r.k,r.v)}を記録した。`,
+    r.lv==="lg"? "リーグの歴代1位を塗り替えた。" : `${REC_LV[r.lv]}の数字となった。`,
+    pv && pv.name!==p.name? `これまでの1位は、${pv.year}年目に${pv.name}(${pv.team})が残した${recFmt(r.kind,r.k,pv.v)}だった。` : pv? `自身の持つ${recFmt(r.kind,r.k,pv.v)}を更新した。` : ""].join("");
+  const body=[];
+  if(pv && pv.name!==p.name) body.push(`${year-pv.year>0? `${year-pv.year}年ぶりの更新で、` : ""}前の記録を${diff(r.v,pv.v,d0)}上回った。`);
+  if(r.lv!=="lg"){ const ln=recLine(r.kind,r.k,r.lv==="mlb"? 1 : 0); if(ln!==null) body.push(`このゲームの試合数と数字の出かたに直した${r.lv==="mlb"? "メジャー" : "プロ野球"}の記録は${recFmt(r.kind,r.k,ln)}。`); }
+  if(L.length>1) body.push(`今季は${L.length}つの記録を手にした。`);
+  if(p.velo===undefined && (p.pa||0)>=30){ const B=batLine(p); body.push(`${p.name}の今季は、打率${fmtRate(B.avg)}、${p.hr||0}本塁打、${p.rbi||0}打点。`); }
+  else if(p.velo!==undefined && (p.ip||0)>=10) body.push(`${p.name}の今季は、${p.w||0}勝${p.l||0}敗${p.sv? `${p.sv}セーブ` : ""}、防御率${nl2Era(p)}。`);
+  const rows=L.map(x=>{ const c=prev(x), d=(x.r.kind==="s"? REC_S : REC_C).find(y=>y.k===x.r.k)||{};
+    return [recName(x.r.kind,x.r.k), recFmt(x.r.kind,x.r.k,x.r.v), c? `${recFmt(x.r.kind,x.r.k,c.v)}(${c.name}・${c.year}年目)` : "—", REC_LV[x.r.lv]||""]; });
+  const note=[REC_LV[r.lv]]; if(pv && pv.name!==p.name && year-pv.year>0) note.push(`${year-pv.year}年ぶりの更新`); if(pv && pv.name===p.name) note.push("自身の記録を更新");
+  if(L.length>1) note.push(`今季の記録は${L.length}つ`);
+  n.lg={v:1, k:"rec", lead, body, flow:null, tabs:[{t:"記録の比べ", h:["記録","今回","前の1位","印"], r:rows, hl:[0]}], note, q:nl2Quotes("rec",p.name,key), bio:nlBio(p),
+    facts:[["記録",recName(r.kind,r.k)],["数字",recFmt(r.kind,r.k,r.v)],["前の1位",pv? recFmt(r.kind,r.k,pv.v) : "—"],["更新の幅",pv? diff(r.v,pv.v,d0) : "—"],["前の記録",pv? `${pv.year}年目` : "—"],["年齢",`${p.age}歳`]]};
+}
+
+// --- E:10連勝・10連敗 ---
+function nl2BuildSt(n,t,dir){
+  if(!t || !t.name) return; const nm=t.name, win=dir>0, key=year+"|"+nm+"|"+(nlDay||"")+"|"+(win? "w" : "l");
+  const games=[];
+  const add=(x,date)=>{ const h=x.home===nm, ms=h? x.h : x.a, os=h? x.a : x.h; games.push({date:date||"", opp:h? x.away : x.home, ms, os, h, tie:!!x.isTie || ms===os}); };
+  const r=nlGame; if(r && (r.homeTeam===t || r.awayTeam===t)) add({home:r.homeTeam.name, away:r.awayTeam.name, h:r.hScore, a:r.aScore, isTie:r.isTie}, nlDay);
+  let dec=games.filter(g=>!g.tie).length;
+  for(let i=(allResults||[]).length-1; i>=0 && dec<10; i--){ const x=allResults[i]; if(!x || x.year!==year || (x.home!==nm && x.away!==nm)) continue; add(x, nl2Date(x.date)); if(!games[games.length-1].tie) dec++; }
+  games.reverse();
+  const RS=games.reduce((a,g)=>a+g.ms,0), RA=games.reduce((a,g)=>a+g.os,0), one=games.filter(g=>!g.tie && Math.abs(g.ms-g.os)===1).length, sho=games.filter(g=> win? g.os===0 : g.ms===0).length;
+  let big=0; games.forEach((g,i)=>{ if(Math.abs(g.ms-g.os)>Math.abs(games[big].ms-games[big].os)) big=i; });
+  const rows=games.map(g=>[g.date||"—", g.opp, `${g.ms}-${g.os}`, g.tie? "△" : g.ms>g.os? "○" : "●"]);
+  const B=nl2Book(), prev=B.st.filter(x=>x[1]===nm && x[2]===dir), same=B.st.filter(x=>x[0]===year && x[2]===dir).length, rk=(()=>{ try{ return teamRank(t); }catch(e){ return 0; } })();
+  const lead=[ win? `${nm}が10連勝を飾った。` : `${nm}の連敗が10に伸びた。`,
+    games.length? (win? `この間の10試合で${RS}得点・${RA}失点と、投打がかみ合っている。` : `この間の10試合で${RS}得点・${RA}失点と、苦しい戦いが続く。`) : "",
+    rk? `${mgSub(t)}で、順位は${rk}位。` : ""].join("");
+  const body=[];
+  if(games.length){ const g=games[big]; body.push(win? `いちばん大きな勝ちは、${g.opp}に${g.ms}対${g.os}で勝った試合。` : `いちばん大きな負けは、${g.opp}に${g.ms}対${g.os}で敗れた試合。`); }
+  if(one) body.push(win? `1点差の試合を${one}つ勝ち切った。` : `1点差で落とした試合が${one}つあった。`);
+  if(sho) body.push(win? `完封勝ちは${sho}試合。` : `完封負けは${sho}試合。`);
+  if(games.length) body.push(`1試合の平均は${(RS/games.length).toFixed(1)}得点・${(RA/games.length).toFixed(1)}失点。`);
+  const note=[prev.length? `球団で${prev.length+1}度目の10${win? "連勝" : "連敗"}` : `記録が残る中で球団初の10${win? "連勝" : "連敗"}`];
+  if(same) note.push(`今季のリーグで${same+1}度目`);
+  if(prev.length){ const ly=prev[prev.length-1][0]; if(ly<year) note.push(`${year-ly}年ぶり`); }
+  const q=[["監督", nl2Pick(win? NL2_Q.stw.m : NL2_Q.stl.m, key)]];
+  n.lg={v:1, k:win? "stw" : "stl", lead, body, flow:null, tabs: rows.length? [{t:"この間の試合", h:["日付","相手","スコア","結果"], r:rows, hl:[big]}] : [], note, q, bio:[],
+    facts:[["この間",win? "10勝" : "10敗"],["得点",String(RS)],["失点",String(RA)],["1点差",`${one}試合`],["順位",rk? `${rk}位` : "—"],["成績",mgSub(t)]]};
+  B.st.push([year,nm,dir]);
+}
+
+// --- 談話(言い回しは名前と年と日付で選ぶ) ---
+const NL2_Q={
+  hr3:{s:["3本目は、打った瞬間に入ったと分かりました。今日はバットがよく振れていました。",
+          "ねらっていたわけではありません。甘い球を、迷わず振り抜けました。",
+          "1本目でいい感覚がつかめました。あとは同じスイングを続けるだけでした。",
+          "スタンドの声がすごくて、3本目のあとは足が震えました。"],
+       m:["あれだけ振れていれば、相手も投げる所がない。見事な打撃だった。",
+          "今日は打線の主役だった。この勢いを続けてほしい。",
+          "どの打席も思い切りのいいスイングだった。"]},
+  ps:{s:["一年の最後に、みんなで笑えてよかったです。",
+         "苦しい試合もありましたが、ベンチの全員で勝ち取った頂点です。",
+         "大きな舞台で力を出せたのは、準備をしてきたからだと思います。",
+         "ファンのみなさんの声が力になりました。最高のシーズンでした。"],
+      m:["選手たちを誇りに思う。全員でつかんだ頂点だ。",
+         "長いシーズンの最後に、いちばん強い野球ができた。",
+         "苦しい時期を乗り越えたからこそ、この日がある。"]},
+  ret:{s:["ここまで続けられたのは、支えてくれたみなさんのおかげです。悔いはありません。",
+          "最後まで野球を好きなままでいられました。幸せな選手生活でした。",
+          "思うように動けない日も増えましたが、やり切ったと胸を張って言えます。",
+          "このユニフォームで過ごした日々は、一生の宝物です。"],
+       m:["長い間、本当にお疲れさまと言いたい。チームの支えだった。",
+          "あの背中を見て育った若手がたくさんいる。それがいちばんの財産だ。",
+          "数字以上に、チームに残したものが大きい選手だった。"]},
+  hof:{s:["この場に立てるとは、入団したころは思ってもいませんでした。",
+          "一つ一つの積み重ねです。支えてくれた全員に感謝しています。",
+          "記録よりも、チームが勝つことだけを考えてきました。その結果だと思います。",
+          "ここは通過点です。もっと数字を伸ばしたいと思います。"],
+       m:["球団の歴史に残る選手だ。同じユニフォームで戦えて光栄に思う。",
+          "毎日の準備を欠かさない姿勢が、この数字につながった。",
+          "若い選手たちのいいお手本になってくれている。"]},
+  rec:{s:["記録は意識していませんでしたが、いい区切りになりました。",
+          "先輩たちが残した数字を超えられて、うれしく思います。",
+          "チームのみんなのおかげで、ここまで来られました。",
+          "数字よりも、一試合一試合を大事にしてきた結果です。"],
+       m:["歴史に名前を刻んだ。誇らしく思う。",
+          "シーズンを通して崩れなかったことが、何よりすごい。",
+          "これからも記録を伸ばしていってほしい。"]},
+  stw:{m:["選手たちが一つになっている。この流れを大事にしたい。",
+          "連勝は気にしていない。明日の試合に集中するだけだ。",
+          "誰かが打てなくても、誰かが返してくれる。いい形で戦えている。"]},
+  stl:{m:["苦しいが、下を向いている時間はない。一つ勝てば流れは変わる。",
+          "責任は監督にある。選手たちは必死に戦ってくれている。",
+          "もう一度、基本から見直す。ファンのみなさんには申し訳ない。"]}
+};
+
+// --- 紙面に出す:表(L.tabs)と、歩みの見出し(L.bioT)。文字は全部 esc を通す ---
+function nl2TabsHtml(L){
+  const S=x=>esc(String(x==null? "" : x)), A=a=>Array.isArray(a)? a : [];
+  return A(L.tabs).map(T=>{ if(!T || typeof T!=="object") return ""; const hl=new Set(A(T.hl).map(Number)), rows=A(T.r); if(!rows.length) return "";
+    return `<section class="pSec"><h3 class="pSecTitle">${S(T.t)}</h3><div class="pFlowWrap"><table class="pFlow pTab"><thead><tr>${A(T.h).map((h,i)=>`<th class="${i? "c" : ""}">${S(h)}</th>`).join("")}</tr></thead><tbody>${
+      rows.map((r,i)=>`<tr class="${hl.has(i)? "hit" : ""}">${A(r).map((c,j)=>`<td class="${j? "c" : "pK"}">${S(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div></section>`; }).join("");
+}
+{ const o=nlLongHtml; nlLongHtml=function(L){
+    if(!L || (!Array.isArray(L.tabs) && !L.bioT)) return o.apply(this,arguments);
+    const pre=o.call(this,Object.assign({},L,{note:null,q:null,bio:null})), post=o.call(this,{v:1,note:L.note,q:L.q,bio:L.bio});
+    const p2= L.bioT? post.replace('<h3 class="pSecTitle">選手の歩み</h3>',`<h3 class="pSecTitle">${esc(String(L.bioT))}</h3>`) : post;
+    return pre+nl2TabsHtml(L)+p2; }; }
+
+// --- 英語。もうある訳は上書きしない ---
+(function(){ try{ if(typeof I18N==="undefined" || !I18N.add) return;
+  const P=I18N.pack("en"), o={}, have=k=> P.exact.has(k) || P.pats.some(x=>x[0]===k), put=(k,v)=>{ if(!have(k)) o[k]=v; };
+  Object.entries({
+    "3発":"3 HR","シリーズの流れ(試合ごと)":"The series, game by game","年度別の成績":"Year by year","通算成績":"Career totals","記録の比べ":"Against the old mark","この間の試合":"The run, game by game",
+    "入団からの歩み":"The career so far","MVPの歩み":"The MVP’s road","ポストシーズン初制覇":"First postseason title","殿堂入り選手":"Hall of Famer","予告した最後の年":"Announced farewell season",
+    "自身の記録を更新":"Broke their own mark","リーグの歴代1位を塗り替えた。":"It is a new league record.","この日":"This game","今季本塁打":"HR this season","PS通算":"Postseason","MVP":"MVP",
+    "前の1位":"Old mark","更新の幅":"Margin","前の記録":"Old mark set","この間":"The run","1点差":"One-run games","順位":"Standing","成績":"Record","プロ":"Pro years","10勝":"10–0","10敗":"0–10",
+    "引退を予告して迎えた最後のシーズンを、ユニフォームで締めくくった。":"The announced farewell season was played to the very end.",
+    "長年チームを支えたベテランに、スタンドから惜しみない拍手が送られた。":"The crowd gave the longtime veteran a warm ovation.",
+    "長年の積み重ねに、スタンドから大きな拍手が送られた。":"The crowd saluted years of hard work with a long ovation.",
+    "記録が残る中では、リーグで初めての1試合3本塁打となった。":"It is the first three-homer game in the league’s records."
+  }).forEach(([k,v])=>put(k,v));
+  Object.entries({
+    "1試合{0}本塁打":"{0#} HR in a game","{0}本目":"HR No. {0#}","{0}年目":"Year {0#}","{0}試合":"{0#} {0|game|games}",
+    "{0}、1試合{1}本塁打":"{0} hits {1#} home runs in one game",
+    "{0}の{1}が{2}戦で、1試合{3}本塁打を放った。":"{1} of the {0} hit {3#} home runs against the {2}.",
+    "この日は{0}本塁打{1}打点。打球がスタンドに消えるたびに、球場が大きく沸いた。":"{0#} HR and {1#} RBI. The park roared every time.",
+    "{0}本塁打の{1}":"{1}, {0#} home runs",
+    "{0}の{1}が{2}戦で{3}本の本塁打を放った。":"{1} of the {0} hit {3#} home runs against the {2}.",
+    "{0}戦で、{1}の{2}が1試合{3}本塁打の大暴れを見せた。":"Against the {0}, {2} of the {1} went deep {3#} times.",
+    "{0}、そして{1}回にスタンドへ運んだ。":"The home runs came in the {0}, and the {1o}.",
+    "今季{0}人目の1試合3本塁打となった。":"It is the {0o} three-homer game this season.",
+    "リーグでは{0}年ぶりの1試合3本塁打となった。":"It is the league’s first three-homer game in {0#} {0|year|years}.",
+    "{0}本の本塁打で{1}打点を挙げ、打線を引っ張った。":"{0#} home runs drove in {1#} {1|run|runs} and carried the lineup.",
+    // ポストシーズン
+    "{0}がポストシーズンを勝ち抜き、{1}年目の頂点に立った。":"The {0} won the postseason and are the Year {1#} champions.",
+    "{0}では{1}を{2}勝{3}敗で下した。":"In the {0} they beat the {1}, {2#} games to {3#}.",
+    "{0}は{1}と戦い、{2}勝{3}敗で勝ち上がった。":"In the {0} they beat the {1}, {2#} games to {3#}.",
+    "最後の試合は{0}に{1}対{2}で勝ち、歓喜の輪ができた。":"The clincher was a {1#}-{2#} win over the {0}, and the celebration began.",
+    "最後の試合は{0}に{1}対{2}で決め、歓喜の輪ができた。":"The last game against the {0} ended {1#}-{2#}, and the celebration began.",
+    "ポストシーズンの{0}試合で{1}勝{2}敗、{3}得点・{4}失点。":"In {0#} postseason games: {1#}–{2#}, {3#} runs scored, {4#} allowed.",
+    "1点差の試合は{0}つあった。":"{0#} of them {0|was|were} one-run games.",
+    "レギュラーシーズンは{0}だった。":"The regular-season record was {0}.",
+    "MVPの{0}は{1}。":"MVP {0}: {1}.",
+    "ポストシーズン制覇は通算{0}度目":"Postseason title No. {0#}","{0}年連続の制覇":"{0o} straight title","{0}年ぶりの制覇":"First title in {0#} {0|year|years}","ポストシーズン{0}勝{1}敗":"{0#}–{1#} in the postseason",
+    "{0} 第{1}戦":"{0}, Game {1#}","{0}勝{1}敗":"{0#}–{1#}",
+    // 引退・殿堂入り
+    "{0}の{1}が、ユニフォームを脱ぐ。":"{1} of the {0} is retiring.",
+    "プロ{0}年で、{1}の成績を残した。":"Over {0#} pro {0|season|seasons}: {1}.",
+    "{0}の成績を残した。":"Career line: {0}.",
+    "通算{0}勝{1}敗{2}セーブ、防御率{3}":"{0#}–{1#}, {2#} saves, {3!} ERA","通算{0}勝{1}敗、防御率{2}":"{0#}–{1#}, {2!} ERA",
+    "通算{0}安打、{1}本塁打、打率{2}":"{0#} hits, {1#} HR, {2!} average",
+    "通算{0}{1}は、記録が残る中で歴代{2}位。":"The career total of {0#} {1l} ranks No. {2#} in the league’s records.",
+    "通算{0}{1}は歴代{2}位":"{0#} career {1l}: No. {2#} all-time",
+    "いちばん輝いたのは{0}年目。{1}勝を挙げ、防御率{2}の成績を残した。":"The best year was Year {0#}: {1#} wins and a {2!} ERA.",
+    "いちばん輝いたのは{0}年目。打率{1}、{2}本塁打を記録した。":"The best year was Year {0#}: a {1!} average and {2#} HR.",
+    "最後のシーズンは{0}試合に登板し、{1}勝{2}敗だった。":"The final season: {0#} appearances, {1#}–{2#}.",
+    "最後のシーズンは{0}試合に出場し、打率{1}だった。":"The final season: {0#} games, a {1!} average.",
+    "プロ{0}年":"{0#} pro {0|season|seasons}","プロ{0}年目":"Pro season {0#}",
+    "{0}は{1}出身。{2}。":"{0} is from {1}. {2}.",
+    "高校から入団した":"Turned pro straight out of high school","大学を経て入団した":"Turned pro after college","社会人野球を経て入団した":"Turned pro after corporate-league ball","独立リーグを経て入団した":"Turned pro by way of the independent leagues","{0}は{1}出身。":"{0} is from {1}.","{0}は海外から加わった助っ人。":"{0} joined from overseas.",
+    "{0}年目に1軍の舞台を踏んだ。":"The top-team debut came in Year {0#}.",
+    "{0}と球団を渡り歩いた。":"Career path: {0}.","{0}ひと筋でプレーした。":"A one-club career with the {0}.",
+    "主なタイトルは{0}。":"Major titles: {0}.",
+    "自己最高のシーズンは{0}年目で、{1}勝{2}敗、防御率{3}。":"The best season was Year {0#}: {1#}–{2#}, {3!} ERA.",
+    "自己最高のシーズンは{0}年目で、打率{1}、{2}本塁打、{3}打点。":"The best season was Year {0#}: {1!}, {2#} HR, {3#} RBI.",
+    "{0}年目に{1}でペナント殿堂入りを果たした。":"Entered the Pennant Hall of Fame in Year {0#} ({1}).",
+    "{0}の{1}が{2}を達成し、ペナント殿堂入りを果たした。":"{1} of the {0} reached {2} and entered the Pennant Hall of Fame.",
+    "{0}歳、プロ{1}年目での到達となった。":"It came at age {0#}, in pro season {1#}.",
+    "ここまで通算{0}勝{1}敗{2}セーブ、防御率{3}。":"Career so far: {0#}–{1#}, {2#} saves, {3!} ERA.","ここまで通算{0}勝{1}敗、防御率{2}。":"Career so far: {0#}–{1#}, {2!} ERA.",
+    "ここまで通算{0}安打、{1}本塁打、{2}打点、打率{3}。":"Career so far: {0#} hits, {1#} HR, {2#} RBI, {3!} average.",
+    "今季は{0}勝{1}敗、防御率{2}。":"This season: {0#}–{1#}, {2!} ERA.","今季は打率{0}、{1}本塁打、{2}打点。":"This season: {0!}, {1#} HR, {2#} RBI.",
+    "殿堂入りは球団で{0}人目":"Club Hall of Famer No. {0#}","殿堂入りはリーグで{0}人目":"League Hall of Famer No. {0#}",
+    // 記録
+    "{0}の{1}が、{2}で{3}を記録した。":"{1} of the {0} set a mark of {3} ({2l}).",
+    "{0}の数字となった。":"That makes it {0l}.",
+    "これまでの1位は、{0}年目に{1}({2})が残した{3}だった。":"The old mark was {3}, set by {1} ({2}) in Year {0#}.",
+    "自身の持つ{0}を更新した。":"It beats the player’s own {0}.",
+    "{0}年ぶりの更新で、前の記録を{1}上回った。":"The first new mark in {0#} {0|year|years}, by a margin of {1!}.","前の記録を{0}上回った。":"It beats the old mark by {0!}.",
+    "このゲームの試合数と数字の出かたに直した{0}の記録は{1}。":"Adjusted to this game’s schedule and scoring, the {0} mark is {1}.",
+    "今季は{0}つの記録を手にした。":"{0#} records fell this season.",
+    "{0}の今季は、打率{1}、{2}本塁打、{3}打点。":"{0} this season: {1!}, {2#} HR, {3#} RBI.",
+    "{0}の今季は、{1}勝{2}敗{3}セーブ、防御率{4}。":"{0} this season: {1#}–{2#}, {3#} saves, {4!} ERA.","{0}の今季は、{1}勝{2}敗、防御率{3}。":"{0} this season: {1#}–{2#}, {3!} ERA.",
+    "{0}({1}・{2}年目)":"{0} ({1}, Year {2#})","{0}年ぶりの更新":"First new mark in {0#} {0|year|years}","今季の記録は{0}つ":"{0#} records this season",
+    // 連勝・連敗
+    "{0}が10連勝を飾った。":"The {0} have won 10 straight.","{0}の連敗が10に伸びた。":"The {0} have lost 10 straight.",
+    "この間の10試合で{0}得点・{1}失点と、投打がかみ合っている。":"Over the run: {0#} runs scored, {1#} allowed. Everything is clicking.",
+    "この間の10試合で{0}得点・{1}失点と、苦しい戦いが続く。":"Over the skid: {0#} runs scored, {1#} allowed. The struggle goes on.",
+    "{0}で、順位は{1}位。":"At {0}, they sit {1o}.",
+    "いちばん大きな勝ちは、{0}に{1}対{2}で勝った試合。":"The biggest win: {1#}-{2#} over the {0}.","いちばん大きな負けは、{0}に{1}対{2}で敗れた試合。":"The worst loss: {1#}-{2#} to the {0}.",
+    "1点差の試合を{0}つ勝ち切った。":"{0#} {0|win was a one-run game|wins were one-run games}.","1点差で落とした試合が{0}つあった。":"{0#} {0|loss was|losses were} by one run.",
+    "完封勝ちは{0}試合。":"{0#} {0|shutout win|shutout wins}.","完封負けは{0}試合。":"Shut out {0#} {0|time|times}.",
+    "1試合の平均は{0}得点・{1}失点。":"Per game: {0!} runs scored, {1!} allowed.",
+    "球団で{0}度目の10連勝":"Club’s 10-game win streak No. {0#}","球団で{0}度目の10連敗":"Club’s 10-game losing streak No. {0#}",
+    "記録が残る中で球団初の10連勝":"Club’s first 10-game win streak on record","記録が残る中で球団初の10連敗":"Club’s first 10-game losing streak on record",
+    "今季のリーグで{0}度目":"No. {0#} in the league this season","{0}年ぶり":"First in {0#} {0|year|years}"
+  }).forEach(([k,v])=>put(k,v));
+  // 談話
+  Object.entries({
+    "3本目は、打った瞬間に入ったと分かりました。今日はバットがよく振れていました。":"I knew the third one was gone off the bat. The swing felt great today.",
+    "ねらっていたわけではありません。甘い球を、迷わず振り抜けました。":"I was not trying for it. I just did not miss the mistakes.",
+    "1本目でいい感覚がつかめました。あとは同じスイングを続けるだけでした。":"The first one gave me the feel. After that I kept the same swing.",
+    "スタンドの声がすごくて、3本目のあとは足が震えました。":"The crowd was so loud that my legs were shaking after the third.",
+    "あれだけ振れていれば、相手も投げる所がない。見事な打撃だった。":"Swinging like that, there was nowhere to pitch. Outstanding hitting.",
+    "今日は打線の主役だった。この勢いを続けてほしい。":"The star of the lineup today. Keep it going.",
+    "どの打席も思い切りのいいスイングだった。":"Every at-bat was a full, fearless swing.",
+    "一年の最後に、みんなで笑えてよかったです。":"I am so glad we all got to end the year smiling.",
+    "苦しい試合もありましたが、ベンチの全員で勝ち取った頂点です。":"There were tough games, but the whole bench won this together.",
+    "大きな舞台で力を出せたのは、準備をしてきたからだと思います。":"Coming through on the big stage came from the preparation.",
+    "ファンのみなさんの声が力になりました。最高のシーズンでした。":"The fans gave us strength. What a season.",
+    "選手たちを誇りに思う。全員でつかんだ頂点だ。":"I am proud of the players. Everyone earned this title.",
+    "長いシーズンの最後に、いちばん強い野球ができた。":"At the end of a long season, we played our best baseball.",
+    "苦しい時期を乗り越えたからこそ、この日がある。":"We got through the hard stretch, and that is why this day came.",
+    "ここまで続けられたのは、支えてくれたみなさんのおかげです。悔いはありません。":"I lasted this long thanks to everyone who supported me. No regrets.",
+    "最後まで野球を好きなままでいられました。幸せな選手生活でした。":"I loved the game to the very end. It was a happy career.",
+    "思うように動けない日も増えましたが、やり切ったと胸を張って言えます。":"The body did not always cooperate lately, but I can say I gave it everything.",
+    "このユニフォームで過ごした日々は、一生の宝物です。":"My days in this uniform will always be a treasure.",
+    "長い間、本当にお疲れさまと言いたい。チームの支えだった。":"Thank you for all those years. A pillar of this team.",
+    "あの背中を見て育った若手がたくさんいる。それがいちばんの財産だ。":"So many young players grew up watching that example. That is the real legacy.",
+    "数字以上に、チームに残したものが大きい選手だった。":"What this player gave the team was even bigger than the numbers.",
+    "この場に立てるとは、入団したころは思ってもいませんでした。":"When I turned pro, I never imagined standing here.",
+    "一つ一つの積み重ねです。支えてくれた全員に感謝しています。":"It was built one day at a time. Thank you to everyone who helped.",
+    "記録よりも、チームが勝つことだけを考えてきました。その結果だと思います。":"I only ever thought about winning, not records. This is what came of it.",
+    "ここは通過点です。もっと数字を伸ばしたいと思います。":"This is just a milestone. I want to keep adding to it.",
+    "球団の歴史に残る選手だ。同じユニフォームで戦えて光栄に思う。":"A player for the club’s history books. An honor to share the uniform.",
+    "毎日の準備を欠かさない姿勢が、この数字につながった。":"Never skipping the daily work is what built these numbers.",
+    "若い選手たちのいいお手本になってくれている。":"A great example for the young players.",
+    "記録は意識していませんでしたが、いい区切りになりました。":"I was not thinking about the record, but it is a nice milestone.",
+    "先輩たちが残した数字を超えられて、うれしく思います。":"I am happy to pass the numbers the greats left behind.",
+    "チームのみんなのおかげで、ここまで来られました。":"I got here thanks to everyone on the team.",
+    "数字よりも、一試合一試合を大事にしてきた結果です。":"I focused on each game, not the numbers. This is the result.",
+    "歴史に名前を刻んだ。誇らしく思う。":"A name in the history books. I am proud.",
+    "シーズンを通して崩れなかったことが、何よりすごい。":"Staying strong for the whole season is the most impressive part.",
+    "これからも記録を伸ばしていってほしい。":"I hope the records keep coming.",
+    "選手たちが一つになっている。この流れを大事にしたい。":"The players are as one. We want to keep this going.",
+    "連勝は気にしていない。明日の試合に集中するだけだ。":"We are not thinking about the streak. Just tomorrow’s game.",
+    "誰かが打てなくても、誰かが返してくれる。いい形で戦えている。":"When one bat goes quiet, another picks it up. We are playing the right way.",
+    "苦しいが、下を向いている時間はない。一つ勝てば流れは変わる。":"It is hard, but there is no time to hang our heads. One win changes everything.",
+    "責任は監督にある。選手たちは必死に戦ってくれている。":"The responsibility is mine. The players are fighting hard.",
+    "もう一度、基本から見直す。ファンのみなさんには申し訳ない。":"We will go back to basics. I am sorry to our fans."
+  }).forEach(([k,v])=>put(k,v));
+  // 通算の単位ごとの文(「安打」だけを訳すと H になるため)
+  [["安打","hits"],["本塁打","home runs"],["打点","RBI"],["勝","wins"],["セーブ","saves"],["奪三振","strikeouts"]].forEach(([u,e])=>{
+    put(`通算{0}${u}は、記録が残る中で歴代{1}位。`,`The career total of {0#} ${e} ranks No. {1#} in the league’s records.`);
+    put(`通算{0}${u}は歴代{1}位`,`{0#} career ${e}: No. {1#} all-time`); });
+  I18N.add("en",o);
+  I18N.ctx("en",".pTab th",{"年":"Year","試合":"G","登板":"G","打率":"AVG","本塁打":"HR","打点":"RBI","勝敗":"W-L","セーブ":"SV","防御率":"ERA","項目":"Stat","通算":"Career","歴代":"All-time",
+    "相手":"Opponent","スコア":"Score","結果":"Result","日付":"Date","記録":"Record","今回":"New","前の1位":"Old mark","印":"Level"});
+  I18N.ctx("en",".pTab td.pK",{"試合":"Games","安打":"Hits","本塁打":"Home runs","打点":"RBI","盗塁":"Steals","四球":"Walks","打率":"Average","登板":"Appearances","勝利":"Wins","敗戦":"Losses","セーブ":"Saves","ホールド":"Holds","奪三振":"Strikeouts","投球回":"Innings","防御率":"ERA"});
 }catch(e){} })();
 
 let csMode="champ";
